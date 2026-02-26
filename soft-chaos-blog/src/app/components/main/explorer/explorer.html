@@ -1,0 +1,51 @@
+<div class="explorer">
+  <div class="presentation">
+    <h1 class="main-title">EXPLORAR <span>CHAOS</span></h1>
+
+    <div class="line-divider"></div>
+
+    <a class="main-btn" [routerLink]="['/explorar']">VER TUDO</a>
+  </div>
+
+  @if (firstCardNews || secCardNews || thirdCardNews) {
+    <div class="cards-container">
+      <a  [routerLink]="['/noticia/', firstCardNews?.slug]">
+        <div class="card">
+          <div class="img-box">
+            <img [src]="firstCardNews?.imageURL" alt="" class="img" />
+          </div>
+
+          <h1 class="card-title">{{ firstCardNews?.title }}</h1>
+          
+          <p class="card-desc">{{ firstCardNews?.description }}</p>
+        </div>
+      </a>
+
+      <a  [routerLink]="['/noticia/', secCardNews?.slug]">
+        <div class="card">
+          <div class="img-box">
+            <img [src]="secCardNews?.imageURL" alt="" class="img" />
+          </div>
+          <h1 class="card-title">{{ secCardNews?.title }}</h1>
+          <p class="card-desc">{{ secCardNews?.description }}</p>
+        </div>
+      </a>
+
+      <a  [routerLink]="['/noticia/', thirdCardNews?.slug]">
+        <div id="third-card" class="card">
+          <div class="img-box">
+            <img [src]="thirdCardNews?.imageURL" alt="" class="img" />
+          </div>
+          <h1 class="card-title">{{ thirdCardNews?.title }}</h1>
+          <p class="card-desc">{{ thirdCardNews?.description }}</p>
+        </div>
+      </a>
+    </div>
+  }
+
+  @else {
+    <div class="no-news">
+        <p>Nenhuma notícia disponível no momento.</p>
+    </div>
+  }
+</div>

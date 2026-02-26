@@ -1,0 +1,41 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+:root {
+    --pink: #E889BA;
+    --red: #D8241D;
+    --green: #89B61E;
+    --black: #000;
+    --white: #FAFAFA;
+    --gray: #e8e8e8;
+    --darkgray: #8b8b8b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+    outline: none;
+    border: none;
+    list-style: none;
+    text-decoration: none;
+    box-sizing: border-box;
+}   
+
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+    background-color: var(--white);
+    scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    background-color: var(--white);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--pink);
+    border-radius: 10px;
+}
+

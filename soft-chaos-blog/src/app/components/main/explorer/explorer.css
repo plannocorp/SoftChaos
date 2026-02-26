@@ -1,0 +1,183 @@
+.explorer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    width: 60vw;
+    padding: 0 20px;
+    position: relative;
+}
+
+.explorer .presentation {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.explorer .presentation .main-title {
+    font-family: 'Lora';
+    letter-spacing: 1px;
+    font-size: 40px;
+}
+
+.explorer .presentation .main-title span {
+    font-family: 'Lora';
+    color: var(--green);
+}
+
+.explorer .presentation .line-divider {
+    width: 55%;
+    background-color: var(--black);
+    height: 2px;
+}
+
+.explorer .presentation .main-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    height: 30px;
+    width: 100px;
+    background-color: var(--red);
+    color: var(--white);
+    border-radius: 30px;
+    letter-spacing: 1px;
+}
+
+
+
+
+
+.no-news {
+    font-size: 20px;
+    height: 30vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+
+
+.explorer .cards-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.explorer .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    gap: 20px;
+    height: 450px;
+    width: 350px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    padding-top: 25px;
+    cursor: pointer;
+    transition: all 0.6s ease;
+}
+
+.explorer .card:hover {
+    transform: translateY(-8px);
+}
+
+.explorer .card .img-box {
+    width: 85%;
+    height: 200px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.explorer .card .img-box .img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.explorer .card .card-title {
+    font-size: 22px;
+    font-family: 'Lora';
+    width: 85%;
+    text-align: justify;
+    color: var(--black);
+}
+
+.explorer .card .card-desc {
+    font-size: 14px;
+    text-align: justify;
+    width: 85%;
+    color: var(--black);
+}
+
+@media screen and (max-width: 1600px) and (min-width: 1401px) {
+    .explorer .presentation .main-title {
+        font-size: 28px;
+    }
+
+    .explorer .cards-container .card {
+        width: 300px;
+    }
+}
+
+@media screen and (max-width: 1400px) and (min-width: 769px) {
+    .explorer {
+        width: 90vw;
+    }
+
+    .explorer .presentation .main-title {
+        font-size: 24px;
+    }
+
+    .explorer .presentation .line-divider {
+        width: 50%;
+    }
+
+    .explorer .cards-container {
+        justify-content: space-around;
+    }
+
+    .explorer .cards-container #third-card {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .explorer {
+        width: 90vw;
+    }
+
+    .explorer .presentation .main-title {
+        font-size: 18px;
+    }
+
+    .explorer .presentation .line-divider {
+        display: none;
+    }
+
+    .explorer .cards-container {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .explorer .cards-container .card {
+        width: 325px;
+    }
+
+    .explorer .cards-container #third-card {
+        display: flex;
+    }
+}

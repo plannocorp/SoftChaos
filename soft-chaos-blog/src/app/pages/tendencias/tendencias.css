@@ -1,0 +1,138 @@
+.tendencias {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 50px auto 0;
+}
+
+.tendencias .main-title {
+    font-size: 50px;
+    font-family: 'Lora';
+    color: var(--red);
+}
+
+.tendencias .main-content {
+    margin: 50px auto 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 70%;
+}
+
+.tendencias .main-content a {
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tendencias .main-content .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    height: 50vh;
+    width: 100%;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.6s ease;
+    padding: 30px 0;
+    gap: 20px;
+}
+
+.tendencias .main-content .card:hover {
+    background-color: var(--gray);
+}
+
+.tendencias .main-content .card .img-box {
+    width: 70%;
+    height: auto;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.tendencias .main-content .card img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.tendencias .main-content .card .text-box {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.tendencias .main-content .card .card-title {
+    font-size: 25px;
+    font-family: 'Lora';
+    text-align: center;
+    color: var(--black);
+}
+
+.tendencias .main-content .card .card-desc {
+    font-size: 14px;
+    text-align: justify;
+    color: var(--black);
+}
+
+.tendencias .no-news {
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tendencias .no-news p {
+    font-size: 18px;
+}
+
+@media screen and (max-width: 1200px) {
+    .tendencias .main-title {
+        font-size: 35px;
+    }
+
+    .tendencias .main-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .tendencias .main-content .card {
+        flex-direction: column;
+        width: 90%;
+        gap: 20px;
+    }
+
+    .tendencias .main-content .card .img-box {
+        width: 90%;
+    }
+
+    .tendencias .main-content .card .text-box {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: center;
+        width: 80%;
+        gap: 15px;
+    }
+
+    .tendencias .main-content .card .text-box .card-title {
+        font-size: 24px;
+    }
+
+    .tendencias .main-content .card .text-box .card-desc {
+        font-size: 14px;
+    }
+}

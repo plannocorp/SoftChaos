@@ -1,0 +1,39 @@
+<app-header />
+
+<div class="news-page">
+    @if (news) {
+        <div class="news-header">
+            <div class="img-box">
+                <img [src]="news.imageURL" [alt]="news.title" class="main-img">
+            </div>
+
+            <h1 class="main-title">{{ news?.title }}</h1>
+
+            <p class="main-desc">{{ news?.description }}</p>
+
+            <p class="author-desc"><span>Autor:</span> {{ news?.author }}</p>
+
+            <p class="publish-at">{{ news?.publishAt }}</p>
+        </div>
+
+        <div class="line-divider"></div>
+
+        <div class="news-content">
+            <p class="content">{{ news?.content }}</p>
+        </div>
+    }
+
+    @else {
+        <div class="no-news">
+            <h1 class="error-404">
+                <span class="green-number">4</span>
+                <span class="pink-number">0</span>
+                <span class="red-number">4</span>
+            </h1>
+
+            <p>Essa página de notícias não existe...</p>
+        </div>
+    }
+</div>
+
+<app-footer />

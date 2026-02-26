@@ -1,0 +1,33 @@
+<app-header />
+
+<div class="dicas">
+    <h1 class="main-title">DICAS</h1>
+
+    <div class="main-content">
+        @if (newsDicas) {
+            @for (news of newsDicas; track news.id) {
+                <a [routerLink]="['/noticia/', news.slug]">
+                    <div class="card">
+                        <div class="img-box">
+                            <img [src]="news.imageURL" [alt]="news.title">
+                        </div>
+                        
+                        <div class="text-box">
+                            <h1 class="card-title">{{ news.title }}</h1>
+
+                            <p class="card-desc">{{ news.description }}</p>
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+
+        @else {
+            <div class="no-news">
+                <p>Nenhuma notícia no momento...</p>
+            </div>
+        }
+    </div>
+</div>
+
+<app-footer />

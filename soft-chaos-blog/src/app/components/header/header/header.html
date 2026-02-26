@@ -1,0 +1,34 @@
+<header>
+    <div class="logo-container">
+        <a [routerLink]="['']"><img src="/images/Logo.png" alt="HeaderLogo"></a>
+
+        <h1 class="logo-title">SOFT CHAOS</h1>
+
+        <nav>
+            <li>
+                <a [routerLink]="['/novidades']">NOVIDADES</a>
+                <a [routerLink]="['/tendencias']">TENDÊNCIAS</a>
+                <a [routerLink]="['/dicas']">DICAS</a>
+                <a [routerLink]="['/bastidores']">BASTIDORES</a>
+                <a [routerLink]="['/opiniao']">OPINIÃO</a>
+            </li>
+        </nav>
+    </div>
+
+    <div class="search-container">
+        <div class="search-input-container">
+            <i class="fas fa-search search-icon"></i>
+
+            <input 
+                type="text" 
+                maxlength="100"
+                name="Search Input" 
+                id="search-input"
+                class="search-input"
+                placeholder="Buscar..."
+            >
+        </div>
+
+        <button>ASSINAR</button>
+    </div>
+</header>

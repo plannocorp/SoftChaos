@@ -1,0 +1,160 @@
+.explorar-chaos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 50px auto 0;
+}
+
+.explorar-chaos .main-title {
+    font-size: 50px;
+    font-family: 'Lora';
+    color: var(--black);
+}
+
+.explorar-chaos .main-title span {
+    color: var(--green);
+    font-family: 'Lora';
+    font-size: 50px;
+}
+
+.card-container {
+    margin: 50px auto 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 70%;
+}
+
+.card-container a {
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-container .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    height: 50vh;
+    width: 100%;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.6s ease;
+    padding: 30px 0;
+    gap: 20px;
+}
+
+.card-container .card:hover {
+    background-color: var(--gray);
+}
+
+.card-container .card .img-box {
+    width: 70%;
+    height: auto;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.card-container .card img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.card-container .card .text-box {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.card-container .card .card-title {
+    font-size: 25px;
+    font-family: 'Lora';
+    text-align: center;
+    color: var(--black);
+}
+
+.card-container .card .card-desc {
+    font-size: 14px;
+    text-align: justify;
+    color: var(--black);
+}
+
+.card-container .card .card-btn {
+    position: absolute;
+    top: 86.5%;
+    background-color: var(--red);
+    height: 30px;
+    width: 125px;
+    border-radius: 30px;
+    color: var(--white);
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.no-news {
+    font-size: 20px;
+    height: 40vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+@media screen and (max-width: 1200px) {
+    .explorar-chaos .main-title,
+    .explorar-chaos .main-title span {
+        font-size: 35px;
+    }
+
+    .explorar-chaos .main-desc {
+        font-size: 14px;
+        text-align: center;
+        width: 90%;
+    }
+
+    .card-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-container .card {
+        flex-direction: column;
+        width: 90%;
+        gap: 20px;
+    }
+
+    .card-container .card .img-box {
+        width: 90%;
+    }
+
+    .card-container .card .text-box {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: center;
+        width: 80%;
+        gap: 15px;
+    }
+
+    .card-container .card .text-box .card-title {
+        font-size: 24px;
+    }
+
+    .card-container .card .text-box .card-desc {
+        font-size: 14px;
+    }
+}

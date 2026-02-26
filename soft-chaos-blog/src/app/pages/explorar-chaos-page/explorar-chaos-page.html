@@ -1,0 +1,35 @@
+<app-header />
+
+<div class="explorar-chaos">
+    <h1 class="main-title">EXPLORAR <span>CHAOS</span></h1>
+
+    <p class="main-desc">Aqui você pode explorar todas as notícias que já foram publicadas no blog Soft Chaos. Divirta-se!</p>
+
+    <div class="card-container">
+        @if (existentNews && existentNews.length > 0) {
+            @for (news of existentNews; track news.id) {
+                <a [routerLink]="['/noticia/', news.slug]">
+                    <div class="card">
+                        <div class="img-box">
+                            <img [src]="news.imageURL" [alt]="news.title">
+                        </div>
+                        
+                        <div class="text-box">
+                            <h1 class="card-title">{{ news.title }}</h1>
+
+                            <p class="card-desc">{{ news.description }}</p>
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+
+        @else {
+            <div class="no-news">
+                <p>Nenhuma notícia disponível no momento...</p>
+            </div>
+        }
+    </div>
+</div>
+
+<app-footer />

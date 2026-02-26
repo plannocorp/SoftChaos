@@ -1,0 +1,33 @@
+<app-header />
+
+<div class="opiniao">
+    <h1 class="main-title">OPINIÃO</h1>
+
+    <div class="main-content">
+        @if (newsOpiniao) {
+            @for (news of newsOpiniao; track news.id) {
+                <a [routerLink]="['/noticia/', news.slug]">
+                    <div class="card">
+                        <div class="img-box">
+                            <img [src]="news.imageURL" [alt]="news.title">
+                        </div>
+                        
+                        <div class="text-box">
+                            <h1 class="card-title">{{ news.title }}</h1>
+
+                            <p class="card-desc">{{ news.description }}</p>
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+
+        @else {
+            <div class="no-news">
+                <p>Nenhuma notícia até o momento...</p>
+            </div>
+        }
+    </div>
+</div>
+
+<app-footer />
