@@ -20,12 +20,17 @@
             <i class="fas fa-search search-icon"></i>
 
             <input 
-                type="text" 
+                type="search" 
                 maxlength="100"
-                name="Search Input" 
+                name="q" 
                 id="search-input"
                 class="search-input"
                 placeholder="Buscar..."
+                [(ngModel)]="searchTerm"
+                (input)="onSearchInput()"
+                #searchInput
+                aria-label="Buscar no blog"
+                (keyup.enter)="onSearch()"
             >
         </div>
 

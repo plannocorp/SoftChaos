@@ -1,0 +1,57 @@
+<app-header />
+
+<div class="search-page">
+  <div class="search-header">
+    <h1 class="main-title">Resultados para "{{ searchTerm }}"</h1>
+
+    <a [routerLink]="['/']" class="back-link">← Voltar ao blog</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading-container">
+      <p>Carregando resultados...</p>
+    </div>
+  }
+
+  @if (!loading && resultados.length === 0) {
+    <div class="no-results">
+      <h1 class="error-404">
+        <span class="green-number">4</span>
+        <span class="pink-number">0</span>
+        <span class="red-number">4</span>
+      </h1>
+
+      <p>Nenhuma notícia encontrada para "<strong>{{ searchTerm }}</strong>"</p>
+    </div>
+  }
+
+  @if (!loading && resultados.length > 0) {
+    <div class="results-grid">
+      @for (noticia of resultados; track noticia.id) {
+        <article class="news-card">
+          <div class="img-box">
+            <img [src]="noticia.imageURL" [alt]="noticia.title" class="card-img">
+          </div>
+          
+          <div class="card-content">
+            <h2 class="card-title">{{ noticia.title }}</h2>
+
+            <p class="card-desc">{{ noticia.description }}</p>
+
+            <div class="card-meta">
+              <span class="type-badge">{{ noticia.type }}</span>
+
+              <span class="author">por {{ noticia.author }}</span>
+
+              <span class="publish-date">{{ noticia.publishAt | date:'dd/MM/yy' }}</span>
+            </div>
+
+            <a [routerLink]="['/noticia', noticia.slug]" class="read-more">Ler notícia completa</a>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>
+
+<app-footer />

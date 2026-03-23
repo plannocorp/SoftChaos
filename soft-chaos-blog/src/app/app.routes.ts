@@ -8,6 +8,7 @@ import { Tendencias } from './pages/tendencias/tendencias';
 import { Dicas } from './pages/dicas/dicas';
 import { Bastidores } from './pages/bastidores/bastidores';
 import { Opiniao } from './pages/opiniao/opiniao';
+import { SearchPages } from './pages/search-pages/search-pages';
 
 export const routes: Routes = [
     {
@@ -56,6 +57,12 @@ export const routes: Routes = [
         path: 'opiniao',
         component: Opiniao,
         title: 'Soft Chaos | Opinião'
+    },
+
+    {
+        path: 'busca',
+        component: SearchPages,
+        title: 'Soft Chaos | Busca'
     },
 
     {

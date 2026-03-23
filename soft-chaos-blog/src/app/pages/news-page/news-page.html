@@ -7,19 +7,19 @@
                 <img [src]="news.imageURL" [alt]="news.title" class="main-img">
             </div>
 
-            <h1 class="main-title">{{ news?.title }}</h1>
+            <h1 class="main-title">{{ news.title }}</h1>
 
-            <p class="main-desc">{{ news?.description }}</p>
+            <p class="main-desc">{{ news.description }}</p>
 
-            <p class="author-desc"><span>Autor:</span> {{ news?.author }}</p>
+            <p class="author-desc"><span>Autor:</span> {{ news.author }}</p>
 
-            <p class="publish-at">{{ news?.publishAt }}</p>
+            <p class="publish-at">{{ news.publishAt }}</p>
         </div>
 
         <div class="line-divider"></div>
 
         <div class="news-content">
-            <p class="content">{{ news?.content }}</p>
+            <p class="content">{{ news.content }}</p>
         </div>
     }
 
