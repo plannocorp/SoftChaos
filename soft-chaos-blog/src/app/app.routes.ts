@@ -9,6 +9,7 @@ import { Dicas } from './pages/dicas/dicas';
 import { Bastidores } from './pages/bastidores/bastidores';
 import { Opiniao } from './pages/opiniao/opiniao';
 import { SearchPages } from './pages/search-pages/search-pages';
+import { Auth } from './pages/adm/auth/auth';
 
 export const routes: Routes = [
     {
@@ -63,6 +64,12 @@ export const routes: Routes = [
         path: 'busca',
         component: SearchPages,
         title: 'Soft Chaos | Busca'
+    },
+
+    {
+        path: 'security/adimin-auth',
+        component: Auth,
+        title: 'Soft Chaos | Admimin Auth'
     },
 
     {
