@@ -14,4 +14,5 @@ export interface News {
     firstImageUrl?: string;
     secondImageUrl?: string;
     thirdImageUrl?: string;
+    tag?: string;
 }

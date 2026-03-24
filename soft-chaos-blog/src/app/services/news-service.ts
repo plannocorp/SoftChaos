@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { News } from '../models/news';
 import { MOCK_NEWS } from '../data/mock-news';
 import { __param } from 'tslib';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -60,5 +61,35 @@ export class NewsService {
     const allNews = [...MOCK_NEWS];
 
     return allNews.filter(news => news.type === type);
+  }
+
+  public getTodayNews(): News[] {
+    const today = new Date();
+    return MOCK_NEWS.filter(news => {
+      const pub = new Date(news.publishAt);
+      return (
+        pub.getDate() === today.getDate() &&
+        pub.getMonth() === today.getMonth() &&
+        pub.getFullYear() === today.getFullYear()
+      );
+    });
+  }
+ 
+  public getStats() {
+    const all = MOCK_NEWS;
+    return {
+      totalArticles: all.length,
+      newToday: this.getTodayNews().length,
+    };
+  }
+ 
+  private getAllSorted(): News[] {
+    return [...MOCK_NEWS].sort(
+      (a, b) => b.publishAt.getTime() - a.publishAt.getTime()
+    );
+  }
+
+  public getRecentNews(limit: number = 5): News[] {
+    return this.getAllSorted().slice(0, limit);
   }
 }
