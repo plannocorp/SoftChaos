@@ -1,0 +1,188 @@
+/* ===== OVERVIEW ===== */
+.overview {
+    padding: 0 0 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ===== STAT CARDS ===== */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: 28px 20px;
+    border-radius: 15px;
+    text-align: center;
+    border-top: 4px solid var(--pink);
+    transition: transform 0.25s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card h3 {
+    color: var(--darkgray);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.stat-card .number {
+    display: block;
+    font-family: 'Montserrat', serif;
+    font-size: 60px;
+    font-weight: 700;
+    color: var(--pink);
+    line-height: 1;
+}
+
+/* ===== ARTIGOS RECENTES ===== */
+.recent-articles {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 30px 28px;
+}
+
+.recent-articles h2 {
+    font-family: 'Lora', serif;
+    font-size: 1.8rem;
+    color: var(--black);
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 3px solid var(--pink);
+    width: fit-content;
+}
+
+/* ===== ARTICLE GRID ===== */
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* ===== ARTICLE CARD ===== */
+.article-card {
+    background: var(--white);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--gray);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+}
+
+.article-card:hover {
+    transform: translateY(-6px);
+}
+
+.article-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.article-card > div {
+    padding: 18px 20px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.article-card h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.type {
+    display: inline-block;
+    align-self: flex-start;
+    background: var(--pink);
+    color: var(--white);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.date {
+    color: var(--darkgray);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.actions {
+    margin-top: auto;
+    padding-top: 14px;
+    display: flex;
+    gap: 10px;
+}
+
+.actions button {
+    flex: 1;
+    padding: 9px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--green);
+    color: var(--white);
+    transition: opacity 0.2s ease;
+    letter-spacing: 0.3px;
+}
+
+.actions button:hover {
+    opacity: 0.85;
+}
+
+.actions button.delete {
+    background: var(--red);
+}
+
+/* ===== RESPONSIVO ===== */
+@media screen and (max-width: 768px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .stat-card .number {
+        font-size: 2.2rem;
+    }
+
+    .articles-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recent-articles {
+        padding: 22px 18px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .recent-articles h2 {
+        font-size: 1.4rem;
+    }
+}

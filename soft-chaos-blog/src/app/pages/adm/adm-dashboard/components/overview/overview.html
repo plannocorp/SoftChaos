@@ -1,0 +1,47 @@
+<section class="overview">
+
+  <section class="stats">
+    <div class="stat-card">
+      <h3>Total Artigos</h3>
+
+      <span class="number">{{ stats.totalArticles }}</span>
+    </div>
+
+    <div class="stat-card">
+      <h3>Novos Hoje</h3>
+
+      <span class="number">{{ stats.newToday }}</span>
+    </div>
+  </section>
+
+  <section class="recent-articles">
+    <h2>Artigos Recentes</h2>
+
+    <div class="articles-grid">
+      @for (article of recentArticles; track article.id) {
+        <div class="article-card">
+          <img [src]="article.imageURL" [alt]="article.title">
+
+          <div>
+            <h4>{{ article.title }}</h4>
+
+            <span class="type">{{ article.type }}</span>
+
+            <span class="date">{{ article.publishAt | date:'short' }}</span>
+
+            <div class="actions">
+              <button>Editar</button>
+
+              <button class="delete" (click)="deleteArticle(article.id)">Excluir</button>
+            </div>
+          </div>
+        </div>
+      } 
+      
+      @empty {
+        <p class="no-articles">Nenhum artigo encontrado.</p>
+      }
+    </div>
+  </section>
+
+</section>

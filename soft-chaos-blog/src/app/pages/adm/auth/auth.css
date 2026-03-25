@@ -28,6 +28,14 @@
     scale: 1.1;
 }
 
+.auth-box form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
 .auth-box input {
     width: 275px;
     height: 50px;
@@ -77,4 +85,23 @@
     border: solid 2px var(--red);
     background-color: var(--white);
     color: var(--red);
+}
+
+.error-message {
+  color: var(--red);
+  background: rgba(255,0,0,0.1);
+  padding: 10px;
+  border-radius: 5px;
+  width: 275px;
+  text-align: center;
+}
+
+.register-link {
+  color: var(--pink);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-link:hover {
+  text-decoration: underline;
 }

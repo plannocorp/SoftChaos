@@ -1,0 +1,130 @@
+<section class="create-article">
+  <section class="form-header">
+    <div class="header-content">
+      <h2>Novo Artigo</h2>
+      <p>Preencha os campos abaixo para criar um novo artigo</p>
+    </div>
+    
+    <div class="form-actions">
+      <button 
+        type="button" 
+        class="btn-secondary" 
+        routerLink="/security/adimin-dashboard/overview">
+        Cancelar
+      </button>
+
+      <button 
+        type="submit" 
+        class="btn-primary"
+        form="articleForm"
+        [disabled]="loading">
+        {{ loading ? 'Salvando...' : 'Publicar Artigo' }}
+      </button>
+    </div>
+  </section>
+
+  @if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  }
+
+  <form id="articleForm" (ngSubmit)="saveArticle()" class="article-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="title">Título do Artigo *</label>
+
+        <input 
+          id="title"
+          type="text" 
+          name="title"
+          [(ngModel)]="article.title"
+          placeholder="Digite o título do artigo"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="type">Tipo *</label>
+
+        <select 
+          id="type"
+          name="type"
+          [(ngModel)]="article.type"
+          required>
+          <option value="" disabled>Selecione o tipo</option>
+          <option value="NOVIDADES">Novidades</option>
+          <option value="TENDÊNCIAS">Tendências</option>
+          <option value="DICAS">Dicas</option>
+          <option value="BASTIDORES">Bastidores</option>
+          <option value="OPINIÃO">Opinião</option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label for="description">Descrição</label>
+
+        <textarea 
+          id="description"
+          name="description"
+          [(ngModel)]="article.description"
+          placeholder="Descrição curta do artigo (aparece nas prévias)"
+          rows="3">
+        </textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="author">Autor *</label>
+
+        <input 
+          id="author"
+          type="text"
+          name="author"
+          [(ngModel)]="article.author"
+          placeholder="Nome do autor"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="publishAt">Data de Publicação</label>
+
+        <input 
+          id="publishAt"
+          type="datetime-local"
+          name="publishAt"
+          [(ngModel)]="publishAtString"
+          [min]="minDate">
+      </div>
+
+      <div class="form-group full">
+        <label for="image">Imagem Principal</label>
+
+        <input 
+          id="image"
+          type="file"
+          name="image"
+          (change)="onImageChange($event)"
+          accept="image/*">
+
+        @if (previewImage) {
+          <div class="image-preview">
+            <img [src]="previewImage" [alt]="article.title">
+            <button type="button" (click)="clearImage()">Remover</button>
+          </div>
+        }
+      </div>
+
+      <div class="form-group full">
+        <label for="content">Conteúdo *</label>
+
+        <textarea 
+          id="content"
+          name="content"
+          [(ngModel)]="article.content"
+          placeholder="Escreva o conteúdo completo do artigo..."
+          rows="15"
+          required>
+        </textarea>
+      </div>
+    </div>
+  </form>
+</section>

@@ -1,13 +1,36 @@
 <section class="auth-container">
-    <article class="auth-box">
-        <a [routerLink]="['/']">
-            <img src="/images/Logo.png" alt="" class="logo">
-        </a>
-        
-        <input type="text" name="Email" placeholder="Email" id="" class="email">
-        
-        <input type="password" name="Senha" placeholder="Senha" id="" class="senha">
-        
-        <button type="button" class="btn">Entrar</button>
-    </article>
+  <article class="auth-box">
+    <a [routerLink]="['/']">
+      <img src="/images/Logo.png" alt="SoftChaos Logo" class="logo">
+    </a>
+    
+    @if (error) {
+      <div class="error-message">{{ error }}</div>
+    }
+    
+    <form (ngSubmit)="login()">
+      <input 
+        type="email" 
+        name="email" 
+        placeholder="Email" 
+        class="email"
+        [(ngModel)]="email"
+        required>
+      
+      <input 
+        type="password" 
+        name="senha" 
+        placeholder="Senha" 
+        class="senha"
+        [(ngModel)]="password"
+        required>
+      
+      <button 
+        type="submit" 
+        class="btn"
+        [disabled]="loading">
+        {{ loading ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+  </article>
 </section>
