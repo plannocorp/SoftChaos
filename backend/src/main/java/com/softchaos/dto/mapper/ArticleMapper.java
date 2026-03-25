@@ -16,7 +16,6 @@ public class ArticleMapper {
 
     private final UserMapper userMapper;
     private final CategoryMapper categoryMapper;
-    private final TagMapper tagMapper;
     private final MediaMapper mediaMapper;
 
     public ArticleResponse toResponse(Article article, Long commentsCount) {
@@ -29,9 +28,6 @@ public class ArticleMapper {
                 .coverImageUrl(article.getCoverImageUrl())
                 .author(userMapper.toSummaryResponse(article.getAuthor()))
                 .category(categoryMapper.toResponse(article.getCategory(), null))
-                .tags(article.getTags().stream()
-                        .map(tag -> tagMapper.toResponse(tag, null))
-                        .collect(Collectors.toSet()))
                 .mediaFiles(article.getMediaFiles().stream()
                         .map(mediaMapper::toResponse)
                         .collect(Collectors.toSet()))

@@ -7,7 +7,6 @@ import com.softchaos.repository.ArticleRepository;
 import com.softchaos.repository.CategoryRepository;
 import com.softchaos.repository.CommentRepository;
 import com.softchaos.repository.NewsletterRepository;
-import com.softchaos.repository.TagRepository;
 import com.softchaos.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

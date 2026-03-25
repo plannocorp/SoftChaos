@@ -22,7 +22,6 @@ public class ArticleResponse {
     private String coverImageUrl;
     private UserSummaryResponse author;
     private CategoryResponse category;
-    private Set<TagResponse> tags;
     private Set<MediaResponse> mediaFiles;
     private Article.Status status;
     private Boolean featured;

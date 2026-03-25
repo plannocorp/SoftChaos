@@ -105,20 +105,6 @@ public class ArticleController {
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
 
-    /**
-     * Lista artigos por tag
-     */
-    @GetMapping("/tag/{tagId}")
-    @Operation(summary = "Listar artigos por tag", description = "Retorna artigos com uma tag específica")
-    public ResponseEntity<ApiResponse<PagedResponse<ArticleSummaryResponse>>> getArticlesByTag(
-            @PathVariable Long tagId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        PagedResponse<ArticleSummaryResponse> articles = articleService.getArticlesByTag(tagId, pageable);
-        return ResponseEntity.ok(ApiResponse.success(articles));
-    }
 
     /**
      * Lista artigos por autor

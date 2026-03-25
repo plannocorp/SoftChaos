@@ -10,12 +10,10 @@ import com.softchaos.exception.BadRequestException;
 import com.softchaos.exception.ResourceNotFoundException;
 import com.softchaos.model.Article;
 import com.softchaos.model.Category;
-import com.softchaos.model.Tag;
 import com.softchaos.model.User;
 import com.softchaos.repository.ArticleRepository;
 import com.softchaos.repository.CategoryRepository;
 import com.softchaos.repository.CommentRepository;
-import com.softchaos.repository.TagRepository;
 import com.softchaos.repository.UserRepository;
 import com.softchaos.util.SlugGenerator;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +37,6 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final TagRepository tagRepository;
     private final CommentRepository commentRepository;
     private final ArticleMapper articleMapper;
 
@@ -67,17 +62,6 @@ public class ArticleService {
         article.setSlug(slug);
         article.setAuthor(author);
         article.setCategory(category);
-
-        // Adiciona tags
-        if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
-            Set<Tag> tags = new HashSet<>();
-            for (Long tagId : request.getTagIds()) {
-                Tag tag = tagRepository.findById(tagId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
-                tags.add(tag);
-            }
-            article.setTags(tags);
-        }
 
         // Define data de publicação se status for PUBLISHED
         if (article.getStatus() == Article.Status.PUBLISHED) {
@@ -154,24 +138,6 @@ public class ArticleService {
 
         Page<Article> articlesPage = articleRepository.findByCategoryIdAndStatus(
                 categoryId, Article.Status.PUBLISHED, pageable);
-
-        return buildPagedSummaryResponse(articlesPage);
-    }
-
-    /**
-     * Lista artigos por tag
-     */
-    @Transactional(readOnly = true)
-    public PagedResponse<ArticleSummaryResponse> getArticlesByTag(Long tagId, Pageable pageable) {
-        log.info("Listando artigos da tag ID: {}", tagId);
-
-        // Verifica se tag existe
-        if (!tagRepository.existsById(tagId)) {
-            throw new ResourceNotFoundException("Tag", "id", tagId);
-        }
-
-        Page<Article> articlesPage = articleRepository.findByTagIdAndStatus(
-                tagId, Article.Status.PUBLISHED, pageable);
 
         return buildPagedSummaryResponse(articlesPage);
     }
@@ -307,17 +273,6 @@ public class ArticleService {
             article.setCategory(category);
         }
 
-        // Atualiza tags
-        if (request.getTagIds() != null) {
-            Set<Tag> tags = new HashSet<>();
-            for (Long tagId : request.getTagIds()) {
-                Tag tag = tagRepository.findById(tagId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
-                tags.add(tag);
-            }
-            article.setTags(tags);
-        }
-
         // Atualiza status e data de publicação
         if (request.getStatus() != null) {
             Article.Status oldStatus = article.getStatus();
@@ -451,4 +406,3 @@ public class ArticleService {
                 .build();
     }
 }
-

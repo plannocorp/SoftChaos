@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Data
 @Builder
@@ -32,8 +31,6 @@ public class CreateArticleRequest {
 
     @NotNull(message = "Categoria é obrigatória")
     private Long categoryId;
-
-    private Set<Long> tagIds;
 
     @NotNull(message = "Status é obrigatório")
     private Article.Status status;

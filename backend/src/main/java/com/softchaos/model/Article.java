@@ -44,14 +44,6 @@ public class Article {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToMany
-    @JoinTable(
-            name = "article_tags",
-            joinColumns = @JoinColumn(name = "article_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private Set<Tag> tags = new HashSet<>();
-
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Media> mediaFiles = new HashSet<>();
 

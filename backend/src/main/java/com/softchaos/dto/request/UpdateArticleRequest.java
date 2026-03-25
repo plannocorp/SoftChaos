@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Data
 @Builder
@@ -27,8 +26,6 @@ public class UpdateArticleRequest {
     private String coverImageUrl;
 
     private Long categoryId;
-
-    private Set<Long> tagIds;
 
     private Article.Status status;
 
