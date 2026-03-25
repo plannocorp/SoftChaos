@@ -81,13 +81,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     @Query("SELECT COUNT(a) FROM Article a WHERE a.category.id = :categoryId AND a.status = 'PUBLISHED'")
     Long countPublishedArticlesByCategoryId(@Param("categoryId") Long categoryId);
 
-    // ========== BUSCAR POR TAG ==========
 
-    /**
-     * Buscar por tag e status
-     */
-    @Query("SELECT a FROM Article a JOIN a.tags t WHERE t.id = :tagId AND a.status = :status")
-    Page<Article> findByTagIdAndStatus(@Param("tagId") Long tagId, @Param("status") Article.Status status, Pageable pageable);
+
 
     // ========== ARTIGOS EM DESTAQUE ==========
 

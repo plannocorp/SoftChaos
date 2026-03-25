@@ -31,7 +31,7 @@ public class DashboardService {
     private final CommentRepository commentRepository;
     private final NewsletterRepository newsletterRepository;
     private final CategoryRepository categoryRepository;
-    private final TagRepository tagRepository;
+
 
     /**
      * Retorna todas as estatísticas do dashboard
@@ -45,7 +45,7 @@ public class DashboardService {
                 .totalUsers(userRepository.count())
                 .totalComments(commentRepository.count())
                 .totalCategories(categoryRepository.count())
-                .totalTags(tagRepository.count())
+
 
                 // Artigos por status
                 .publishedArticles(articleRepository.countByStatus(Article.Status.PUBLISHED))
