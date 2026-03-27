@@ -3,11 +3,16 @@ import { News } from '../models/news';
 import { MOCK_NEWS } from '../data/mock-news';
 import { __param } from 'tslib';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Category } from '../models/category';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NewsService {
+  constructor(private http: HttpClient) {}  // ← HttpClient já tem!
+
+
   public getAll(): News[] { // Pega todas as notícias
     return [...MOCK_NEWS]; // Ao invés de retornar o MOCK_NEWS bruto retorna uma cópia dele
   }
@@ -91,5 +96,9 @@ export class NewsService {
 
   public getRecentNews(limit: number = 5): News[] {
     return this.getAllSorted().slice(0, limit);
+  }
+
+  public getCategories(): Observable<any> {  // ← any pro response completo
+    return this.http.get<any>('/api/categories');
   }
 }

@@ -13,6 +13,8 @@ import { Auth } from './pages/adm/auth/auth';
 import { AdmDashboard } from './pages/adm/adm-dashboard/adm-dashboard';
 import { CreateArticle } from './pages/adm/adm-dashboard/components/create-article/create-article';
 import { Overview } from './pages/adm/adm-dashboard/components/overview/overview';
+import { Comments } from './pages/adm/adm-dashboard/components/comments/comments';
+import { adminGuard } from './guards/admin-guard';
 
 export const routes: Routes = [
     {
@@ -84,10 +86,12 @@ export const routes: Routes = [
     {
         path: 'security/adimin-dashboard',
         component: AdmDashboard,
+        canActivate: [adminGuard],
         children: [
             { path: '', redirectTo: 'overview', pathMatch: 'full' },
             { path: 'overview', component: Overview },  // Dashboard atual
             { path: 'create-article', component: CreateArticle },
+            { path: 'comments', component: Comments },
         ]
     },
 

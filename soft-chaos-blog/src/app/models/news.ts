@@ -16,3 +16,14 @@ export interface News {
     thirdImageUrl?: string;
     tag?: string;
 }
+
+export interface CreateArticleRequest {
+  title: string;
+  summary: string;
+  content: string;
+  categoryId: number | null;
+  tagIds?: number[];
+  status: 'DRAFT' | 'PUBLISHED' | 'SCHEDULED';
+  featured?: boolean;
+  pinned?: boolean;
+}

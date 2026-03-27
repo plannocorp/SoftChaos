@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { News } from '../../../../../models/news';
+import { RouterLink, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../../../../services/auth';
+import { firstValueFrom } from 'rxjs';
+import { CreateArticleRequest } from '../../../../../models/news';
+import { NewsService } from '../../../../../services/news-service';
+import { Category } from '../../../../../models/category';
 
 @Component({
   selector: 'app-create-article',
@@ -13,88 +17,130 @@ import { News } from '../../../../../models/news';
   styleUrls: ['./create-article.css']
 })
 export class CreateArticle implements OnInit {
-  article: News = {
+  article: CreateArticleRequest = {
     title: '',
+    summary: '',
     content: '',
-    publishAt: new Date(),
-    author: '',
-    imageURL: '',
-    slug: '',
-    type: '',
-    description: '',
-    readTime: 0
+    categoryId: null!,  // ← Sem default
+    status: 'DRAFT',
+    tagIds: [],
+    featured: false,
+    pinned: false
   };
-  
+
   previewImage: string | null = null;
+  imageFile: File | null = null;
   publishAtString: string = '';
   loading = false;
+  loadingCategories = false;
   error = '';
   minDate: string = new Date().toISOString().slice(0, 16);
 
-  constructor(private http: HttpClient) {}
+  categories: Category[] = [];  // ← Carrega da API
 
-  ngOnInit() {
-    // Carrega data atual formatada
+  constructor(
+    private http: HttpClient,
+    private newsService: NewsService,  // ← SEU SERVICE
+    private authService: AuthService,
+    private router: Router
+  ) { }
+
+  async ngOnInit() {
     this.publishAtString = new Date().toISOString().slice(0, 16);
+    await this.loadCategories();
   }
+
+  async loadCategories() {
+    this.loadingCategories = true;
+    try {
+      const response: any = await firstValueFrom(this.newsService.getCategories());
+      this.categories = response.data || [];
+
+      // 🔧 FORCE REFRESH SELECT
+      setTimeout(() => {
+        this.article.categoryId = null;  // Reset pra forçar update
+      }, 100);
+
+      console.log('✅ Categorias:', this.categories);
+    } catch (err) {
+      console.error('❌ Erro:', err);
+      this.error = 'Erro ao carregar categorias';
+    } finally {
+      this.loadingCategories = false;
+    }
+  }
+
 
   onImageChange(event: any) {
     const file = event.target.files?.[0];
     if (file) {
+      this.imageFile = file;
       const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.previewImage = e.target.result;
-        this.article.imageURL = file.name; // Nome do arquivo pro backend
-      };
+      reader.onload = (e: any) => this.previewImage = e.target.result;
       reader.readAsDataURL(file);
     }
   }
 
   clearImage() {
     this.previewImage = null;
-    this.article.imageURL = '';
+    this.imageFile = null;
     const input = document.querySelector('input[name="image"]') as HTMLInputElement;
     input.value = '';
   }
 
-  saveArticle() {
+  async saveArticle() {
     if (!this.validateForm()) return;
 
     this.loading = true;
     this.error = '';
 
-    // Converte string para Date
-    this.article.publishAt = new Date(this.publishAtString);
+    try {
+      // POST /api/articles (SEM imagem)
+      const articlePayload: CreateArticleRequest = { // Pega tudo do form
+        ...this.article,
+        summary: this.article.summary || this.article.title.substring(0, 150) // Auto summary
+      };
 
-    // POST para API
-    this.http.post('/api/articles', this.article).subscribe({
-      next: (response) => {
-        this.loading = false;
-        console.log('✅ Artigo criado:', response);
-        alert('Artigo publicado com sucesso!');
-        // Limpa form ou redireciona
-        this.resetForm();
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading = false;
-        this.error = err.error?.message || 'Erro ao salvar artigo';
-        console.error('❌ Erro:', err);
+      console.log('📤 POST /api/articles:', articlePayload);
+
+      // ✅ firstValueFrom SUBSTITUI toPromise
+      const articleRes: any = await firstValueFrom(this.http.post('/api/articles', articlePayload));
+      const articleId = articleRes.data.id;
+      console.log('✅ Artigo criado ID:', articleId);
+
+      // UPLOAD IMAGEM (SE HÁ) + articleId
+      if (this.imageFile) {
+        const formData = new FormData();
+        formData.append('file', this.imageFile!);
+        formData.append('type', 'IMAGE');
+        formData.append('altText', this.article.title);
+        formData.append('articleId', articleId.toString()); // ← ASSOCIA DIRETO!
+
+        console.log('📤 POST /api/media/upload com articleId:', articleId);
+        await firstValueFrom(this.http.post('/api/media/upload', formData));
+        console.log('✅ Imagem upload + associada!');
       }
-    });
+
+      this.loading = false;
+      alert('✅ Artigo criado com sucesso!');
+      this.router.navigate(['/security/adimin-dashboard/overview']);
+
+    } catch (err: any) {
+      this.loading = false;
+      this.error = err.error?.message || 'Erro ao criar artigo';
+      console.error('❌ Erro:', err);
+    }
   }
 
   validateForm(): boolean {
     if (!this.article.title.trim()) {
-      this.error = 'Título é obrigatório';
-      return false;
+      this.error = 'Título obrigatório'; return false;
     }
-    if (!this.article.type) {
-      this.error = 'Tipo é obrigatório';
-      return false;
+    if (!this.article.categoryId) {
+      this.error = 'Categoria obrigatória'; return false;
     }
     if (!this.article.content.trim()) {
-      this.error = 'Conteúdo é obrigatório';
-      return false;
+      this.error = 'Conteúdo obrigatório'; return false;
     }
     return true;
   }
@@ -102,16 +148,16 @@ export class CreateArticle implements OnInit {
   resetForm() {
     this.article = {
       title: '',
+      summary: '',
       content: '',
-      publishAt: new Date(),
-      author: '',
-      imageURL: '',
-      slug: '',
-      type: '',
-      description: '',
-      readTime: 0
+      categoryId: 1,
+      status: 'DRAFT',
+      tagIds: [],
+      featured: false,
+      pinned: false
     };
     this.previewImage = null;
+    this.imageFile = null;
     this.publishAtString = new Date().toISOString().slice(0, 16);
     this.error = '';
   }
