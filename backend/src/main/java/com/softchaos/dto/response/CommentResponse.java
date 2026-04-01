@@ -19,4 +19,5 @@ public class CommentResponse {
     private String content;
     private CommentStatus status;
     private LocalDateTime createdAt;
+    private String articleTitle;
 }

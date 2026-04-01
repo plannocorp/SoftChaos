@@ -15,6 +15,7 @@ public class CommentMapper {
                 .content(comment.getContent())
                 .status(comment.getStatus())
                 .createdAt(comment.getCreatedAt())
+                .articleTitle(comment.getArticle().getTitle())
                 .build();
     }
 
