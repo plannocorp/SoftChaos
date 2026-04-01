@@ -4,6 +4,7 @@ import com.softchaos.dto.mapper.CommentMapper;
 import com.softchaos.dto.request.CreateCommentRequest;
 import com.softchaos.dto.response.CommentResponse;
 import com.softchaos.dto.response.PagedResponse;
+import com.softchaos.enums.CommentStatus;
 import com.softchaos.exception.ResourceNotFoundException;
 import com.softchaos.model.Article;
 import com.softchaos.model.Comment;
@@ -29,9 +30,6 @@ public class CommentService {
     private final ArticleRepository articleRepository;
     private final CommentMapper commentMapper;
 
-    /**
-     * Cria um novo comentário
-     */
     public CommentResponse createComment(CreateCommentRequest request) {
         log.info("Criando novo comentário no artigo ID: {}", request.getArticleId());
 
@@ -40,18 +38,13 @@ public class CommentService {
 
         Comment comment = commentMapper.toEntity(request);
         comment.setArticle(article);
-        comment.setApproved(false); // Comentários precisam ser aprovados
 
         Comment savedComment = commentRepository.save(comment);
-
         log.info("Comentário criado com sucesso. ID: {}", savedComment.getId());
 
         return commentMapper.toResponse(savedComment);
     }
 
-    /**
-     * Lista comentários aprovados de um artigo
-     */
     @Transactional(readOnly = true)
     public PagedResponse<CommentResponse> getApprovedCommentsByArticle(Long articleId, Pageable pageable) {
         log.info("Listando comentários aprovados do artigo ID: {}", articleId);
@@ -60,15 +53,12 @@ public class CommentService {
             throw new ResourceNotFoundException("Artigo", "id", articleId);
         }
 
-        Page<Comment> commentsPage = commentRepository.findByArticleIdAndApprovedTrueOrderByCreatedAtDesc(
-                articleId, pageable);
+        Page<Comment> commentsPage = commentRepository
+                .findByArticleIdAndStatusOrderByCreatedAtDesc(articleId, CommentStatus.APPROVED, pageable);
 
         return buildPagedResponse(commentsPage);
     }
 
-    /**
-     * Lista todos os comentários de um artigo (incluindo não aprovados)
-     */
     @Transactional(readOnly = true)
     public List<CommentResponse> getAllCommentsByArticle(Long articleId) {
         log.info("Listando todos os comentários do artigo ID: {}", articleId);
@@ -82,55 +72,40 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Lista comentários pendentes de aprovação
-     */
     @Transactional(readOnly = true)
     public PagedResponse<CommentResponse> getPendingComments(Pageable pageable) {
         log.info("Listando comentários pendentes de aprovação");
 
-        Page<Comment> commentsPage = commentRepository.findByApprovedFalseOrderByCreatedAtDesc(pageable);
+        Page<Comment> commentsPage = commentRepository
+                .findByStatusOrderByCreatedAtDesc(CommentStatus.PENDING, pageable);
 
         return buildPagedResponse(commentsPage);
     }
 
-    /**
-     * Aprova comentário
-     */
     public CommentResponse approveComment(Long id) {
         log.info("Aprovando comentário ID: {}", id);
 
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Comentário", "id", id));
 
-        comment.setApproved(true);
-        Comment approvedComment = commentRepository.save(comment);
-
+        comment.setStatus(CommentStatus.APPROVED);
         log.info("Comentário aprovado com sucesso. ID: {}", id);
 
-        return commentMapper.toResponse(approvedComment);
+        return commentMapper.toResponse(commentRepository.save(comment));
     }
 
-    /**
-     * Reprova comentário
-     */
     public CommentResponse rejectComment(Long id) {
         log.info("Reprovando comentário ID: {}", id);
 
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Comentário", "id", id));
 
-        comment.setApproved(false);
-        Comment rejectedComment = commentRepository.save(comment);
-
+        comment.setStatus(CommentStatus.REJECTED);
         log.info("Comentário reprovado com sucesso. ID: {}", id);
 
-        return commentMapper.toResponse(rejectedComment);
+        return commentMapper.toResponse(commentRepository.save(comment));
     }
 
-    /**
-     * Deleta comentário
-     */
     public void deleteComment(Long id) {
         log.info("Deletando comentário ID: {}", id);
 
@@ -139,21 +114,14 @@ public class CommentService {
         }
 
         commentRepository.deleteById(id);
-
         log.info("Comentário deletado com sucesso. ID: {}", id);
     }
 
-    /**
-     * Conta comentários pendentes
-     */
     @Transactional(readOnly = true)
     public Long countPendingComments() {
-        return commentRepository.countByApprovedFalse();
+        return commentRepository.countByStatus(CommentStatus.PENDING);
     }
 
-    /**
-     * Método auxiliar para construir resposta paginada
-     */
     private PagedResponse<CommentResponse> buildPagedResponse(Page<Comment> commentsPage) {
         Page<CommentResponse> responsePage = commentsPage.map(commentMapper::toResponse);
 

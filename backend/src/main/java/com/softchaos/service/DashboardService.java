@@ -1,6 +1,7 @@
 package com.softchaos.service;
 
 import com.softchaos.dto.response.DashboardStatsResponse;
+import com.softchaos.enums.CommentStatus;
 import com.softchaos.model.Article;
 import com.softchaos.model.Comment;
 import com.softchaos.repository.ArticleRepository;
@@ -32,12 +33,13 @@ public class DashboardService {
     private final NewsletterRepository newsletterRepository;
     private final CategoryRepository categoryRepository;
 
-
     /**
      * Retorna todas as estatísticas do dashboard
      */
     public DashboardStatsResponse getDashboardStats() {
         log.info("Buscando estatísticas completas do dashboard");
+
+        long totalActiveUsers = userRepository.findByActiveTrue(null).getTotalElements();
 
         return DashboardStatsResponse.builder()
                 // Contadores gerais
@@ -46,25 +48,23 @@ public class DashboardService {
                 .totalComments(commentRepository.count())
                 .totalCategories(categoryRepository.count())
 
-
                 // Artigos por status
                 .publishedArticles(articleRepository.countByStatus(Article.Status.PUBLISHED))
                 .draftArticles(articleRepository.countByStatus(Article.Status.DRAFT))
                 .scheduledArticles(articleRepository.countByStatus(Article.Status.SCHEDULED))
 
                 // Usuários por status
-                .activeUsers(userRepository.findByActiveTrue(null).getTotalElements())
-                .inactiveUsers(userRepository.count() - userRepository.findByActiveTrue(null).getTotalElements())
+                .activeUsers(totalActiveUsers)
+                .inactiveUsers(userRepository.count() - totalActiveUsers)
 
-                // Comentários por status
-                .pendingComments(commentRepository.countByApprovedFalse())
-                .approvedComments(commentRepository.count() - commentRepository.countByApprovedFalse())
+                // Comentários por status (CORRIGIDO: usando Enum)
+                .pendingComments(commentRepository.countByStatus(CommentStatus.PENDING))
+                .approvedComments(commentRepository.countByStatus(CommentStatus.APPROVED))
 
                 // Listas
                 .topArticles(getTopArticles())
                 .recentArticles(getRecentArticles())
                 .recentComments(getRecentComments())
-
                 .build();
     }
 
@@ -74,7 +74,7 @@ public class DashboardService {
     private List<DashboardStatsResponse.TopArticle> getTopArticles() {
         Pageable topFive = PageRequest.of(0, 5);
         List<Article> articles = articleRepository.findByStatusOrderByViewCountDesc(
-                Article.Status.PUBLISHED, topFive).getContent(); // ✅ ADICIONE .getContent()
+                Article.Status.PUBLISHED, topFive).getContent();
 
         return articles.stream()
                 .map(article -> DashboardStatsResponse.TopArticle.builder()
@@ -86,7 +86,6 @@ public class DashboardService {
                         .build())
                 .collect(Collectors.toList());
     }
-
 
     /**
      * Retorna os 5 artigos mais recentes
@@ -120,9 +119,9 @@ public class DashboardService {
                         .content(comment.getContent().length() > 100
                                 ? comment.getContent().substring(0, 100) + "..."
                                 : comment.getContent())
-                        .authorName(comment.getAuthorName()) // ✅ CORRIGIDO: authorName
+                        .authorName(comment.getAuthorName())
                         .articleTitle(comment.getArticle().getTitle())
-                        .status(comment.getApproved() ? "APPROVED" : "PENDING") // ✅ CORRIGIDO: getApproved()
+                        .status(comment.getStatus().name())
                         .createdAt(comment.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
@@ -133,25 +132,21 @@ public class DashboardService {
      */
     public Map<String, Object> getGeneralStatistics() {
         log.info("Buscando estatísticas gerais");
-
         Map<String, Object> stats = new HashMap<>();
 
-        // Contadores de artigos por status
         stats.put("totalArticles", articleRepository.count());
         stats.put("publishedArticles", articleRepository.countByStatus(Article.Status.PUBLISHED));
         stats.put("draftArticles", articleRepository.countByStatus(Article.Status.DRAFT));
         stats.put("scheduledArticles", articleRepository.countByStatus(Article.Status.SCHEDULED));
         stats.put("archivedArticles", articleRepository.countByStatus(Article.Status.ARCHIVED));
 
-        // Usuários
         stats.put("totalUsers", userRepository.count());
         stats.put("activeUsers", userRepository.findByActiveTrue(null).getTotalElements());
 
-        // Comentários
         stats.put("totalComments", commentRepository.count());
-        stats.put("pendingComments", commentRepository.countByApprovedFalse());
+        // CORRIGIDO: usando Enum
+        stats.put("pendingComments", commentRepository.countByStatus(CommentStatus.PENDING));
 
-        // Newsletter
         stats.put("totalSubscribers", newsletterRepository.count());
         stats.put("activeSubscribers", newsletterRepository.countByActiveTrue());
 
@@ -163,7 +158,6 @@ public class DashboardService {
      */
     public Map<String, Object> getArticleStatistics() {
         log.info("Buscando estatísticas de artigos");
-
         Map<String, Object> stats = new HashMap<>();
 
         stats.put("totalArticles", articleRepository.count());
@@ -180,7 +174,6 @@ public class DashboardService {
      */
     public Map<String, Object> getUserStatistics() {
         log.info("Buscando estatísticas de usuários");
-
         Map<String, Object> stats = new HashMap<>();
 
         stats.put("total", userRepository.count());
@@ -197,11 +190,12 @@ public class DashboardService {
      */
     public Map<String, Object> getCommentStatistics() {
         log.info("Buscando estatísticas de comentários");
-
         Map<String, Object> stats = new HashMap<>();
 
         stats.put("total", commentRepository.count());
-        stats.put("pending", commentRepository.countByApprovedFalse());
+        // CORRIGIDO: usando Enum
+        stats.put("pending", commentRepository.countByStatus(CommentStatus.PENDING));
+        stats.put("approved", commentRepository.countByStatus(CommentStatus.APPROVED));
 
         return stats;
     }
@@ -211,11 +205,11 @@ public class DashboardService {
      */
     public Map<String, Object> getNewsletterStatistics() {
         log.info("Buscando estatísticas da newsletter");
-
         Map<String, Object> stats = new HashMap<>();
 
         stats.put("total", newsletterRepository.count());
         stats.put("active", newsletterRepository.countByActiveTrue());
+        // Ajustado para o seu Repository (considerando que findByConfirmedAtIsNull retorna uma lista)
         stats.put("unconfirmed", newsletterRepository.findByConfirmedAtIsNull().size());
 
         return stats;

@@ -1,5 +1,7 @@
 package com.softchaos.dto.response;
 
+import com.softchaos.enums.CommentStatus;
+import com.softchaos.model.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +17,6 @@ public class CommentResponse {
     private Long id;
     private String authorName;
     private String content;
-    private Boolean approved;
+    private CommentStatus status;
     private LocalDateTime createdAt;
 }

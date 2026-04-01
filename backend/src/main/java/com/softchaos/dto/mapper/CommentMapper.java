@@ -13,7 +13,7 @@ public class CommentMapper {
                 .id(comment.getId())
                 .authorName(comment.getAuthorName())
                 .content(comment.getContent())
-                .approved(comment.getApproved())
+                .status(comment.getStatus())
                 .createdAt(comment.getCreatedAt())
                 .build();
     }

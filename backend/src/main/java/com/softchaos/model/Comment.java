@@ -1,9 +1,11 @@
 package com.softchaos.model;
 
+import com.softchaos.enums.CommentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comments;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -32,8 +34,9 @@ public class Comment {
     @JoinColumn(name = "article_id", nullable = false)
     private Article article;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Boolean approved = false;
+    private CommentStatus status = CommentStatus.PENDING;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
