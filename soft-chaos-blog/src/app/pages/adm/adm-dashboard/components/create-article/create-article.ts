@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -42,6 +42,7 @@ export class CreateArticle implements OnInit {
     private http: HttpClient,
     private newsService: NewsService,  // ← SEU SERVICE
     private authService: AuthService,
+    private cd: ChangeDetectorRef,
     private router: Router
   ) { }
 
@@ -67,6 +68,7 @@ export class CreateArticle implements OnInit {
       this.error = 'Erro ao carregar categorias';
     } finally {
       this.loadingCategories = false;
+      this.cd.detectChanges();
     }
   }
 

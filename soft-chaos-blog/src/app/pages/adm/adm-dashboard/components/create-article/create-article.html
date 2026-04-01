@@ -77,7 +77,9 @@
 
           <select id="status" name="status" [(ngModel)]="article.status">
             <option value="DRAFT">Rascunho</option>
+
             <option value="PUBLISHED">Publicar</option>
+
             <option value="SCHEDULED">Agendado</option>
           </select>
         </div>
@@ -85,10 +87,13 @@
         <div class="options-section">
           <label class="toggle-option">
             <input type="checkbox" name="featured" [(ngModel)]="article.featured">
+
             <span class="toggle-label">Destaque</span>
           </label>
+
           <label class="toggle-option">
             <input type="checkbox" name="pinned" [(ngModel)]="article.pinned">
+
             <span class="toggle-label">Fixado</span>
           </label>
         </div>
@@ -98,13 +103,15 @@
       @if (article.status === 'SCHEDULED') {
         <div class="form-group">
           <label for="publishAt">Data de Publicação *</label>
+
           <input 
             id="publishAt"
             type="datetime-local"
             name="publishAt"
             [(ngModel)]="publishAtString"
             [min]="minDate"
-            required>
+            required
+          >
         </div>
       }
 
@@ -116,7 +123,8 @@
           type="text"
           name="author"
           placeholder="Autor será preenchido automaticamente"
-          disabled>
+          disabled
+        >
       </div>
 
       <!-- Imagem Principal -->

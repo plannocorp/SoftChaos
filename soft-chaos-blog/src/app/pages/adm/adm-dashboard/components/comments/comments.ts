@@ -1,90 +1,78 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, NgClass } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule, NgClass, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface Comment {
-  id: number;
-  articleTitle: string;
-  articleSlug: string;
-  author: string;
-  email: string;
-  content: string;
-  createdAt: Date;
-  status: 'PENDENTE' | 'APROVADO' | 'REJEITADO';
-}
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { CommentService } from '../../../../../services/comment-service';
+import { Comment } from '../../../../../models/comment';
 
 @Component({
   selector: 'app-comments',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgClass],
+  imports: [CommonModule, FormsModule, NgClass, DatePipe],
   templateUrl: './comments.html',
   styleUrls: ['./comments.css']
 })
 export class Comments implements OnInit {
-  allComments: Comment[] = [];
+  comments: Comment[] = [];
   filteredComments: Comment[] = [];
   searchTerm = '';
   statusFilter = '';
-
   error = '';
+  loading = false;
 
-  constructor() {}
+  private searchSubject = new Subject<void>();
+
+  constructor(
+    private commentService: CommentService,
+    private cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.loadComments();
+    this.setupSearchDebounce();
+  }
+
+  setupSearchDebounce() {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(() => this.commentService.getPendingComments(0, 50, this.searchTerm))
+    ).subscribe({
+      next: (comments: Comment[]) => {
+        this.comments = comments;
+        this.filteredComments = [...comments];
+        this.filterComments();
+      },
+      error: (err: any) => {
+        console.error('Erro no debounce:', err);
+      }
+    });
   }
 
   loadComments() {
-    // Mock data - substitua por CommentService + API
-    this.allComments = [
-      {
-        id: 1,
-        articleTitle: 'Título da Notícia',
-        articleSlug: 'titulo-da-noticia',
-        author: 'João Silva',
-        email: 'joao@email.com',
-        content: 'Excelente artigo! Muito conteúdo útil e bem explicado.',
-        createdAt: new Date('2026-03-24'),
-        status: 'APROVADO'
-      },
-      {
-        id: 2,
-        articleTitle: 'Título da Primeira Notícia Secundária',
-        articleSlug: 'titulo-da-primeira-noticia-secundaria',
-        author: 'Maria Oliveira',
-        email: 'maria@email.com',
-        content: 'Gostaria de mais detalhes sobre este tópico.',
-        createdAt: new Date('2026-03-24'),
-        status: 'PENDENTE'
-      },
-      {
-        id: 3,
-        articleTitle: 'Título da notícia do card do Explorer 1',
-        articleSlug: 'titulo-da-noticia-do-explorer-1',
-        author: 'Pedro Santos',
-        email: 'pedro@email.com',
-        content: 'Conteúdo irrelevante e spam.',
-        createdAt: new Date('2026-03-23'),
-        status: 'REJEITADO'
-      },
+    this.loading = true;
+    this.error = '';
 
-      {
-        id: 4,
-        articleTitle: 'Título da notícia do card do Explorer 1',
-        articleSlug: 'titulo-da-noticia-do-explorer-1',
-        author: 'Pedro Santos',
-        email: 'pedro@email.com',
-        content: 'Conteúdo irrelevante e spam.',
-        createdAt: new Date('2026-03-23'),
-        status: 'REJEITADO'
+    this.commentService.getPendingComments(0, 50).subscribe({
+      next: (comments: Comment[]) => {
+        this.comments = comments;
+        this.filteredComments = [...comments];
+        this.loading = false;
+        this.filterComments();
+        this.cd.detectChanges();
+      },
+      error: (err: any) => {
+        this.error = 'Erro ao carregar comentários: ' + (err.error?.message || err.message);
+        this.loading = false;
+        console.error(err);
       }
-    ];
-    this.filteredComments = [...this.allComments];
+    });
   }
 
   filterComments() {
-    let filtered = [...this.allComments];
-
+    let filtered = [...this.comments];
+    
     if (this.searchTerm.trim()) {
       filtered = filtered.filter(comment =>
         comment.author.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -100,29 +88,55 @@ export class Comments implements OnInit {
     this.filteredComments = filtered;
   }
 
+  onSearchChange() {
+    this.searchSubject.next();
+  }
+
   approveComment(id: number) {
-    const comment = this.allComments.find(c => c.id === id);
-    if (comment) {
-      comment.status = 'APROVADO';
-      this.filterComments();
-      // Chame API: PUT /api/comments/{id}/approve
+    if (confirm('Aprovar este comentário?')) {
+      this.commentService.approveComment(id).subscribe({
+        next: (updated: Comment) => {
+          const index = this.comments.findIndex(c => c.id === id);
+          if (index !== -1) {
+            this.comments[index] = updated;
+            this.filterComments();
+          }
+        },
+        error: (err: any) => {
+          this.error = 'Erro ao aprovar: ' + (err.error?.message || err.message);
+        }
+      });
     }
   }
 
   rejectComment(id: number) {
-    const comment = this.allComments.find(c => c.id === id);
-    if (comment) {
-      comment.status = 'REJEITADO';
-      this.filterComments();
-      // Chame API: PUT /api/comments/{id}/reject
+    if (confirm('Rejeitar este comentário?')) {
+      this.commentService.rejectComment(id).subscribe({
+        next: (updated: Comment) => {
+          const index = this.comments.findIndex(c => c.id === id);
+          if (index !== -1) {
+            this.comments[index] = updated;
+            this.filterComments();
+          }
+        },
+        error: (err: any) => {
+          this.error = 'Erro ao rejeitar: ' + (err.error?.message || err.message);
+        }
+      });
     }
   }
 
   deleteComment(id: number) {
-    if (confirm('Tem certeza que deseja excluir este comentário?')) {
-      this.allComments = this.allComments.filter(c => c.id !== id);
-      this.filterComments();
-      // Chame API: DELETE /api/comments/{id}
+    if (confirm('Excluir permanentemente?')) {
+      this.commentService.deleteComment(id).subscribe({
+        next: () => {
+          this.comments = this.comments.filter(c => c.id !== id);
+          this.filterComments();
+        },
+        error: (err: any) => {
+          this.error = 'Erro ao excluir: ' + (err.error?.message || err.message);
+        }
+      });
     }
   }
 }

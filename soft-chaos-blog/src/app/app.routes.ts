@@ -80,12 +80,6 @@ export const routes: Routes = [
     {
         path: 'security/adimin-dashboard',
         component: AdmDashboard,
-        title: 'Soft Chaos | Admimin Dashboard'
-    },
-
-    {
-        path: 'security/adimin-dashboard',
-        component: AdmDashboard,
         canActivate: [adminGuard],
         children: [
             { path: '', redirectTo: 'overview', pathMatch: 'full' },
