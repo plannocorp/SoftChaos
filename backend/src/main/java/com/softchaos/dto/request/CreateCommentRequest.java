@@ -28,6 +28,5 @@ public class CreateCommentRequest {
     @Size(max = 1000, message = "Comentário deve ter no máximo 1000 caracteres")
     private String content;
 
-    @NotNull(message = "ID do artigo é obrigatório")
     private Long articleId;
 }

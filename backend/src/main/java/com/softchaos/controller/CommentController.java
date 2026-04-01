@@ -29,9 +29,12 @@ public class CommentController {
      * Cria novo comentário
      */
     @PostMapping("/article/{articleId}")
-    @Operation(summary = "Criar comentário", description = "Adiciona um comentário a um artigo (público)")
     public ResponseEntity<ApiResponse<CommentResponse>> createComment(
+            @PathVariable Long articleId, // <-- Adicione isso para capturar o ID da URL
             @Valid @RequestBody CreateCommentRequest request) {
+
+        // Injeta o ID da URL no objeto de request antes de passar para o service
+        request.setArticleId(articleId);
 
         CommentResponse comment = commentService.createComment(request);
         return ResponseEntity.status(HttpStatus.CREATED)

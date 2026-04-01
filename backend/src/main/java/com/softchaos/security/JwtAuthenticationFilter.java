@@ -24,6 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider tokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -31,26 +32,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwtFromRequest(request);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                Long userId = tokenProvider.getUserIdFromToken(jwt);
+            // Só entra na lógica se houver um texto no token
+            if (StringUtils.hasText(jwt)) {
+                // Se o token for válido, autentica
+                if (tokenProvider.validateToken(jwt)) {
+                    Long userId = tokenProvider.getUserIdFromToken(jwt);
+                    UserDetails userDetails = customUserDetailsService.loadUserById(userId);
 
-                UserDetails userDetails = customUserDetailsService.loadUserById(userId);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                log.debug("Usuário autenticado: {}", userId);
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("Usuário autenticado via JWT: {}", userId);
+                }
+                // Se o token existir mas for inválido, o filtro apenas segue adiante.
+                // O SecurityConfig decidirá se a rota exige ou não o usuário logado.
             }
         } catch (Exception ex) {
-            log.error("Não foi possível definir autenticação do usuário no security context", ex);
+            // Log de depuração, não erro fatal, para não sujar o console em rotas públicas
+            log.debug("Tentativa de autenticação JWT falhou: {}", ex.getMessage());
         }
 
         filterChain.doFilter(request, response);

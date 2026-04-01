@@ -90,15 +90,15 @@ public class JwtTokenProvider {
 
             return true;
         } catch (SignatureException ex) {
-            log.error("Assinatura JWT inválida");
+            log.warn("Assinatura JWT inválida");
         } catch (MalformedJwtException ex) {
-            log.error("Token JWT inválido");
+            log.warn("Token JWT malformado");
         } catch (ExpiredJwtException ex) {
-            log.error("Token JWT expirado");
+            log.debug("Token JWT expirado"); // Debug porque expiração é comum
         } catch (UnsupportedJwtException ex) {
-            log.error("Token JWT não suportado");
+            log.warn("Token JWT não suportado");
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string vazia");
+            log.warn("JWT claims string vazia");
         }
         return false;
     }
