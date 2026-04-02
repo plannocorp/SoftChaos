@@ -104,11 +104,6 @@
 			<artifactId>flyway-core</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-
 		<!-- Suporte Flyway para PostgreSQL -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
@@ -183,7 +178,6 @@
 					<nonFilteredFileExtensions>
 						<nonFilteredFileExtension>properties</nonFilteredFileExtension>
 					</nonFilteredFileExtensions>
-					<filters>false</filters>
 				</configuration>
 			</plugin>
 		</plugins>
