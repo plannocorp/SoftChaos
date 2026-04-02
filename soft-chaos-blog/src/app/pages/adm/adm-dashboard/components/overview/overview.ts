@@ -1,32 +1,60 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { News } from '../../../../../models/news';
-import { NewsService } from '../../../../../services/news-service';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-overview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DatePipe],
   templateUrl: './overview.html',
   styleUrls: ['./overview.css']
 })
-export class Overview implements OnInit {
-  recentArticles: News[] = [];
-  stats = {
-    totalArticles: 0,
-    newToday: 0,
-  };
+export class Overview implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
-  constructor(private newsService: NewsService) {}
+  stats!: any;
+  recentArticles: any[] = [];
+  recentComments: any[] = [];
+  loading = true;  // ← COMEÇA TRUE!
+  activeTab = 'articles';
+
+  constructor(
+    private http: HttpClient,
+    private cd: ChangeDetectorRef
+  ) { }
 
   ngOnInit() {
-    this.recentArticles = this.newsService.getRecentNews(5);
-    this.stats = this.newsService.getStats();
+    console.log('🚀 Overview ngOnInit!');  // ← DEBUG
+    this.loadDashboardStats();
   }
 
-  deleteArticle(id: number | undefined) {
-    if (!id) return;
-    // Por enquanto apenas remove da lista local até integrar com a API
-    this.recentArticles = this.recentArticles.filter(a => a.id !== id);
+  loadDashboardStats() {
+    console.log('🔄 Loading...');
+    this.loading = true;
+
+    this.http.get('/api/dashboard/stats').subscribe({
+      next: (response: any) => {
+        console.log('✅ Response completa:', response);
+        this.stats = response.data;
+        console.log('🔓 Loading = false!');
+        this.loading = false;  // ← FORÇA AQUI!
+
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  setTab(tab: string) {
+    this.activeTab = tab;
   }
 }

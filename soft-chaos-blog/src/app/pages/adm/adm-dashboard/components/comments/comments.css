@@ -225,6 +225,15 @@
   font-size: 0.9rem;
 }
 
+.error-message {
+  color: var(--red);
+  background-color: #C71E1E20;
+  padding: 15px;
+  border-radius: 15px;
+  border: solid 1px var(--red);
+  font-weight: 500;
+}
+
 /* ===== RESPONSIVO ===== */
 @media screen and (max-width: 768px) {
   .section-header {

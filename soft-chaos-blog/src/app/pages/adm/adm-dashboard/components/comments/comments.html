@@ -1,4 +1,19 @@
 <section class="comments-section">
+  <!-- ADICIONE ANTES do section-header -->
+  @if (loading) {
+    <div class="loading-container">
+      <i class="fas fa-spinner fa-spin"></i>
+      Carregando comentários...
+    </div>
+  }
+
+  @if (!loading && comments.length === 0) {
+    <div class="empty-state">
+      <i class="fas fa-comments"></i>
+      <p>Nenhum comentário pendente</p>
+    </div>
+  }
+
   <section class="section-header">
     <div class="header-content">
       <h2>Gerenciar Comentários</h2>
@@ -14,12 +29,6 @@
           [(ngModel)]="searchTerm"
           (input)="filterComments()">
       </div>
-      <select [(ngModel)]="statusFilter" (change)="filterComments()">
-        <option value="">Todos Status</option>
-        <option value="APROVADO">Aprovados</option>
-        <option value="PENDENTE">Pendente</option>
-        <option value="REJEITADO">Rejeitados</option>
-      </select>
     </div>
   </section>
 
@@ -93,7 +102,7 @@
   @if (filteredComments.length > 0) {
     <div class="table-footer">
       <div class="summary">
-        Mostrando {{ filteredComments.length }} de {{ allComments.length }} comentários
+        Mostrando {{ filteredComments.length }} de {{ comments.length }} comentários
       </div>
     </div>
   }
