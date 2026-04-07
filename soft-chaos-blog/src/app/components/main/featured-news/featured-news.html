@@ -2,28 +2,24 @@
   @if (mainNews) {
     <div class="main-card-container">
       <div class="img-container">
-        <img [src]="mainNews.imageURL" [alt]="mainNews.title" />
+        <img [src]="mainNews.imageUrl || 'assets/default-news.jpg'" [alt]="mainNews.title">
       </div>
 
       <div class="card-container">
         <div class="uppertitle-text">
-          <p class="news-type">{{ mainNews.type }}</p>
-
-          <p class="time-read">{{ mainNews.readTime }} MINUTOS DE LEITURA</p>
+          <p class="news-type">{{ mainNews.categoryName || 'Geral' }}</p>
         </div>
 
         <h1 class="card-title">{{ mainNews.title }}</h1>
 
-        <p class="card-desc">{{ mainNews.description }}</p>
+        <p class="card-desc">{{ mainNews.subtitle || 'Clique para ler a matéria completa' }}</p>
 
         <a [routerLink]="['/noticia/', mainNews.slug]">
           <button class="card-btn">LER MATERIA <i class="fas fa-arrow-right"></i></button>
         </a>
       </div>
     </div>
-  }
-  
-  @else {
+  } @else {
     <div class="no-news">
       <p>Nenhuma notícia disponível no momento.</p>
     </div>
@@ -32,23 +28,19 @@
   @if (firstSecondNews || secSecondNews) {
     <div class="minor-card-container">
       <a [routerLink]="['/noticia/', firstSecondNews?.slug]">
-          <div class="first-minor-news">
-            <p class="news-type">{{ firstSecondNews?.type }}</p>
-
-            <h1 class="card-title">{{ firstSecondNews?.title }}</h1>
-
-            <p class="card-desc">{{ firstSecondNews?.description }}</p>
-          </div>
+        <div class="first-minor-news">
+          <p class="news-type">{{ firstSecondNews?.categoryName || 'Geral' }}</p>
+          <h1 class="card-title">{{ firstSecondNews?.title }}</h1>
+          <p class="card-desc">{{ firstSecondNews?.subtitle || 'Clique para ler a matéria completa' }}</p>
+        </div>
       </a>
 
       <a [routerLink]="['/noticia/', secSecondNews?.slug]">
-          <div class="second-minor-news">
-            <p class="news-type">{{ secSecondNews?.type }}</p>
-
-            <h1 class="card-title">{{ secSecondNews?.title }}</h1>
-
-            <p class="card-desc">{{ secSecondNews?.description }}</p>
-          </div>
+        <div class="second-minor-news">
+          <p class="news-type">{{ secSecondNews?.categoryName || 'Geral' }}</p>
+          <h1 class="card-title">{{ secSecondNews?.title }}</h1>
+          <p class="card-desc">{{ secSecondNews?.subtitle || 'Clique para ler a matéria completa' }}</p>
+        </div>
       </a>
     </div>
   }

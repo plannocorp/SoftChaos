@@ -4,25 +4,24 @@
     <h1 class="main-title">BASTIDORES</h1>
 
     <div class="main-content">
-        @if(newsBastidores) {
+        @if (newsBastidores.length > 0) {
             @for (news of newsBastidores; track news.id) {
                 <a [routerLink]="['/noticia/', news.slug]">
                     <div class="card">
                         <div class="img-box">
-                            <img [src]="news.imageURL" [alt]="news.title">
+                            <!-- imageURL → imageUrl -->
+                            <img [src]="news.imageUrl" [alt]="news.title">
                         </div>
-                        
+
                         <div class="text-box">
                             <h1 class="card-title">{{ news.title }}</h1>
-
-                            <p class="card-desc">{{ news.description }}</p>
+                            <!-- description → subtitle (fallback opcional) -->
+                            <p class="card-desc">{{ news.subtitle || 'Clique para ler a matéria completa' }}</p>
                         </div>
                     </div>
                 </a>
             }
-        }
-
-        @else {
+        } @else {
             <div class="no-news">
                 <p>Nenhuma notícia no momento...</p>
             </div>

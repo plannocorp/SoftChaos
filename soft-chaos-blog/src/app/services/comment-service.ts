@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { BackendCommentResponse, Comment, PagedResponse } from '../models/comment';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { CommentResponse } from '../models/comment-response';
+import { CreateCommentRequest } from '../models/create-comment-request';
+import { PagedResponse } from '../models/paged-response';
 
 @Injectable({ providedIn: 'root' })
 export class CommentService {
@@ -10,57 +12,111 @@ export class CommentService {
 
   constructor(private http: HttpClient) { }
 
-  getPendingComments(page: number = 0, size: number = 20, search?: string): Observable<Comment[]> {
+  /**
+   * Retorna comentários aprovados de um artigo (paginado)
+   * Endpoint: GET /api/comments/article/{articleId}?page=0&size=10
+   */
+  getCommentsByArticle(articleId: number, page: number = 0, size: number = 10): Observable<PagedResponse<CommentResponse>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+    return this.http.get<PagedResponse<CommentResponse>>(`${this.apiUrl}/article/${articleId}`, { params });
+  }
 
+  /**
+   * Cria um novo comentário
+   * Endpoint: POST /api/comments
+   */
+  createComment(comment: CreateCommentRequest): Observable<CommentResponse> {
+    return this.http.post<CommentResponse>(this.apiUrl, comment);
+  }
+
+  /**
+ * Retorna total de comentários (todos os status)
+ */
+  getTotalComments(): Observable<number> {
+    return this.http.get<PagedResponse<CommentResponse>>(`${this.apiUrl}?size=1`).pipe(
+      map(res => res.totalElements),
+      catchError(() => of(0))
+    );
+  }
+
+  /**
+   * Retorna quantidade de comentários pendentes
+   */
+  getPendingCommentsCount(): Observable<number> {
+    return this.http.get<PagedResponse<CommentResponse>>(`${this.apiUrl}/pending?size=1`).pipe(
+      map(res => res.totalElements),
+      catchError(() => of(0))
+    );
+  }
+
+  /**
+   * Retorna quantidade de comentários aprovados
+   */
+  getApprovedCommentsCount(): Observable<number> {
+    return this.http.get<PagedResponse<CommentResponse>>(`${this.apiUrl}/approved?size=1`).pipe(
+      map(res => res.totalElements),
+      catchError(() => of(0))
+    );
+  }
+
+  /**
+   * Retorna comentários recentes (últimos 5, independente do status)
+   */
+  getRecentComments(limit: number = 5): Observable<CommentResponse[]> {
+    const params = new HttpParams().set('size', limit.toString()).set('sort', 'createdAt,desc');
+    return this.http.get<PagedResponse<CommentResponse>>(this.apiUrl, { params }).pipe(
+      map(res => res.content),
+      catchError(() => of([]))
+    );
+  }
+
+  /**
+ * Retorna comentários pendentes (paginado) - para admin
+ * Endpoint: GET /api/comments/pending?page=0&size=20&search=
+ */
+  getPendingComments(page: number = 0, size: number = 20, search?: string): Observable<PagedResponse<CommentResponse>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     if (search) params = params.set('search', search);
-
-    return this.http.get<{ data: PagedResponse<BackendCommentResponse> }>(`${this.apiUrl}/pending`, { params }).pipe(
-      map(response => {
-        const backendComments = response.data.content;
-        return backendComments.map(comment => this.mapToFrontend(comment));
-      })
-    );
+    return this.http.get<PagedResponse<CommentResponse>>(`${this.apiUrl}/pending`, { params })
+      .pipe(catchError(this.handleError<PagedResponse<CommentResponse>>('getPendingComments')));
   }
 
-  approveComment(id: number): Observable<Comment> {
-    return this.http.put<{ data: BackendCommentResponse }>(`${this.apiUrl}/${id}/approve`, {}).pipe(
-      map(response => this.mapToFrontend(response.data))
-    );
+  /**
+   * Aprova um comentário
+   * Endpoint: PUT /api/comments/{id}/approve
+   */
+  approveComment(id: number): Observable<CommentResponse> {
+    return this.http.put<CommentResponse>(`${this.apiUrl}/${id}/approve`, {})
+      .pipe(catchError(this.handleError<CommentResponse>('approveComment')));
   }
 
-  rejectComment(id: number): Observable<Comment> {
-    return this.http.put<{ data: BackendCommentResponse }>(`${this.apiUrl}/${id}/reject`, {}).pipe(
-      map(response => this.mapToFrontend(response.data))
-    );
+  /**
+   * Rejeita um comentário
+   * Endpoint: PUT /api/comments/{id}/reject
+   */
+  rejectComment(id: number): Observable<CommentResponse> {
+    return this.http.put<CommentResponse>(`${this.apiUrl}/${id}/reject`, {})
+      .pipe(catchError(this.handleError<CommentResponse>('rejectComment')));
   }
 
+  /**
+   * Deleta um comentário
+   * Endpoint: DELETE /api/comments/{id}
+   */
   deleteComment(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`)
+      .pipe(catchError(this.handleError<void>('deleteComment')));
   }
 
-  // FUNÇÃO mapToFrontend CORRIGIDA (move mapStatus pra dentro)
-  private mapToFrontend(backend: BackendCommentResponse): Comment {
-    const mapStatus = (status: string): 'PENDENTE' | 'APROVADO' | 'REJEITADO' => {
-      const statusMap: Record<string, 'PENDENTE' | 'APROVADO' | 'REJEITADO'> = {
-        'PENDING': 'PENDENTE',
-        'APPROVED': 'APROVADO',
-        'REJECTED': 'REJEITADO'
-      };
-      return statusMap[status] || 'PENDENTE';
-    };
-
-    return {
-      id: backend.id,
-      articleTitle: backend.articleTitle || 'Artigo não encontrado',  // ← DIRETO!
-      articleSlug: '',  // ← Backend não manda, deixa vazio
-      author: backend.authorName,
-      email: 'N/D',  // ← Backend não manda mais email
-      content: backend.content,
-      createdAt: new Date(backend.createdAt),
-      status: mapStatus(backend.status)
+  // Adicione este método auxiliar se não existir
+  private handleError<T>(operation: string) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} falhou:`, error);
+      return throwError(() => error);
     };
   }
 }

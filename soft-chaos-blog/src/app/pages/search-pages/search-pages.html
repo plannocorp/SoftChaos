@@ -3,7 +3,6 @@
 <div class="search-page">
   <div class="search-header">
     <h1 class="main-title">Resultados para "{{ searchTerm }}"</h1>
-
     <a [routerLink]="['/']" class="back-link">← Voltar ao blog</a>
   </div>
 
@@ -20,7 +19,6 @@
         <span class="pink-number">0</span>
         <span class="red-number">4</span>
       </h1>
-
       <p>Nenhuma notícia encontrada para "<strong>{{ searchTerm }}</strong>"</p>
     </div>
   }
@@ -30,20 +28,17 @@
       @for (noticia of resultados; track noticia.id) {
         <article class="news-card">
           <div class="img-box">
-            <img [src]="noticia.imageURL" [alt]="noticia.title" class="card-img">
+            <img [src]="noticia.imageUrl" [alt]="noticia.title" class="card-img">
           </div>
-          
+
           <div class="card-content">
             <h2 class="card-title">{{ noticia.title }}</h2>
-
-            <p class="card-desc">{{ noticia.description }}</p>
+            <p class="card-desc">{{ noticia.subtitle || 'Clique para ler a matéria completa' }}</p>
 
             <div class="card-meta">
-              <span class="type-badge">{{ noticia.type }}</span>
-
-              <span class="author">por {{ noticia.author }}</span>
-
-              <span class="publish-date">{{ noticia.publishAt | date:'dd/MM/yy' }}</span>
+              <span class="type-badge">{{ noticia.categoryName }}</span>
+              <span class="author">por {{ noticia.authorName }}</span>
+              <span class="publish-date">{{ noticia.publishedAt | date:'dd/MM/yy' }}</span>
             </div>
 
             <a [routerLink]="['/noticia', noticia.slug]" class="read-more">Ler notícia completa</a>

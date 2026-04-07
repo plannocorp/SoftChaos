@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
-import { News } from '../../models/news';
-import { NewsService } from '../../services/news-service';
 import { RouterLink } from "@angular/router";
+import { NewsService } from '../../services/news-service';
+import { ArticleSummary } from '../../models/article-summary';
 
 @Component({
   selector: 'app-novidades',
@@ -12,7 +12,7 @@ import { RouterLink } from "@angular/router";
   styleUrl: './novidades.css',
 })
 export class Novidades implements OnInit {
-  public newsNovidades: News[] | undefined;
+  public newsNovidades: ArticleSummary[] = [];
 
   constructor(private newsService: NewsService) {}
 
@@ -20,7 +20,19 @@ export class Novidades implements OnInit {
     this.loadNovidadeNews();
   }
 
-  loadNovidadeNews(): void {
-    this.newsNovidades = this.newsService.getByType('NOVIDADES');
+  public loadNovidadeNews(): void {
+    this.newsService.getAll().subscribe({
+      next: (allArticles) => {
+        // Filtra artigos cuja categoria seja "Novidades" (case-insensitive)
+        this.newsNovidades = allArticles.filter(
+          article => article.categoryName?.toLowerCase() === 'novidades'
+        );
+        console.log(`Novidades: ${this.newsNovidades.length} artigos encontrados`);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar notícias de Novidades', err);
+        this.newsNovidades = [];
+      }
+    });
   }
 }

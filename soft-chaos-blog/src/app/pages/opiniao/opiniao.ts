@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
-import { News } from '../../models/news';
-import { NewsService } from '../../services/news-service';
 import { RouterLink } from "@angular/router";
+import { NewsService } from '../../services/news-service';
+import { ArticleSummary } from '../../models/article-summary';
 
 @Component({
   selector: 'app-opiniao',
@@ -12,7 +12,7 @@ import { RouterLink } from "@angular/router";
   styleUrl: './opiniao.css',
 })
 export class Opiniao implements OnInit {
-  public newsOpiniao: News[] | undefined;
+  public newsOpiniao: ArticleSummary[] = [];
 
   constructor(private newsService: NewsService) {}
 
@@ -21,6 +21,18 @@ export class Opiniao implements OnInit {
   }
 
   public loadOpiniaoNews(): void {
-    this.newsOpiniao = this.newsService.getByType('OPINIÃO');
+    this.newsService.getAll().subscribe({
+      next: (allArticles) => {
+        // Filtra artigos cuja categoria seja "Opiniao" (case-insensitive)
+        this.newsOpiniao = allArticles.filter(
+          article => article.categoryName?.toLowerCase() === 'opiniao'
+        );
+        console.log(`Opinião: ${this.newsOpiniao.length} artigos encontrados`);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar notícias de Opinião', err);
+        this.newsOpiniao = [];
+      }
+    });
   }
 }

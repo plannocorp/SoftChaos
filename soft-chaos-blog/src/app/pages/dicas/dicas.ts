@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
-import { News } from '../../models/news';
-import { NewsService } from '../../services/news-service';
 import { RouterLink } from "@angular/router";
+import { NewsService } from '../../services/news-service';
+import { ArticleSummary } from '../../models/article-summary';
 
 @Component({
   selector: 'app-dicas',
@@ -12,7 +12,7 @@ import { RouterLink } from "@angular/router";
   styleUrl: './dicas.css',
 })
 export class Dicas implements OnInit {
-  public newsDicas: News[] | undefined;
+  public newsDicas: ArticleSummary[] = [];
 
   constructor(private newsService: NewsService) {}
 
@@ -21,6 +21,18 @@ export class Dicas implements OnInit {
   }
 
   public loadDicasNews(): void {
-    this.newsDicas = this.newsService.getByType('DICAS');
+    this.newsService.getAll().subscribe({
+      next: (allArticles) => {
+        // Filtra artigos cuja categoria seja "Dicas" (case-insensitive)
+        this.newsDicas = allArticles.filter(
+          article => article.categoryName?.toLowerCase() === 'dicas'
+        );
+        console.log(`Dicas: ${this.newsDicas.length} artigos encontrados`);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar notícias de Dicas', err);
+        this.newsDicas = [];
+      }
+    });
   }
 }

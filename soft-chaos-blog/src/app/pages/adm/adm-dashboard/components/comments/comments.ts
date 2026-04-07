@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { CommentService } from '../../../../../services/comment-service';
-import { Comment } from '../../../../../models/comment';
+import { CommentResponse } from '../../../../../models/comment-response';
+import { PagedResponse } from '../../../../../models/paged-response';
 
 @Component({
   selector: 'app-comments',
@@ -14,14 +15,19 @@ import { Comment } from '../../../../../models/comment';
   styleUrls: ['./comments.css']
 })
 export class Comments implements OnInit {
-  comments: Comment[] = [];
-  filteredComments: Comment[] = [];
+  comments: CommentResponse[] = [];
+  filteredComments: CommentResponse[] = []; // para compatibilidade com o template (filtro local removido, mas mantemos para não quebrar)
   searchTerm = '';
-  statusFilter = '';
   error = '';
   loading = false;
 
-  private searchSubject = new Subject<void>();
+  // Paginação
+  currentPage = 0;
+  pageSize = 20;
+  totalElements = 0;
+  totalPages = 0;
+
+  private searchSubject = new Subject<string>();
 
   constructor(
     private commentService: CommentService,
@@ -37,32 +43,36 @@ export class Comments implements OnInit {
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
-      switchMap(() => this.commentService.getPendingComments(0, 50, this.searchTerm))
+      switchMap((search) => this.commentService.getPendingComments(0, this.pageSize, search))
     ).subscribe({
-      next: (comments: Comment[]) => {
-        this.comments = comments;
-        this.filteredComments = [...comments];
-        this.filterComments();
+      next: (response: PagedResponse<CommentResponse>) => {
+        this.comments = response.content;
+        this.filteredComments = [...this.comments];
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.currentPage = response.pageNumber;
+        this.loading = false;
+        this.cd.detectChanges();
       },
-      error: (err: any) => {
-        console.error('Erro no debounce:', err);
-      }
+      error: (err) => console.error('Erro no debounce:', err)
     });
   }
 
-  loadComments() {
+  loadComments(page: number = 0) {
     this.loading = true;
     this.error = '';
 
-    this.commentService.getPendingComments(0, 50).subscribe({
-      next: (comments: Comment[]) => {
-        this.comments = comments;
-        this.filteredComments = [...comments];
+    this.commentService.getPendingComments(page, this.pageSize, this.searchTerm).subscribe({
+      next: (response: PagedResponse<CommentResponse>) => {
+        this.comments = response.content;
+        this.filteredComments = [...this.comments];
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.currentPage = response.pageNumber;
         this.loading = false;
-        this.filterComments();
         this.cd.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.error = 'Erro ao carregar comentários: ' + (err.error?.message || err.message);
         this.loading = false;
         console.error(err);
@@ -70,39 +80,21 @@ export class Comments implements OnInit {
     });
   }
 
-  filterComments() {
-    let filtered = [...this.comments];
-    
-    if (this.searchTerm.trim()) {
-      filtered = filtered.filter(comment =>
-        comment.author.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        comment.content.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        comment.articleTitle.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    }
-
-    if (this.statusFilter) {
-      filtered = filtered.filter(comment => comment.status === this.statusFilter);
-    }
-
-    this.filteredComments = filtered;
-  }
-
   onSearchChange() {
-    this.searchSubject.next();
+    this.searchSubject.next(this.searchTerm);
+    this.currentPage = 0;
   }
 
   approveComment(id: number) {
     if (confirm('Aprovar este comentário?')) {
       this.commentService.approveComment(id).subscribe({
-        next: (updated: Comment) => {
+        next: (updated: CommentResponse) => {
+          // Atualiza localmente
           const index = this.comments.findIndex(c => c.id === id);
-          if (index !== -1) {
-            this.comments[index] = updated;
-            this.filterComments();
-          }
+          if (index !== -1) this.comments[index] = updated;
+          this.filteredComments = [...this.comments];
         },
-        error: (err: any) => {
+        error: (err) => {
           this.error = 'Erro ao aprovar: ' + (err.error?.message || err.message);
         }
       });
@@ -112,14 +104,12 @@ export class Comments implements OnInit {
   rejectComment(id: number) {
     if (confirm('Rejeitar este comentário?')) {
       this.commentService.rejectComment(id).subscribe({
-        next: (updated: Comment) => {
+        next: (updated: CommentResponse) => {
           const index = this.comments.findIndex(c => c.id === id);
-          if (index !== -1) {
-            this.comments[index] = updated;
-            this.filterComments();
-          }
+          if (index !== -1) this.comments[index] = updated;
+          this.filteredComments = [...this.comments];
         },
-        error: (err: any) => {
+        error: (err) => {
           this.error = 'Erro ao rejeitar: ' + (err.error?.message || err.message);
         }
       });
@@ -131,12 +121,28 @@ export class Comments implements OnInit {
       this.commentService.deleteComment(id).subscribe({
         next: () => {
           this.comments = this.comments.filter(c => c.id !== id);
-          this.filterComments();
+          this.filteredComments = [...this.comments];
+          this.totalElements--;
+          if (this.comments.length === 0 && this.currentPage > 0) {
+            this.loadComments(this.currentPage - 1);
+          }
         },
-        error: (err: any) => {
+        error: (err) => {
           this.error = 'Erro ao excluir: ' + (err.error?.message || err.message);
         }
       });
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 0) {
+      this.loadComments(this.currentPage - 1);
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage + 1 < this.totalPages) {
+      this.loadComments(this.currentPage + 1);
     }
   }
 }

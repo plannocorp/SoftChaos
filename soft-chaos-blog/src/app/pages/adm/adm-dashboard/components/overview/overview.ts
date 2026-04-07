@@ -1,7 +1,13 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin, of } from 'rxjs';
+import { takeUntil, catchError, map } from 'rxjs/operators';  // ← map adicionado
+import { NewsService } from '../../../../../services/news-service';
+import { CommentService } from '../../../../../services/comment-service';
+import { ArticleResponse } from '../../../../../models/article-response';
+import { CommentResponse } from '../../../../../models/comment-response';
+import { PagedResponse } from '../../../../../models/paged-response';
+import { ArticleSummary } from '../../../../../models/article-summary';
 
 @Component({
   selector: 'app-overview',
@@ -13,48 +19,75 @@ import { Subject } from 'rxjs';
 export class Overview implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  stats!: any;
-  recentArticles: any[] = [];
-  recentComments: any[] = [];
-  loading = true;  // ← COMEÇA TRUE!
+  stats = {
+    totalArticles: 0,
+    totalComments: 0,
+    pendingComments: 0,
+    approvedComments: 0
+  };
+  recentArticles: ArticleResponse[] = [];
+  recentComments: CommentResponse[] = [];
+  loading = true;
   activeTab = 'articles';
 
   constructor(
-    private http: HttpClient,
-    private cd: ChangeDetectorRef
+    private newsService: NewsService,
+    private commentService: CommentService
   ) { }
 
   ngOnInit() {
-    console.log('🚀 Overview ngOnInit!');  // ← DEBUG
-    this.loadDashboardStats();
+    this.loadDashboardData();
   }
 
-  loadDashboardStats() {
-    console.log('🔄 Loading...');
+  private loadDashboardData() {
     this.loading = true;
 
-    this.http.get('/api/dashboard/stats').subscribe({
-      next: (response: any) => {
-        console.log('✅ Response completa:', response);
-        this.stats = response.data;
-        console.log('🔓 Loading = false!');
-        this.loading = false;  // ← FORÇA AQUI!
+    const recentArticles$ = this.newsService.getRecentNews(5).pipe(catchError(() => of([])));
+    const recentComments$ = this.commentService.getRecentComments(5).pipe(catchError(() => of([])));
+    const totalArticles$ = this.newsService.getArticlesPaginated(0, 1).pipe(
+      map((res: PagedResponse<ArticleSummary>) => res.totalElements),
+      catchError(() => of(0))
+    );
+    const totalComments$ = this.commentService.getTotalComments().pipe(catchError(() => of(0)));
+    const pendingComments$ = this.commentService.getPendingCommentsCount().pipe(catchError(() => of(0)));
+    const approvedComments$ = this.commentService.getApprovedCommentsCount().pipe(catchError(() => of(0)));
 
-        this.cd.detectChanges();
+    forkJoin({
+      recentArticles: recentArticles$,
+      recentComments: recentComments$,
+      totalArticles: totalArticles$,
+      totalComments: totalComments$,
+      pendingComments: pendingComments$,
+      approvedComments: approvedComments$
+    }).subscribe({
+      next: (result) => {
+        this.stats.totalArticles = result.totalArticles;
+        this.stats.totalComments = result.totalComments;
+        this.stats.pendingComments = result.pendingComments;
+        this.stats.approvedComments = result.approvedComments;
+        this.recentArticles = result.recentArticles;
+        this.recentComments = result.recentComments;
+        this.loading = false;
       },
       error: (err) => {
-        console.error('❌', err);
+        console.error('Erro ao carregar dashboard', err);
         this.loading = false;
       }
     });
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  editArticle(id: number) {
+    console.log('Editar artigo', id);
+    // Futuramente: navegar para página de edição
+    // this.router.navigate(['/adm/artigos/editar', id]);
   }
 
   setTab(tab: string) {
     this.activeTab = tab;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

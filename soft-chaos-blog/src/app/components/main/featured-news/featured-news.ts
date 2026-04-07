@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { News } from '../../../models/news';
-import { NewsService } from '../../../services/news-service';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from "@angular/router";
+import { NewsService } from '../../../services/news-service';
+import { ArticleResponse } from '../../../models/article-response';
 
 @Component({
   selector: 'app-featured-news',
@@ -11,26 +11,32 @@ import { RouterLink } from "@angular/router";
   styleUrl: './featured-news.css',
 })
 export class FeaturedNews implements OnInit {
-  public mainNews?: News;
-  public firstSecondNews?: News;
-  public secSecondNews?: News;
+  public mainNews?: ArticleResponse;
+  public firstSecondNews?: ArticleResponse;
+  public secSecondNews?: ArticleResponse;
 
-  constructor(private newsService: NewsService) {} // Injeção de dependencia do Service
+  constructor(private newsService: NewsService) {}
 
   ngOnInit(): void {
     this.loadFeaturedNews();
   }
 
   loadFeaturedNews(): void {
-    this.mainNews = this.newsService.getLatestNews();
+    this.newsService.getLatestNews().subscribe({
+      next: (latest) => {
+        this.mainNews = latest;
+        console.log('Main News:', this.mainNews);
+      },
+      error: (err) => console.error('Erro ao carregar main news', err)
+    });
 
-    const secondaryNews = this.newsService.getSecondaryNews();
-
-    this.firstSecondNews = secondaryNews[0];
-    this.secSecondNews = secondaryNews[1];
-
-    // Log para Debug
-    console.log('Main News:', this.mainNews);
-    console.log('Secondary News:', secondaryNews)
+    this.newsService.getSecondaryNews().subscribe({
+      next: (secondary) => {
+        this.firstSecondNews = secondary[0];
+        this.secSecondNews = secondary[1];
+        console.log('Secondary News:', secondary);
+      },
+      error: (err) => console.error('Erro ao carregar secondary news', err)
+    });
   }
 }

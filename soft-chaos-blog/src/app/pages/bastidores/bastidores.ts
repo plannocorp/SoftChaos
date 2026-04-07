@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
-import { News } from '../../models/news';
-import { NewsService } from '../../services/news-service';
 import { RouterLink } from "@angular/router";
+import { NewsService } from '../../services/news-service';
+import { ArticleSummary } from '../../models/article-summary';
 
 @Component({
   selector: 'app-bastidores',
@@ -12,7 +12,7 @@ import { RouterLink } from "@angular/router";
   styleUrl: './bastidores.css',
 })
 export class Bastidores implements OnInit {
-  public newsBastidores: News[] | undefined;
+  public newsBastidores: ArticleSummary[] = [];
 
   constructor(private newsService: NewsService) {}
 
@@ -21,6 +21,18 @@ export class Bastidores implements OnInit {
   }
 
   public loadBastidoresNews(): void {
-    this.newsBastidores = this.newsService.getByType('BASTIDORES');
+    this.newsService.getAll().subscribe({
+      next: (allArticles) => {
+        // Filtra artigos cuja categoria seja "Bastidores" (case-insensitive)
+        this.newsBastidores = allArticles.filter(
+          article => article.categoryName?.toLowerCase() === 'bastidores'
+        );
+        console.log(`Bastidores: ${this.newsBastidores.length} artigos encontrados`);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar notícias de Bastidores', err);
+        this.newsBastidores = [];
+      }
+    });
   }
 }

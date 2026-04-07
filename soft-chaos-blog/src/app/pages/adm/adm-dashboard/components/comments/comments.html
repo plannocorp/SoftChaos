@@ -1,5 +1,4 @@
 <section class="comments-section">
-  <!-- ADICIONE ANTES do section-header -->
   @if (loading) {
     <div class="loading-container">
       <i class="fas fa-spinner fa-spin"></i>
@@ -7,7 +6,7 @@
     </div>
   }
 
-  @if (!loading && comments.length === 0) {
+  @if (!loading && comments.length === 0 && !error) {
     <div class="empty-state">
       <i class="fas fa-comments"></i>
       <p>Nenhum comentário pendente</p>
@@ -19,15 +18,15 @@
       <h2>Gerenciar Comentários</h2>
       <p>Modere e visualize todos os comentários dos artigos</p>
     </div>
-    
+
     <div class="section-actions">
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder="Buscar comentários..."
           [(ngModel)]="searchTerm"
-          (input)="filterComments()">
+          (input)="onSearchChange()">
       </div>
     </div>
   </section>
@@ -49,15 +48,13 @@
         </tr>
       </thead>
       <tbody>
-        @for (comment of filteredComments; track comment.id) {
+        @for (comment of comments; track comment.id) {
           <tr class="comment-row" [class.pending]="comment.status === 'PENDENTE'">
             <td>
-              <strong>{{ comment.articleTitle }}</strong>
-              <br><small>{{ comment.articleSlug }}</small>
+              <strong>{{ comment.articleTitle || 'Artigo não encontrado' }}</strong>
             </td>
             <td>
-              {{ comment.author }}
-              <br><small>{{ comment.email }}</small>
+              {{ comment.authorName }}
             </td>
             <td>
               {{ comment.content | slice:0:80 }}{{ comment.content.length > 80 ? '...' : '' }}
@@ -99,10 +96,23 @@
     </table>
   </div>
 
-  @if (filteredComments.length > 0) {
+  <!-- Controles de paginação -->
+  @if (totalPages > 1) {
+    <div class="pagination-controls">
+      <button (click)="previousPage()" [disabled]="currentPage === 0" class="page-btn">
+        &laquo; Anterior
+      </button>
+      <span class="page-info">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+      <button (click)="nextPage()" [disabled]="currentPage + 1 >= totalPages" class="page-btn">
+        Próximo &raquo;
+      </button>
+    </div>
+  }
+
+  @if (totalElements > 0) {
     <div class="table-footer">
       <div class="summary">
-        Mostrando {{ filteredComments.length }} de {{ comments.length }} comentários
+        Mostrando {{ comments.length }} de {{ totalElements }} comentários
       </div>
     </div>
   }

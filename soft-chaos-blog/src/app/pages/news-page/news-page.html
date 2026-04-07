@@ -1,19 +1,30 @@
 <app-header />
 
 <div class="news-page">
-    @if (news) {
+    @if (loading) {
+        <div class="loading-spinner">Carregando notícia...</div>
+    } @else if (notFound) {
+        <div class="no-news">
+            <h1 class="error-404">
+                <span class="green-number">4</span>
+                <span class="pink-number">0</span>
+                <span class="red-number">4</span>
+            </h1>
+            <p>Essa página de notícias não existe...</p>
+        </div>
+    } @else if (news) {
         <div class="news-header">
             <div class="img-box">
-                <img [src]="news.imageURL" [alt]="news.title" class="main-img">
+                <img [src]="news.imageUrl" [alt]="news.title" class="main-img">
             </div>
 
             <h1 class="main-title">{{ news.title }}</h1>
 
-            <p class="main-desc">{{ news.description }}</p>
+            <p class="main-desc">{{ news.subtitle || 'Leia a matéria completa abaixo' }}</p>
 
-            <p class="author-desc"><span>Autor:</span> {{ news.author }}</p>
+            <p class="author-desc"><span>Autor:</span> {{ news.authorName }}</p>
 
-            <p class="publish-at">{{ news.publishAt }}</p>
+            <p class="publish-at">{{ news.publishedAt | date:'dd/MM/yyyy HH:mm' }}</p>
         </div>
 
         <div class="line-divider"></div>
@@ -21,17 +32,67 @@
         <div class="news-content">
             <p class="content">{{ news.content }}</p>
         </div>
-    }
 
-    @else {
-        <div class="no-news">
-            <h1 class="error-404">
-                <span class="green-number">4</span>
-                <span class="pink-number">0</span>
-                <span class="red-number">4</span>
-            </h1>
+        <!-- SEÇÃO DE COMENTÁRIOS -->
+        <div class="comments-section">
+            <h2 class="comments-title">Comentários ({{ comments.length }})</h2>
 
-            <p>Essa página de notícias não existe...</p>
+            @if (commentsLoading) {
+                <div class="comments-loading">Carregando comentários...</div>
+            } @else {
+                @if (comments.length === 0) {
+                    <p class="no-comments">Nenhum comentário ainda. Seja o primeiro!</p>
+                } @else {
+                    <div class="comments-list">
+                        @for (comment of comments; track comment.id) {
+                            <div class="comment-card">
+                                <div class="comment-header">
+                                    <strong class="comment-author">{{ comment.authorName }}</strong>
+                                    <span class="comment-date">{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                                </div>
+                                <p class="comment-content">{{ comment.content }}</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Paginação dos comentários -->
+                    @if (commentsTotalPages > 1) {
+                        <div class="comments-pagination">
+                            <button (click)="previousCommentsPage()" [disabled]="commentsPage === 0" class="page-btn">Anterior</button>
+                            <span>Página {{ commentsPage + 1 }} de {{ commentsTotalPages }}</span>
+                            <button (click)="nextCommentsPage()" [disabled]="commentsPage + 1 >= commentsTotalPages" class="page-btn">Próximo</button>
+                        </div>
+                    }
+                }
+            }
+
+            <!-- Formulário de novo comentário -->
+            <div class="new-comment-form">
+                <h3>Deixe seu comentário</h3>
+                @if (commentError) {
+                    <div class="alert error">{{ commentError }}</div>
+                }
+                @if (commentSuccess) {
+                    <div class="alert success">{{ commentSuccess }}</div>
+                }
+                <form (ngSubmit)="submitComment()">
+                    <div class="form-group">
+                        <label for="authorName">Nome *</label>
+                        <input type="text" id="authorName" [(ngModel)]="newComment.authorName" name="authorName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authorEmail">E-mail *</label>
+                        <input type="email" id="authorEmail" [(ngModel)]="newComment.authorEmail" name="authorEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">Comentário *</label>
+                        <textarea id="content" rows="4" [(ngModel)]="newComment.content" name="content" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn" [disabled]="submittingComment">
+                        {{ submittingComment ? 'Enviando...' : 'Enviar comentário' }}
+                    </button>
+                </form>
+            </div>
         </div>
     }
 </div>
