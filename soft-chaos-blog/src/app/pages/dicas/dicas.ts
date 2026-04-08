@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
 import { RouterLink } from "@angular/router";
@@ -14,7 +14,10 @@ import { ArticleSummary } from '../../models/article-summary';
 export class Dicas implements OnInit {
   public newsDicas: ArticleSummary[] = [];
 
-  constructor(private newsService: NewsService) {}
+  constructor(
+    private newsService: NewsService,
+    private cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadDicasNews();
@@ -23,15 +26,16 @@ export class Dicas implements OnInit {
   public loadDicasNews(): void {
     this.newsService.getAll().subscribe({
       next: (allArticles) => {
-        // Filtra artigos cuja categoria seja "Dicas" (case-insensitive)
         this.newsDicas = allArticles.filter(
           article => article.categoryName?.toLowerCase() === 'dicas'
         );
-        console.log(`Dicas: ${this.newsDicas.length} artigos encontrados`);
+        console.log(`Dicas : ${this.newsDicas.length} artigos encontrados`);
+        this.cd.detectChanges();
       },
       error: (err) => {
-        console.error('Erro ao carregar notícias de Dicas', err);
+        console.error('Erro ao carregar notícias de Bastidores', err);
         this.newsDicas = [];
+        this.cd.detectChanges();
       }
     });
   }

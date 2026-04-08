@@ -17,10 +17,14 @@ export class CommentService {
    * Endpoint: GET /api/comments/article/{articleId}?page=0&size=10
    */
   getCommentsByArticle(articleId: number, page: number = 0, size: number = 10): Observable<PagedResponse<CommentResponse>> {
-    let params = new HttpParams()
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    return this.http.get<PagedResponse<CommentResponse>>(`${this.apiUrl}/article/${articleId}`, { params });
+
+    return this.http.get<any>(`${this.apiUrl}/article/${articleId}`, { params }).pipe(
+      map(response => response.data),
+      catchError(this.handleError<PagedResponse<CommentResponse>>('getCommentsByArticle'))
+    );
   }
 
   /**
@@ -28,7 +32,10 @@ export class CommentService {
    * Endpoint: POST /api/comments
    */
   createComment(comment: CreateCommentRequest): Observable<CommentResponse> {
-    return this.http.post<CommentResponse>(this.apiUrl, comment);
+    return this.http.post<any>(`${this.apiUrl}/article/${comment.articleId}`, comment).pipe(
+      map(response => response.data),
+      catchError(this.handleError<CommentResponse>('createComment'))
+    );
   }
 
   /**

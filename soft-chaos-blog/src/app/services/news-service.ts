@@ -8,6 +8,31 @@ import { ArticleResponse } from '../models/article-response';
 import { PagedResponse } from '../models/paged-response';
 import { Category } from '../models/category';
 
+interface BackendArticleSummary {
+  id: number;
+  title: string;
+  slug: string;
+  summary?: string;
+  coverImageUrl?: string;
+  status?: string;
+  featured?: boolean;
+  pinned?: boolean;
+  viewCount?: number;
+  commentsCount?: number;
+  publishedAt?: string;
+  author?: {
+    id?: number;
+    name?: string;
+    avatarUrl?: string;
+    role?: string;
+  };
+  category?: {
+    id?: number;
+    name?: string;
+    slug?: string;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class NewsService {
   private apiUrl = '/api/articles';   // base dos endpoints de artigo
@@ -23,8 +48,9 @@ export class NewsService {
    */
   public getAll(): Observable<ArticleSummary[]> {
     const params = new HttpParams().set('size', '1000');
+
     return this.http.get<any>(this.apiUrl, { params }).pipe(
-      map(response => response.data.content), // ← extrai o array de artigos
+      map(response => response.data.content.map((article: BackendArticleSummary) => this.mapBackendArticle(article))),
       catchError(this.handleError<ArticleSummary[]>('getAll', []))
     );
   }
@@ -61,8 +87,7 @@ export class NewsService {
    */
   public getBySlug(slug: string): Observable<ArticleResponse> {
     return this.http.get<any>(`${this.apiUrl}/slug/${slug}`).pipe(
-      map(response => response.data),
-      tap(article => this.incrementViewCount(article.id).subscribe()),
+      map(response => this.mapBackendArticle(response.data)),
       catchError(this.handleError<ArticleResponse>('getBySlug'))
     );
   }
@@ -71,11 +96,10 @@ export class NewsService {
    * Busca um artigo pelo ID numérico.
    */
   public getById(id: number): Observable<ArticleResponse> {
-    return this.http.get<ArticleResponse>(`${this.apiUrl}/${id}`)
-      .pipe(
-        tap(() => this.incrementViewCount(id).subscribe()),
-        catchError(this.handleError<ArticleResponse>('getById'))
-      );
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map(response => this.mapBackendArticle(response.data)),
+      catchError(this.handleError<ArticleResponse>('getById'))
+    );
   }
 
   /**
@@ -147,8 +171,9 @@ export class NewsService {
    */
   private getLatestPublishedArticles(limit: number): Observable<ArticleResponse[]> {
     const params = new HttpParams().set('limit', limit.toString());
+
     return this.http.get<any>(`${this.apiUrl}/latest`, { params }).pipe(
-      map(response => response.data), // se for array direto dentro de data
+      map(response => response.data.map((article: BackendArticleSummary) => this.mapBackendArticle(article))),
       catchError(this.handleError<ArticleResponse[]>('getLatestPublishedArticles', []))
     );
   }
@@ -191,7 +216,7 @@ export class NewsService {
  */
   public getPinnedArticles(): Observable<ArticleResponse[]> {
     return this.http.get<any>(`${this.apiUrl}/pinned`).pipe(
-      map(response => response.data),
+      map(response => response.data.map((article: BackendArticleSummary) => this.mapBackendArticle(article))),
       catchError(this.handleError<ArticleResponse[]>('getPinnedArticles', []))
     );
   }
@@ -208,5 +233,28 @@ export class NewsService {
       map(response => response.data), // ← extrai o objeto PagedResponse
       catchError(this.handleError<PagedResponse<ArticleSummary>>('getArticlesPaginated', { content: [], totalPages: 0, totalElements: 0, pageNumber: 0, pageSize: size, last: true }))
     );
+  }
+
+  private mapBackendArticle(article: BackendArticleSummary): ArticleResponse {
+    return {
+      id: article.id,
+      slug: article.slug,
+      title: article.title,
+      subtitle: article.summary || 'Clique para ler a matéria completa',
+      imageUrl: article.coverImageUrl || 'assets/default-news.jpg',
+      publishedAt: article.publishedAt ? new Date(article.publishedAt) : new Date(),
+      viewCount: article.viewCount ?? 0,
+      commentCount: article.commentsCount ?? 0,
+      featured: article.featured ?? false,
+      pinned: article.pinned ?? false,
+      authorName: article.author?.name || 'Soft Chaos',
+      categoryName: article.category?.name || 'Geral',
+      content: article.summary || '',
+      authorId: article.author?.id ?? 0,
+      categoryId: article.category?.id ?? 0,
+      status: article.status || 'PUBLISHED',
+      createdAt: article.publishedAt ? new Date(article.publishedAt) : new Date(),
+      updatedAt: article.publishedAt ? new Date(article.publishedAt) : new Date(),
+    };
   }
 }

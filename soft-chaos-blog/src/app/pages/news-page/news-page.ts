@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Header } from "../../components/header/header/header";
@@ -18,22 +18,23 @@ import { CreateCommentRequest } from '../../models/create-comment-request';
 })
 export class NewsPage implements OnInit {
   public news?: ArticleResponse;
-  public loading: boolean = true;
-  public notFound: boolean = false;
+  public loading = true;
+  public notFound = false;
 
-  // Comentários
   public comments: CommentResponse[] = [];
-  public commentsPage: number = 0;
-  public commentsTotalPages: number = 0;
-  public commentsTotalElements: number = 0;
-  public commentsLoading: boolean = false;
+  public commentsPage = 0;
+  public commentsTotalPages = 0;
+  public commentsTotalElements = 0;
+  public commentsLoading = false;
+
   public newComment: CreateCommentRequest = {
     articleId: 0,
     authorName: '',
     authorEmail: '',
     content: ''
   };
-  public submittingComment: boolean = false;
+
+  public submittingComment = false;
   public commentError: string | null = null;
   public commentSuccess: string | null = null;
 
@@ -41,7 +42,8 @@ export class NewsPage implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private newsService: NewsService,
-    private commentService: CommentService
+    private commentService: CommentService,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -50,40 +52,56 @@ export class NewsPage implements OnInit {
 
   private loadNews(): void {
     const slug = this.route.snapshot.paramMap.get('slug');
+
     if (!slug) {
       this.notFound = true;
       this.loading = false;
+      this.cd.detectChanges();
       return;
     }
 
     this.newsService.getBySlug(slug).subscribe({
       next: (article) => {
+        if (!article) {
+          this.notFound = true;
+          this.loading = false;
+          this.cd.detectChanges();
+          return;
+        }
+
         this.news = article;
         this.newComment.articleId = article.id;
         this.loading = false;
+        this.cd.detectChanges();
         this.loadComments();
       },
       error: (err) => {
         console.error('Erro ao carregar notícia', err);
         this.notFound = true;
         this.loading = false;
+        this.cd.detectChanges();
       }
     });
   }
 
   private loadComments(): void {
     if (!this.news) return;
+
     this.commentsLoading = true;
+    this.cd.detectChanges();
+
     this.commentService.getCommentsByArticle(this.news.id, this.commentsPage, 10).subscribe({
       next: (paged) => {
         this.comments = paged.content;
         this.commentsTotalPages = paged.totalPages;
         this.commentsTotalElements = paged.totalElements;
         this.commentsLoading = false;
+        this.cd.detectChanges();
       },
       error: (err) => {
         console.error('Erro ao carregar comentários', err);
         this.commentsLoading = false;
+        this.cd.detectChanges();
       }
     });
   }
@@ -91,17 +109,21 @@ export class NewsPage implements OnInit {
   public submitComment(): void {
     if (!this.newComment.authorName.trim() || !this.newComment.authorEmail.trim() || !this.newComment.content.trim()) {
       this.commentError = 'Preencha todos os campos.';
+      this.cd.detectChanges();
       return;
     }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.newComment.authorEmail)) {
       this.commentError = 'E-mail inválido.';
+      this.cd.detectChanges();
       return;
     }
 
     this.submittingComment = true;
     this.commentError = null;
     this.commentSuccess = null;
+    this.cd.detectChanges();
 
     this.commentService.createComment(this.newComment).subscribe({
       next: () => {
@@ -109,16 +131,16 @@ export class NewsPage implements OnInit {
         this.newComment.content = '';
         this.newComment.authorName = '';
         this.newComment.authorEmail = '';
-        // Recarregar comentários (página 0)
         this.commentsPage = 0;
-        this.loadComments();
         this.submittingComment = false;
-        setTimeout(() => this.commentSuccess = null, 5000);
+        this.cd.detectChanges();
+        this.loadComments();
       },
       error: (err) => {
         console.error('Erro ao enviar comentário', err);
         this.commentError = 'Erro ao enviar comentário. Tente novamente.';
         this.submittingComment = false;
+        this.cd.detectChanges();
       }
     });
   }

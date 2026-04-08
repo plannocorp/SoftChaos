@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from "@angular/router";
 import { NewsService } from '../../../services/news-service';
@@ -15,7 +15,10 @@ export class FeaturedNews implements OnInit {
   public firstSecondNews?: ArticleResponse;
   public secSecondNews?: ArticleResponse;
 
-  constructor(private newsService: NewsService) {}
+  constructor(
+    private newsService: NewsService,
+    private cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadFeaturedNews();
@@ -26,15 +29,17 @@ export class FeaturedNews implements OnInit {
       next: (latest) => {
         this.mainNews = latest;
         console.log('Main News:', this.mainNews);
+        this.cd.detectChanges();
       },
       error: (err) => console.error('Erro ao carregar main news', err)
     });
 
     this.newsService.getSecondaryNews().subscribe({
       next: (secondary) => {
-        this.firstSecondNews = secondary[0];
-        this.secSecondNews = secondary[1];
+        this.firstSecondNews = secondary.at(0);
+        this.secSecondNews = secondary.at(1);
         console.log('Secondary News:', secondary);
+        this.cd.detectChanges();
       },
       error: (err) => console.error('Erro ao carregar secondary news', err)
     });
