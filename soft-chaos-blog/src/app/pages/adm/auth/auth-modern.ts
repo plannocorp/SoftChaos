@@ -41,12 +41,24 @@ export class AuthModern {
   }
 
   public login(): void {
+    const normalizedEmail = this.normalizeEmail(this.email);
+    const normalizedPassword = this.normalizePassword(this.password);
+
+    this.email = normalizedEmail;
+    this.password = normalizedPassword;
+
+    if (!normalizedEmail || !normalizedPassword) {
+      this.error = 'Preencha email e senha para continuar.';
+      this.loading = false;
+      return;
+    }
+
     this.loading = true;
     this.error = '';
 
     this.http.post<LoginResponse>('/api/auth/login', {
-      email: this.email,
-      password: this.password,
+      email: normalizedEmail,
+      password: normalizedPassword,
     }).subscribe({
       next: (response) => {
         this.loading = false;
@@ -64,5 +76,19 @@ export class AuthModern {
         this.error = err.error?.message || 'Email ou senha invalidos.';
       }
     });
+  }
+
+  private normalizeEmail(value: string): string {
+    return value
+      .normalize('NFKC')
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .trim();
+  }
+
+  private normalizePassword(value: string): string {
+    return value
+      .normalize('NFKC')
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .trim();
   }
 }

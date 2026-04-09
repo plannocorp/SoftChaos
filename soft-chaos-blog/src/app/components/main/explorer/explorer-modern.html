@@ -1,0 +1,93 @@
+<div class="explorer">
+  <div class="presentation">
+    <div class="presentation-copy">
+      <p class="eyebrow">Explore</p>
+      <h1 class="main-title">Explorar <span>Chaos</span></h1>
+      <p class="presentation-desc">Uma grade editorial mais limpa para continuar navegando pelas ultimas materias.</p>
+    </div>
+
+    <a class="main-btn" [routerLink]="['/explorar']">Ver tudo</a>
+  </div>
+
+  @if (loading) {
+    <div class="no-news">
+      <app-loading-indicator label="Carregando noticias..." size="lg" />
+    </div>
+  }
+
+  @else if (error) {
+    <div class="no-news">
+      <p>{{ error }}</p>
+    </div>
+  }
+
+  @else if (firstCardNews || secCardNews || thirdCardNews) {
+    <div class="cards-container">
+      @if (firstCardNews) {
+        <a class="card-link" [routerLink]="['/noticia', firstCardNews.slug]">
+          <article class="card">
+            <div class="img-box">
+              <app-progressive-image
+                [src]="firstCardNews.imageURL"
+                [alt]="firstCardNews.title || 'Noticia Soft Chaos'"
+                fallback="https://placehold.co/800x600?text=Soft+Chaos"
+              />
+            </div>
+
+            <div class="card-copy">
+              <span class="card-tag">{{ firstCardNews.type }}</span>
+              <h2 class="card-title">{{ firstCardNews.title }}</h2>
+              <p class="card-desc">{{ firstCardNews.description }}</p>
+            </div>
+          </article>
+        </a>
+      }
+
+      @if (secCardNews) {
+        <a class="card-link" [routerLink]="['/noticia', secCardNews.slug]">
+          <article class="card">
+            <div class="img-box">
+              <app-progressive-image
+                [src]="secCardNews.imageURL"
+                [alt]="secCardNews.title || 'Noticia Soft Chaos'"
+                fallback="https://placehold.co/800x600?text=Soft+Chaos"
+              />
+            </div>
+
+            <div class="card-copy">
+              <span class="card-tag">{{ secCardNews.type }}</span>
+              <h2 class="card-title">{{ secCardNews.title }}</h2>
+              <p class="card-desc">{{ secCardNews.description }}</p>
+            </div>
+          </article>
+        </a>
+      }
+
+      @if (thirdCardNews) {
+        <a class="card-link" [routerLink]="['/noticia', thirdCardNews.slug]">
+          <article class="card">
+            <div class="img-box">
+              <app-progressive-image
+                [src]="thirdCardNews.imageURL"
+                [alt]="thirdCardNews.title || 'Noticia Soft Chaos'"
+                fallback="https://placehold.co/800x600?text=Soft+Chaos"
+              />
+            </div>
+
+            <div class="card-copy">
+              <span class="card-tag">{{ thirdCardNews.type }}</span>
+              <h2 class="card-title">{{ thirdCardNews.title }}</h2>
+              <p class="card-desc">{{ thirdCardNews.description }}</p>
+            </div>
+          </article>
+        </a>
+      }
+    </div>
+  }
+
+  @else {
+    <div class="no-news">
+      <p>Nenhuma noticia disponivel no momento.</p>
+    </div>
+  }
+</div>

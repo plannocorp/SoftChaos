@@ -25,9 +25,13 @@
             <p class="author-desc">{{ news.author }}</p>
           </div>
 
-          <div class="publish-card">
-            <span>Publicado em</span>
-            <strong>{{ news.publishAt | date:'dd/MM/yyyy HH:mm' }}</strong>
+          <div class="header-side">
+            <div class="publish-card">
+              <span>Publicado em</span>
+              <strong>{{ news.publishAt | date:'dd/MM/yyyy HH:mm' }}</strong>
+            </div>
+
+            <button type="button" class="back-button" (click)="goBack()">Voltar para home</button>
           </div>
         </div>
       </div>
@@ -47,7 +51,9 @@
       }
 
       <article class="news-content">
-        <p class="content">{{ news.content }}</p>
+        <div class="content-prose">
+          <p class="content">{{ news.content }}</p>
+        </div>
       </article>
 
       @if (getGalleryMedia().length) {

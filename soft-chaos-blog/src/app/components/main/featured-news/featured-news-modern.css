@@ -1,0 +1,211 @@
+.featured-news {
+    width: min(1180px, 100%);
+}
+
+.featured-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.72fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.main-card-container {
+    position: relative;
+    min-height: 540px;
+    border-radius: 34px;
+    overflow: hidden;
+    background: #0f172a;
+    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.16);
+}
+
+.img-container,
+.img-container app-progressive-image,
+.img-container :is(img, picture) {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.img-container {
+    position: absolute;
+    inset: 0;
+}
+
+.img-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.8)),
+        linear-gradient(120deg, rgba(154, 61, 104, 0.12), transparent 45%);
+}
+
+.card-container {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 34px;
+    color: #fff;
+}
+
+.uppertitle-text {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.news-type,
+.time-read {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.news-type {
+    background: rgba(232, 137, 186, 0.18);
+    color: #ffe8f3;
+}
+
+.time-read {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.2vw, 3.4rem);
+    line-height: 0.96;
+}
+
+.card-desc {
+    max-width: 52ch;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.card-btn {
+    width: fit-content;
+    padding: 13px 20px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--green), #5c7a13);
+    color: #fff;
+    font-weight: 800;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px rgba(137, 182, 30, 0.24);
+}
+
+.minor-card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.minor-link {
+    display: block;
+    height: 100%;
+}
+
+.minor-news {
+    height: 100%;
+    min-height: 258px;
+    padding: 24px;
+    border-radius: 28px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.minor-news:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+}
+
+.minor-news .news-type {
+    color: #fff;
+}
+
+.tone-green .news-type {
+    background: linear-gradient(135deg, var(--green), #6d8f1a);
+}
+
+.tone-pink .news-type {
+    background: linear-gradient(135deg, var(--pink), #9a3d68);
+}
+
+.minor-news .card-title {
+    color: #111827;
+    font-size: 1.7rem;
+    line-height: 1.04;
+}
+
+.minor-news .card-desc {
+    color: #64748b;
+    max-width: none;
+    font-size: 0.96rem;
+}
+
+.no-news {
+    min-height: 30vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+}
+
+@media screen and (max-width: 980px) {
+    .featured-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .main-card-container {
+        min-height: 460px;
+    }
+
+    .minor-card-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .main-card-container {
+        min-height: 400px;
+        border-radius: 24px;
+    }
+
+    .card-container {
+        padding: 22px;
+    }
+
+    .card-title {
+        font-size: clamp(1.8rem, 8vw, 2.5rem);
+    }
+
+    .minor-news {
+        min-height: unset;
+        padding: 20px;
+        border-radius: 22px;
+    }
+
+    .minor-news .card-title {
+        font-size: 1.4rem;
+    }
+}

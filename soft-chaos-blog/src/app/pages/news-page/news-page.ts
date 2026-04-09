@@ -25,7 +25,7 @@ interface ExternalVideoLinkView {
   selector: 'app-news-page',
   imports: [CommonModule, FormsModule, Header, Footer, LoadingIndicator, ProgressiveImage],
   templateUrl: './news-page.html',
-  styleUrl: './news-page.css',
+  styleUrl: './news-page-modern.css',
 })
 export class NewsPage implements OnInit, OnDestroy {
   public news?: News;

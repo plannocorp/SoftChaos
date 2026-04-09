@@ -8,8 +8,8 @@ import { ProgressiveImage } from '../../shared/progressive-image/progressive-ima
 @Component({
   selector: 'app-explorer',
   imports: [RouterLink, LoadingIndicator, ProgressiveImage],
-  templateUrl: './explorer.html',
-  styleUrl: './explorer.css',
+  templateUrl: './explorer-modern.html',
+  styleUrl: './explorer-modern.css',
 })
 export class Explorer implements OnInit {
   public firstCardNews: News | undefined;

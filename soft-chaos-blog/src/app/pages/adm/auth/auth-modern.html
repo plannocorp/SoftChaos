@@ -47,6 +47,11 @@
             name="email"
             [(ngModel)]="email"
             placeholder="voce@softchaos.com"
+            inputmode="email"
+            autocomplete="username"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
             required
           />
         </label>
@@ -59,6 +64,10 @@
               name="password"
               [(ngModel)]="password"
               placeholder="Digite sua senha"
+              autocomplete="current-password"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
               required
             />
             <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">

@@ -9,8 +9,8 @@ import { ProgressiveImage } from '../../shared/progressive-image/progressive-ima
 @Component({
   selector: 'app-featured-news',
   imports: [CommonModule, RouterLink, LoadingIndicator, ProgressiveImage],
-  templateUrl: './featured-news.html',
-  styleUrl: './featured-news.css',
+  templateUrl: './featured-news-modern.html',
+  styleUrl: './featured-news-modern.css',
 })
 export class FeaturedNews implements OnInit {
   public mainNews?: News;

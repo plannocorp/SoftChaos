@@ -1,7 +1,7 @@
 ﻿.dashboard-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-columns: 290px minmax(0, 1fr);
   background:
     radial-gradient(circle at top left, rgba(232, 137, 186, 0.18), transparent 24%),
     radial-gradient(circle at bottom right, rgba(137, 182, 30, 0.15), transparent 24%),
@@ -12,7 +12,7 @@
   position: sticky;
   top: 0;
   height: 100vh;
-  padding: 28px 22px;
+  padding: 24px 18px;
   display: flex;
   flex-direction: column;
   gap: 22px;
@@ -31,7 +31,7 @@
 }
 
 .sidebar-brand {
-  padding: 18px;
+  padding: 16px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -54,12 +54,12 @@
 .sidebar-brand h1 {
   margin-top: 6px;
   font-family: 'Playfair Display', serif;
-  font-size: 1.55rem;
+  font-size: 1.4rem;
   color: #111827;
 }
 
 .sidebar-user {
-  padding: 18px;
+  padding: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -92,8 +92,8 @@
 }
 
 .sidebar-nav a {
-  padding: 16px 18px;
-  border-radius: 22px;
+  padding: 14px 16px;
+  border-radius: 20px;
   border: 1px solid transparent;
   background: rgba(255, 255, 255, 0.88);
   color: #111827;
@@ -134,10 +134,10 @@
 
 .dashboard-main {
   min-width: 0;
-  padding: 26px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .dashboard-topbar,
@@ -149,7 +149,7 @@
 }
 
 .dashboard-topbar {
-  padding: 26px 28px;
+  padding: 22px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -159,14 +159,15 @@
 .topbar-copy h2 {
   margin: 8px 0 10px;
   font-family: 'Playfair Display', serif;
-  font-size: clamp(2rem, 3vw, 3.1rem);
+  font-size: clamp(1.7rem, 2.4vw, 2.5rem);
   color: #111827;
 }
 
 .topbar-copy p:last-child {
-  max-width: 780px;
+  max-width: 700px;
   color: #64748b;
-  line-height: 1.7;
+  line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 .topbar-actions {
@@ -188,7 +189,7 @@
 
 .dashboard-content {
   flex: 1;
-  padding: 24px;
+  padding: 18px;
 }
 
 .mobile-backdrop {
@@ -203,7 +204,7 @@
   .dashboard-sidebar {
     position: fixed;
     left: -100%;
-    width: min(320px, calc(100vw - 32px));
+    width: min(300px, calc(100vw - 24px));
     transition: left 0.25s ease;
   }
 
@@ -212,7 +213,7 @@
   }
 
   .dashboard-main {
-    padding: 16px;
+    padding: 14px;
   }
 
   .dashboard-topbar {

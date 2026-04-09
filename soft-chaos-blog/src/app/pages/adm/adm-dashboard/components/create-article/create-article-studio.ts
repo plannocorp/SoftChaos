@@ -55,6 +55,7 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
   selectedMedia: SelectedImageFile[] = [];
   existingMedia: MediaItem[] = [];
   externalVideoLinks: string[] = [''];
+  private originalExternalVideoLinks: string[] = [];
   publishAtString = '';
   loading = false;
   loadingCategories = false;
@@ -83,6 +84,39 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
 
   get externalVideoLinkCount(): number {
     return this.externalVideoLinks.filter((link) => link.trim()).length;
+  }
+
+  get statusBoardRoute(): string {
+    switch (this.article.status) {
+      case 'PUBLISHED':
+        return '/security/adimin-dashboard/published';
+      case 'SCHEDULED':
+        return '/security/adimin-dashboard/scheduled';
+      default:
+        return '/security/adimin-dashboard/drafts';
+    }
+  }
+
+  get statusLabel(): string {
+    switch (this.article.status) {
+      case 'PUBLISHED':
+        return 'Publicado';
+      case 'SCHEDULED':
+        return 'Agendado';
+      default:
+        return 'Rascunho';
+    }
+  }
+
+  get statusDescription(): string {
+    switch (this.article.status) {
+      case 'PUBLISHED':
+        return 'O artigo sera enviado direto para o portal assim que voce salvar.';
+      case 'SCHEDULED':
+        return 'O conteudo ficara programado para entrar no ar automaticamente na data definida.';
+      default:
+        return 'Perfeito para revisar texto, imagens e links antes de publicar.';
+    }
   }
 
   async ngOnInit(): Promise<void> {
@@ -138,6 +172,7 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
         externalVideoLinks: article.externalVideoLinks || [],
       };
       this.externalVideoLinks = article.externalVideoLinks?.length ? [...article.externalVideoLinks] : [''];
+      this.originalExternalVideoLinks = article.externalVideoLinks?.length ? [...article.externalVideoLinks] : [];
       this.publishAtString = article.scheduledFor
         ? this.toLocalDateTimeInputValue(new Date(article.scheduledFor))
         : this.toLocalDateTimeInputValue(new Date());
@@ -262,7 +297,7 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
         return;
       }
 
-      this.router.navigate(['/security/adimin-dashboard/published']);
+      this.router.navigate([this.statusBoardRoute]);
     } catch (err: any) {
       console.error('Erro ao salvar artigo', err);
       this.error = this.extractRequestError(
@@ -291,6 +326,14 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
     if (this.article.status === 'SCHEDULED' && !this.publishAtString) {
       this.error = 'Data de publicacao obrigatoria.';
       return false;
+    }
+
+    if (this.article.status === 'SCHEDULED') {
+      const scheduledDate = new Date(this.publishAtString);
+      if (Number.isNaN(scheduledDate.getTime()) || scheduledDate < new Date()) {
+        this.error = 'Escolha uma data futura para o agendamento.';
+        return false;
+      }
     }
 
     if (!this.article.content.trim()) {
@@ -378,13 +421,21 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
   }
 
   private buildArticlePayload(): CreateArticleRequest {
-    return {
+    const payload: CreateArticleRequest = {
       ...this.article,
       summary: this.article.summary?.trim() || this.article.title.trim().slice(0, 150),
       scheduledFor: this.article.status === 'SCHEDULED' ? this.publishAtString : null,
       coverImageUrl: this.selectedExistingCoverUrl || this.article.coverImageUrl,
       externalVideoLinks: this.getNormalizedVideoLinks(),
     };
+
+    if (this.currentArticleId) {
+      // Workaround: the production backend currently fails when article updates include externalVideoLinks.
+      // We omit them on edits so status/content changes still succeed and existing links remain preserved.
+      delete payload.externalVideoLinks;
+    }
+
+    return payload;
   }
 
   private async uploadSelectedMedia(articleId: number): Promise<{ uploadedMedia: UploadedImageResult[]; failedUploads: FailedUpload[] }> {

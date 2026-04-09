@@ -3,11 +3,16 @@
     <div class="header-copy">
       <p class="eyebrow">Painel editorial</p>
       <h2>{{ isEditMode ? 'Editar artigo' : 'Novo artigo' }}</h2>
-      <p class="subtitle">Publique com imagens, mantenha a capa atual quando quiser e adicione links do YouTube ou Instagram para videos externos.</p>
+      <p class="subtitle">Mantenha a identidade do painel, mas com uma composicao mais leve, moderna e melhor encaixada em qualquer tela.</p>
     </div>
 
     <div class="form-actions">
-      <button type="button" class="btn-secondary" routerLink="/security/adimin-dashboard/published">
+      <div class="status-pill">
+        <span class="status-pill-label">Status atual</span>
+        <strong>{{ statusLabel }}</strong>
+      </div>
+
+      <button type="button" class="btn-secondary" [routerLink]="statusBoardRoute">
         Voltar
       </button>
 
@@ -39,6 +44,7 @@
             <div class="card-heading">
               <p class="eyebrow">Estrutura</p>
               <h3>Informacoes principais</h3>
+              <p class="card-description">Organize a base do artigo com mais clareza e menos excesso visual.</p>
             </div>
 
             <div class="form-grid">
@@ -50,8 +56,10 @@
                   name="title"
                   [(ngModel)]="article.title"
                   placeholder="Digite um titulo forte para a materia"
+                  maxlength="200"
                   required
                 />
+                <small>{{ article.title.length }}/200</small>
               </div>
 
               <div class="form-group">
@@ -82,8 +90,10 @@
                   name="summary"
                   [(ngModel)]="article.summary"
                   placeholder="Resumo curto para destaque, cards e chamadas."
-                  rows="4"
+                  rows="3"
+                  maxlength="300"
                 ></textarea>
+                <small>{{ article.summary.length }}/300</small>
               </div>
             </div>
           </article>
@@ -114,13 +124,13 @@
 
               <div class="media-grid">
                 @for (media of existingMedia; track media.id) {
-                  <article class="media-card">
+                  <article class="media-card compact-media-card">
                     <div class="media-preview">
                       <img [src]="media.url" [alt]="media.altText || article.title" />
                     </div>
 
                     <div class="media-body">
-                      <label>{{ media.altText || 'Sem descricao' }}</label>
+                      <label class="media-label">{{ media.altText || 'Sem descricao' }}</label>
 
                       <div class="media-actions">
                         <button
@@ -147,6 +157,7 @@
             <div class="card-heading">
               <p class="eyebrow">Imagens</p>
               <h3>Galeria do artigo</h3>
+              <p class="card-description">Selecione capa, descricoes e arquivos sem deixar os cards dominarem a tela.</p>
             </div>
 
             <div class="upload-dropzone">
@@ -217,6 +228,7 @@
             <div class="card-heading">
               <p class="eyebrow">Videos externos</p>
               <h3>YouTube e Instagram</h3>
+              <p class="card-description">Links limpos e bem distribuídos para complementar a materia.</p>
             </div>
 
             <div class="link-stack">
@@ -259,6 +271,7 @@
             <div class="card-heading">
               <p class="eyebrow">Conteudo</p>
               <h3>Corpo da materia</h3>
+              <p class="card-description">Espaco de escrita mais confortavel, com melhor leitura durante a edicao.</p>
             </div>
 
             <div class="form-group full">
@@ -268,7 +281,7 @@
                 name="content"
                 [(ngModel)]="article.content"
                 placeholder="Escreva o conteudo completo do artigo..."
-                rows="16"
+                rows="14"
                 required
               ></textarea>
             </div>
@@ -280,6 +293,7 @@
             <div class="card-heading">
               <p class="eyebrow">Publicacao</p>
               <h3>Status e destaque</h3>
+              <p class="card-description">{{ statusDescription }}</p>
             </div>
 
             <div class="form-group">
@@ -302,6 +316,7 @@
                   [min]="minDate"
                   required
                 />
+                <small>Defina um horario futuro para manter o artigo corretamente na fila programada.</small>
               </div>
             }
 
@@ -355,6 +370,11 @@
                 <p>nivel de destaque editorial</p>
               </li>
             </ul>
+
+            <div class="summary-emphasis">
+              <strong>{{ statusLabel }}</strong>
+              <p>{{ statusDescription }}</p>
+            </div>
           </article>
         </aside>
       </section>

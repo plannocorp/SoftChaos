@@ -1,0 +1,14 @@
+{
+  "/api": {
+    "target": "https://softchaos-backend.onrender.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/uploads": {
+    "target": "https://softchaos-backend.onrender.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

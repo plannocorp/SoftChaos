@@ -1,8 +1,116 @@
-main {
+.home-shell {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 75px;
+    gap: 56px;
+    padding: 34px 18px 88px;
+    background:
+        radial-gradient(circle at top left, rgba(232, 137, 186, 0.16), transparent 24%),
+        radial-gradient(circle at top right, rgba(137, 182, 30, 0.12), transparent 20%),
+        linear-gradient(180deg, #fff8fb 0%, #ffffff 18%, #f7faf5 100%);
+}
+
+.home-hero-intro {
+    width: min(1180px, 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 360px);
+    gap: 20px;
+    align-items: stretch;
+}
+
+.intro-copy,
+.intro-panel {
+    border-radius: 32px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 22px 70px rgba(15, 23, 42, 0.07);
+}
+
+.intro-copy {
+    padding: 28px 30px;
+}
+
+.eyebrow {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #9a3d68;
+}
+
+.intro-copy h1 {
+    margin: 8px 0 14px;
+    max-width: 12ch;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.1rem, 4vw, 4rem);
+    line-height: 0.98;
+    color: #101010;
+}
+
+.intro-copy p:last-child {
+    max-width: 58ch;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #475569;
+}
+
+.intro-panel {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    background:
+        radial-gradient(circle at top right, rgba(232, 137, 186, 0.16), transparent 34%),
+        linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(246, 250, 243, 0.96));
+}
+
+.intro-panel span {
+    width: fit-content;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(137, 182, 30, 0.12);
+    color: #587415;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.intro-panel strong {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    line-height: 1.08;
+    color: #101010;
+}
+
+.intro-panel p {
+    color: #5b6473;
+    line-height: 1.65;
+}
+
+@media screen and (max-width: 900px) {
+    .home-shell {
+        gap: 42px;
+        padding: 24px 14px 72px;
+    }
+
+    .home-hero-intro {
+        grid-template-columns: 1fr;
+    }
+
+    .intro-copy,
+    .intro-panel {
+        border-radius: 24px;
+    }
+
+    .intro-copy {
+        padding: 22px;
+    }
+
+    .intro-panel {
+        padding: 20px;
+    }
 }
     
