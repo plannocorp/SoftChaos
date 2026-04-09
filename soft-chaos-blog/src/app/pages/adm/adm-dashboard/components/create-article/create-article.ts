@@ -54,8 +54,8 @@ export class CreateArticle implements OnInit {
   async loadCategories() {
     this.loadingCategories = true;
     try {
-      const response: any = await firstValueFrom(this.newsService.getCategories());
-      this.categories = response.data || [];
+      const categories = await firstValueFrom(this.newsService.getCategories());
+      this.categories = categories || [];
 
       // 🔧 FORCE REFRESH SELECT
       setTimeout(() => {

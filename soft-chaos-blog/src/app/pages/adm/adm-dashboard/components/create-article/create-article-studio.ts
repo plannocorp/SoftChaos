@@ -104,8 +104,8 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
     this.loadingCategories = true;
 
     try {
-      const response: any = await firstValueFrom(this.newsService.getCategories());
-      this.categories = response.data || [];
+      const categories = await firstValueFrom(this.newsService.getCategories());
+      this.categories = categories || [];
     } catch (err) {
       console.error('Erro ao carregar categorias', err);
       this.error = 'Erro ao carregar categorias.';
