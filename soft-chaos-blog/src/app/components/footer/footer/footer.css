@@ -77,24 +77,52 @@ footer {
     height: 40px;
 }
 
+.newsletter-form--stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: auto;
+}
+
 .newsletter-input {
     flex-grow: 1;
     border: 1px solid var(--gray);
-    border-right: none;
-    border-radius: 4px 0 0 4px;
+    border-radius: 14px;
     padding: 0 15px;
     font-size: 14px;
+    min-height: 44px;
 }
 
 .newsletter-btn {
     background-color: var(--red);
     color: var(--white);
     padding: 0 20px;
-    border-radius: 0 4px 4px 0;
+    border-radius: 14px;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 1px;
     cursor: pointer;
+    min-height: 44px;
+}
+
+.newsletter-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.newsletter-feedback {
+    display: block;
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.newsletter-feedback.success {
+    color: #2a7a29;
+}
+
+.newsletter-feedback.error {
+    color: #b42318;
 }
 
 .footer-bottom {

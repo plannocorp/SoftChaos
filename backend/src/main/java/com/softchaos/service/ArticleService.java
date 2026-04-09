@@ -1,5 +1,6 @@
 package com.softchaos.service;
 
+import com.softchaos.config.DatabaseSequenceSynchronizer;
 import com.softchaos.dto.mapper.ArticleMapper;
 import com.softchaos.dto.request.CreateArticleRequest;
 import com.softchaos.dto.request.UpdateArticleRequest;
@@ -25,8 +26,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +45,7 @@ public class ArticleService {
     private final CategoryRepository categoryRepository;
     private final CommentRepository commentRepository;
     private final ArticleMapper articleMapper;
+    private final DatabaseSequenceSynchronizer databaseSequenceSynchronizer;
 
     /**
      * Cria um novo artigo
@@ -53,6 +59,9 @@ public class ArticleService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria", "id", request.getCategoryId()));
 
+        validateScheduledPublication(request.getStatus(), request.getScheduledFor());
+        request.setExternalVideoLinks(normalizeExternalVideoLinks(request.getExternalVideoLinks()));
+
         String slug = generateUniqueSlug(request.getTitle());
 
         Article article = articleMapper.toEntity(request);
@@ -64,6 +73,7 @@ public class ArticleService {
             article.setPublishedAt(LocalDateTime.now());
         }
 
+        databaseSequenceSynchronizer.synchronizeArticlesSequence();
         Article savedArticle = articleRepository.save(article);
         log.info("Artigo criado com sucesso. ID: {}, Slug: {}", savedArticle.getId(), savedArticle.getSlug());
 
@@ -227,12 +237,41 @@ public class ArticleService {
     }
 
     /**
+     * Lista artigos do painel por status
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<ArticleSummaryResponse> getAdminArticlesByStatus(
+            Article.Status status,
+            Long userId,
+            User.Role role,
+            Pageable pageable
+    ) {
+        log.info("Listando artigos do painel. Status: {}, Usuario: {}, Role: {}", status, userId, role);
+
+        Page<Article> articlesPage = role == User.Role.AUTHOR
+                ? articleRepository.findByAuthorIdAndStatus(userId, status, pageable)
+                : articleRepository.findByStatus(status, pageable);
+
+        return buildPagedSummaryResponse(articlesPage);
+    }
+
+    /**
      * Atualiza artigo
      */
     public ArticleResponse updateArticle(Long id, UpdateArticleRequest request) {
         log.info("Atualizando artigo ID: {}", id);
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Artigo", "id", id));
+
+        Article.Status targetStatus = request.getStatus() != null ? request.getStatus() : article.getStatus();
+        LocalDateTime targetScheduledFor = targetStatus == Article.Status.SCHEDULED
+                ? (request.getScheduledFor() != null ? request.getScheduledFor() : article.getScheduledFor())
+                : null;
+        validateScheduledPublication(targetStatus, targetScheduledFor);
+
+        if (request.getExternalVideoLinks() != null) {
+            request.setExternalVideoLinks(normalizeExternalVideoLinks(request.getExternalVideoLinks()));
+        }
 
         if (request.getTitle() != null && !request.getTitle().equals(article.getTitle())) {
             article.setSlug(generateUniqueSlug(request.getTitle()));
@@ -337,6 +376,54 @@ public class ArticleService {
     /**
      * Método auxiliar para construir resposta paginada resumida
      */
+    private void validateScheduledPublication(Article.Status status, LocalDateTime scheduledFor) {
+        if (status == Article.Status.SCHEDULED && scheduledFor == null) {
+            throw new BadRequestException("Defina a data de publicacao para artigos agendados");
+        }
+    }
+
+    private List<String> normalizeExternalVideoLinks(List<String> rawLinks) {
+        if (rawLinks == null || rawLinks.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> sanitizedLinks = rawLinks.stream()
+                .filter(link -> link != null && !link.isBlank())
+                .map(String::trim)
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(LinkedHashSet::new),
+                        List::copyOf
+                ));
+
+        if (sanitizedLinks.size() > 5) {
+            throw new BadRequestException("Voce pode adicionar no maximo 5 links externos de video");
+        }
+
+        sanitizedLinks.forEach(this::validateExternalVideoLink);
+        return sanitizedLinks;
+    }
+
+    private void validateExternalVideoLink(String link) {
+        try {
+            URI uri = new URI(link);
+            String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(Locale.ROOT);
+
+            boolean supportedHost = host.equals("youtube.com")
+                    || host.equals("www.youtube.com")
+                    || host.equals("m.youtube.com")
+                    || host.equals("youtu.be")
+                    || host.equals("www.youtu.be")
+                    || host.equals("instagram.com")
+                    || host.equals("www.instagram.com");
+
+            if (!supportedHost) {
+                throw new BadRequestException("Use apenas links do YouTube ou Instagram");
+            }
+        } catch (URISyntaxException ex) {
+            throw new BadRequestException("Informe links externos validos para os videos");
+        }
+    }
+
     private PagedResponse<ArticleSummaryResponse> buildPagedSummaryResponse(Page<Article> articlesPage) {
         Page<ArticleSummaryResponse> responsePage = articlesPage.map(article -> {
             Long commentsCount = commentRepository.countByArticleIdAndStatus(article.getId(), CommentStatus.APPROVED);

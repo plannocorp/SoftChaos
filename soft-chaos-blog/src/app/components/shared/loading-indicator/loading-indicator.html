@@ -1,0 +1,14 @@
+<div
+  class="loading-indicator"
+  [class.centered]="centered"
+  [class.surface-soft]="surface === 'soft'"
+  [class.surface-plain]="surface === 'plain'"
+>
+  <div class="spinner" [class.sm]="size === 'sm'" [class.lg]="size === 'lg'">
+    <span class="ring ring-green"></span>
+    <span class="ring ring-pink"></span>
+    <span class="ring ring-red"></span>
+  </div>
+
+  <p class="label">{{ label }}</p>
+</div>

@@ -1,8 +1,24 @@
 <div class="featured-news">
-  @if (mainNews) {
+  @if (loading) {
+    <div class="no-news">
+      <app-loading-indicator label="Carregando noticias em destaque..." size="lg" />
+    </div>
+  }
+
+  @else if (error) {
+    <div class="no-news">
+      <p>{{ error }}</p>
+    </div>
+  }
+
+  @else if (mainNews) {
     <div class="main-card-container">
       <div class="img-container">
-        <img [src]="mainNews.imageURL || 'https://placehold.co/1200x800?text=Soft+Chaos'" [alt]="mainNews.title" />
+        <app-progressive-image
+          [src]="mainNews.imageURL"
+          [alt]="mainNews.title"
+          fallback="https://placehold.co/1200x800?text=Soft+Chaos"
+        />
       </div>
 
       <div class="card-container">
@@ -16,7 +32,7 @@
 
         <p class="card-desc">{{ mainNews.description }}</p>
 
-        <a [routerLink]="['/noticia/', mainNews.slug]">
+        <a [routerLink]="['/noticia', mainNews.slug]">
           <button class="card-btn">LER MATERIA <i class="fas fa-arrow-right"></i></button>
         </a>
       </div>
@@ -29,9 +45,9 @@
     </div>
   }
 
-  @if (firstSecondNews || secSecondNews) {
+  @if (!loading && !error && (firstSecondNews || secSecondNews)) {
     <div class="minor-card-container">
-      <a [routerLink]="['/noticia/', firstSecondNews?.slug]">
+      <a [routerLink]="['/noticia', firstSecondNews?.slug]">
           <div class="first-minor-news">
             <p class="news-type">{{ firstSecondNews?.type }}</p>
 
@@ -41,7 +57,7 @@
           </div>
       </a>
 
-      <a [routerLink]="['/noticia/', secSecondNews?.slug]">
+      <a [routerLink]="['/noticia', secSecondNews?.slug]">
           <div class="second-minor-news">
             <p class="news-type">{{ secSecondNews?.type }}</p>
 

@@ -4,12 +4,24 @@
     <h1 class="main-title">BASTIDORES</h1>
 
     <div class="main-content">
-        @if(newsBastidores) {
+        @if (loading) {
+            <app-loading-indicator label="Carregando bastidores..." size="lg" />
+        }
+
+        @else if (error) {
+            <app-loading-indicator [label]="error" size="md" surface="plain" />
+        }
+
+        @else if(newsBastidores) {
             @for (news of newsBastidores; track news.id) {
-                <a [routerLink]="['/noticia/', news.slug]">
+                <a [routerLink]="['/noticia', news.slug]">
                     <div class="card">
                         <div class="img-box">
-                            <img [src]="news.imageURL || 'https://placehold.co/800x600?text=Soft+Chaos'" [alt]="news.title">
+                            <app-progressive-image
+                              [src]="news.imageURL"
+                              [alt]="news.title"
+                              fallback="https://placehold.co/800x600?text=Soft+Chaos"
+                            />
                         </div>
                         
                         <div class="text-box">

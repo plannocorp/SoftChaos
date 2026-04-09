@@ -5,11 +5,13 @@ import { News } from '../../models/news';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
 import { PublicArticleService } from '../../services/public-article-service';
+import { LoadingIndicator } from '../../components/shared/loading-indicator/loading-indicator';
+import { ProgressiveImage } from '../../components/shared/progressive-image/progressive-image';
 
 @Component({
   selector: 'app-search-pages',
   standalone: true,
-  imports: [CommonModule, RouterLink, Header, Footer],
+  imports: [CommonModule, RouterLink, Header, Footer, LoadingIndicator, ProgressiveImage],
   templateUrl: './search-pages.html',
   styleUrl: './search-pages.css',
 })
@@ -17,6 +19,7 @@ export class SearchPages implements OnInit {
   searchTerm: string = '';
   resultados: News[] = [];
   loading: boolean = false;
+  error = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -37,6 +40,7 @@ export class SearchPages implements OnInit {
 
   private buscarNoticias(): void {
     this.loading = true;
+    this.error = '';
 
     this.publicArticleService.searchArticles(this.searchTerm).subscribe({
       next: (articles) => {
@@ -46,6 +50,7 @@ export class SearchPages implements OnInit {
       error: (err) => {
         console.error('Erro ao buscar noticias:', err);
         this.resultados = [];
+        this.error = 'Nao foi possivel carregar os resultados da busca agora.';
         this.loading = false;
       }
     });

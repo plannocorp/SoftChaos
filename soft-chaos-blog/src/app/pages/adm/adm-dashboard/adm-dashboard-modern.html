@@ -1,0 +1,63 @@
+﻿<div class="dashboard-shell">
+  <aside class="dashboard-sidebar" [class.open]="mobileMenuOpen">
+    <div class="sidebar-brand">
+      <img src="/images/Logo.png" alt="Soft Chaos" />
+      <div>
+        <p class="eyebrow">Painel editorial</p>
+        <h1>Soft Chaos Admin</h1>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="avatar">{{ userInitials }}</div>
+      <div>
+        <strong>{{ userName }}</strong>
+        <small>{{ userRole }}</small>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (item of navigationItems; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeMobileMenu()"
+        >
+          <strong>{{ item.label }}</strong>
+          <small>{{ item.description }}</small>
+        </a>
+      }
+    </nav>
+
+    <button type="button" class="logout-button sidebar-logout" (click)="logout()">Sair do painel</button>
+  </aside>
+
+  @if (mobileMenuOpen) {
+    <button type="button" class="mobile-backdrop" (click)="closeMobileMenu()"></button>
+  }
+
+  <section class="dashboard-main">
+    <header class="dashboard-topbar">
+      <div class="topbar-copy">
+        <p class="eyebrow">Redacao</p>
+        <h2>Operacao editorial central</h2>
+        <p>Publique, edite, modere comentarios e acompanhe o fluxo das materias em um unico lugar.</p>
+      </div>
+
+      <div class="topbar-actions">
+        <a routerLink="/security/adimin-dashboard/create-article" class="primary-action">
+          Nova materia
+        </a>
+        <button type="button" class="menu-button" (click)="toggleMobileMenu()">
+          {{ mobileMenuOpen ? 'Fechar menu' : 'Abrir menu' }}
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      <router-outlet />
+    </main>
+  </section>
+</div>
+

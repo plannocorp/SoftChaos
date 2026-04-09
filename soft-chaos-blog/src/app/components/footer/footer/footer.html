@@ -1,4 +1,4 @@
-<footer>
+﻿<footer>
     <div class="footer-container">
         <div class="footer-top">
             <div class="footer-logo">
@@ -7,13 +7,13 @@
             
             <div class="footer-links-container">
                 <div class="footer-links-column">
-                    <h3>Navegação</h3>
+                    <h3>Navegacao</h3>
 
                     <a [routerLink]="['/novidades']">NOVIDADES</a>
-                    <a [routerLink]="['/tendencias']">TENDÊNCIAS</a>
+                    <a [routerLink]="['/tendencias']">TENDENCIAS</a>
                     <a [routerLink]="['/dicas']">DICAS</a>
                     <a [routerLink]="['/bastidores']">BASTIDORES</a>
-                    <a [routerLink]="['/opiniao']">OPINIÃO</a>
+                    <a [routerLink]="['/opiniao']">OPINIAO</a>
                 </div>
                 
                 <div class="footer-links-column">
@@ -27,28 +27,44 @@
                 <div class="footer-links-column">
                     <h3>Termos de Uso</h3>
 
-                    <a target="_blank" href="http://planno.online/politicas-de-privacidade">Política de Privacidade</a>
+                    <a target="_blank" href="http://planno.online/politicas-de-privacidade">Politica de Privacidade</a>
                     <a href="#">Cookies</a>
                 </div>
             </div>
             
-            <div class="footer-newsletter">
-                <p>Receba as últimas notícias e atualizações diretamente na sua caixa de entrada.</p>
-                <div class="newsletter-form">
+            <div class="footer-newsletter" id="newsletter-signup">
+                <p>Receba as ultimas noticias e atualizacoes diretamente na sua caixa de entrada.</p>
+                <div class="newsletter-form newsletter-form--stack">
+                    <input 
+                        type="text" 
+                        placeholder="Seu nome"
+                        class="newsletter-input"
+                        [(ngModel)]="name"
+                    >
                     <input 
                         type="email" 
                         placeholder="Seu e-mail"
                         class="newsletter-input"
+                        [(ngModel)]="email"
                     >
-                    <button class="newsletter-btn">ASSINAR</button>
+                    <button class="newsletter-btn" type="button" [disabled]="loading" (click)="subscribeNewsletter()">
+                        {{ loading ? 'ENVIANDO...' : 'ASSINAR' }}
+                    </button>
                 </div>
+                @if (message) {
+                    <small class="newsletter-feedback success">{{ message }}</small>
+                }
+                @if (error) {
+                    <small class="newsletter-feedback error">{{ error }}</small>
+                }
             </div>
         </div>
         
         <div class="footer-bottom">
-            <p>&copy; 2026 Soft Chaos. Todos os direitos reservados.</p>
+            <p>&copy; {{ currentYear }} Soft Chaos. Todos os direitos reservados.</p>
             
             <p>&copy; Site desenvolvido por <a target="_blank" href="http://planno.online">Planno</a></p>
         </div>
     </div>
 </footer>
+

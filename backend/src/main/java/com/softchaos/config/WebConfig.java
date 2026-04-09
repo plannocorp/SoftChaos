@@ -13,11 +13,18 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
 
+    @Value("${media.storage.provider:local}")
+    private String storageProvider;
+
     /**
      * Configura o Spring para servir arquivos do diretório de uploads
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        if ("supabase".equalsIgnoreCase(storageProvider)) {
+            return;
+        }
+
         String uploadPath = Paths.get(uploadDir).toAbsolutePath().toUri().toString();
 
         registry.addResourceHandler("/uploads/**")

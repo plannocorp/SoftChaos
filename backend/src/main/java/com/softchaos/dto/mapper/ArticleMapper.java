@@ -8,6 +8,9 @@ import com.softchaos.model.Article;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,11 +29,16 @@ public class ArticleMapper {
                 .summary(article.getSummary())
                 .content(article.getContent())
                 .coverImageUrl(article.getCoverImageUrl())
+                .externalVideoLinks(article.getExternalVideoLinks() == null ? List.of() : List.copyOf(article.getExternalVideoLinks()))
                 .author(userMapper.toSummaryResponse(article.getAuthor()))
                 .category(categoryMapper.toResponse(article.getCategory(), null))
                 .mediaFiles(article.getMediaFiles().stream()
+                        .sorted(Comparator.comparing(
+                                media -> media.getUploadedAt(),
+                                Comparator.nullsLast(Comparator.naturalOrder())
+                        ))
                         .map(mediaMapper::toResponse)
-                        .collect(Collectors.toSet()))
+                        .collect(Collectors.toCollection(LinkedHashSet::new)))
                 .status(article.getStatus())
                 .featured(article.getFeatured())
                 .pinned(article.getPinned())
@@ -50,6 +58,7 @@ public class ArticleMapper {
                 .slug(article.getSlug())
                 .summary(article.getSummary())
                 .coverImageUrl(article.getCoverImageUrl())
+                .externalVideoLinks(article.getExternalVideoLinks() == null ? List.of() : List.copyOf(article.getExternalVideoLinks()))
                 .author(userMapper.toSummaryResponse(article.getAuthor()))
                 .category(categoryMapper.toResponse(article.getCategory(), null))
                 .status(article.getStatus())
@@ -58,6 +67,8 @@ public class ArticleMapper {
                 .viewCount(article.getViewCount())
                 .commentsCount(commentsCount)
                 .publishedAt(article.getPublishedAt())
+                .scheduledFor(article.getScheduledFor())
+                .createdAt(article.getCreatedAt())
                 .build();
     }
 
@@ -71,6 +82,7 @@ public class ArticleMapper {
         article.setFeatured(request.getFeatured());
         article.setPinned(request.getPinned());
         article.setScheduledFor(request.getScheduledFor());
+        article.setExternalVideoLinks(request.getExternalVideoLinks() == null ? List.of() : List.copyOf(request.getExternalVideoLinks()));
         return article;
     }
 
@@ -96,8 +108,13 @@ public class ArticleMapper {
         if (request.getPinned() != null) {
             article.setPinned(request.getPinned());
         }
-        if (request.getScheduledFor() != null) {
+        if (request.getStatus() != null && request.getStatus() != Article.Status.SCHEDULED) {
+            article.setScheduledFor(null);
+        } else if (request.getScheduledFor() != null) {
             article.setScheduledFor(request.getScheduledFor());
+        }
+        if (request.getExternalVideoLinks() != null) {
+            article.setExternalVideoLinks(List.copyOf(request.getExternalVideoLinks()));
         }
     }
 }

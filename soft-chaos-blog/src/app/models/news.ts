@@ -15,6 +15,8 @@ export interface News {
     secondImageUrl?: string;
     thirdImageUrl?: string;
     tag?: string;
+    mediaItems?: MediaItem[];
+    externalVideoLinks?: string[];
 }
 
 export interface CreateArticleRequest {
@@ -26,8 +28,9 @@ export interface CreateArticleRequest {
   status: 'DRAFT' | 'PUBLISHED' | 'SCHEDULED';
   featured?: boolean;
   pinned?: boolean;
-  scheduledFor?: string;
+  scheduledFor?: string | null;
   coverImageUrl?: string;
+  externalVideoLinks?: string[];
 }
 
 export interface ArticleAuthor {
@@ -66,14 +69,15 @@ export interface ArticleSummaryApi {
   viewCount?: number;
   commentsCount?: number;
   publishedAt?: string;
+  scheduledFor?: string;
+  createdAt?: string;
+  externalVideoLinks?: string[];
 }
 
 export interface ArticleApi extends ArticleSummaryApi {
   content: string;
   mediaFiles?: MediaItem[];
-  createdAt?: string;
   updatedAt?: string;
-  scheduledFor?: string;
 }
 
 export interface ApiEnvelope<T> {

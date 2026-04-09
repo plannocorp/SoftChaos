@@ -63,7 +63,7 @@
     </div>
 
     <!-- Recent Articles -->
-    @if (activeTab === 'articles' && recentArticles?.length) {
+    @if (activeTab === 'articles' && recentArticles.length) {
       <div class="articles-grid">
         @for (article of recentArticles; track article.id) {
           <div class="article-card">
@@ -84,7 +84,7 @@
     }
 
     <!-- Recent Comments -->
-    @if (activeTab === 'comments' && recentComments?.length) {
+    @if (activeTab === 'comments' && recentComments.length) {
       <div class="comments-grid">
         @for (comment of recentComments; track comment.id) {
           <div class="comment-card">

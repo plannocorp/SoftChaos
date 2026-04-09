@@ -1,0 +1,240 @@
+﻿.dashboard-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at top left, rgba(232, 137, 186, 0.18), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(137, 182, 30, 0.15), transparent 24%),
+    linear-gradient(180deg, #fff8fb 0%, #f8fafc 36%, #f3f7ed 100%);
+}
+
+.dashboard-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 20px 0 60px rgba(15, 23, 42, 0.04);
+  z-index: 30;
+}
+
+.sidebar-brand,
+.sidebar-user {
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+}
+
+.sidebar-brand {
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sidebar-brand img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.eyebrow {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9a3d68;
+}
+
+.sidebar-brand h1 {
+  margin-top: 6px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+  color: #111827;
+}
+
+.sidebar-user {
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ef4444, #9a3d68);
+  color: #fff;
+  font-weight: 800;
+}
+
+.sidebar-user strong {
+  display: block;
+  color: #111827;
+}
+
+.sidebar-user small {
+  color: #64748b;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-nav a {
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.88);
+  color: #111827;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.sidebar-nav a strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.sidebar-nav a small {
+  color: #64748b;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  transform: translateY(-2px);
+  border-color: rgba(154, 61, 104, 0.22);
+  background: linear-gradient(135deg, rgba(255, 247, 251, 0.96), rgba(250, 252, 255, 0.96));
+}
+
+.sidebar-logout,
+.menu-button,
+.primary-action {
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sidebar-logout {
+  margin-top: auto;
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+}
+
+.dashboard-main {
+  min-width: 0;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-topbar,
+.dashboard-content {
+  border-radius: 28px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-topbar {
+  padding: 26px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.topbar-copy h2 {
+  margin: 8px 0 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 3vw, 3.1rem);
+  color: #111827;
+}
+
+.topbar-copy p:last-child {
+  max-width: 780px;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.primary-action {
+  background: linear-gradient(135deg, #111827, #9a3d68);
+  color: #fff;
+}
+
+.menu-button {
+  display: none;
+  background: rgba(15, 23, 42, 0.06);
+  color: #111827;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 24px;
+}
+
+.mobile-backdrop {
+  display: none;
+}
+
+@media screen and (max-width: 1100px) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-sidebar {
+    position: fixed;
+    left: -100%;
+    width: min(320px, calc(100vw - 32px));
+    transition: left 0.25s ease;
+  }
+
+  .dashboard-sidebar.open {
+    left: 0;
+  }
+
+  .dashboard-main {
+    padding: 16px;
+  }
+
+  .dashboard-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar-actions {
+    justify-content: space-between;
+  }
+
+  .menu-button {
+    display: inline-flex;
+    justify-content: center;
+  }
+
+  .mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.34);
+    z-index: 20;
+  }
+}
+

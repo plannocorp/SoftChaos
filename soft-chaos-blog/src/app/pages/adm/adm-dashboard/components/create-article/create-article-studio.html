@@ -1,0 +1,364 @@
+﻿<section class="create-article">
+  <section class="form-header">
+    <div class="header-copy">
+      <p class="eyebrow">Painel editorial</p>
+      <h2>{{ isEditMode ? 'Editar artigo' : 'Novo artigo' }}</h2>
+      <p class="subtitle">Publique com imagens, mantenha a capa atual quando quiser e adicione links do YouTube ou Instagram para videos externos.</p>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" routerLink="/security/adimin-dashboard/published">
+        Voltar
+      </button>
+
+      <button type="submit" class="btn-primary" form="articleForm" [disabled]="loading || loadingArticle">
+        {{ loading ? 'Salvando...' : (isEditMode ? 'Salvar alteracoes' : 'Salvar artigo') }}
+      </button>
+    </div>
+  </section>
+
+  @if (error) {
+    <div class="error-message">{{ error }}</div>
+  }
+
+  @if (warningMessage) {
+    <div class="warning-message">{{ warningMessage }}</div>
+  }
+
+  @if (progressMessage) {
+    <div class="progress-message">{{ progressMessage }}</div>
+  }
+
+  @if (loadingArticle) {
+    <div class="progress-message">Carregando artigo para edicao...</div>
+  } @else {
+    <form id="articleForm" class="article-form" (ngSubmit)="saveArticle()">
+      <section class="editor-layout">
+        <div class="editor-main">
+          <article class="editor-card">
+            <div class="card-heading">
+              <p class="eyebrow">Estrutura</p>
+              <h3>Informacoes principais</h3>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group full">
+                <label for="title">Titulo do artigo</label>
+                <input
+                  id="title"
+                  type="text"
+                  name="title"
+                  [(ngModel)]="article.title"
+                  placeholder="Digite um titulo forte para a materia"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="categoryId">Categoria</label>
+                <select
+                  id="categoryId"
+                  name="categoryId"
+                  [(ngModel)]="article.categoryId"
+                  [disabled]="loadingCategories"
+                  required
+                >
+                  <option [ngValue]="null" disabled>Selecione uma categoria</option>
+                  @for (cat of categories; track cat.id) {
+                    <option [ngValue]="cat.id">{{ cat.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="author">Autor</label>
+                <input id="author" type="text" name="author" [value]="userName" disabled />
+              </div>
+
+              <div class="form-group full">
+                <label for="summary">Resumo</label>
+                <textarea
+                  id="summary"
+                  name="summary"
+                  [(ngModel)]="article.summary"
+                  placeholder="Resumo curto para destaque, cards e chamadas."
+                  rows="4"
+                ></textarea>
+              </div>
+            </div>
+          </article>
+
+          @if (selectedExistingCoverUrl) {
+            <article class="editor-card">
+              <div class="card-heading">
+                <p class="eyebrow">Capa atual</p>
+                <h3>Imagem destacada</h3>
+              </div>
+
+              <div class="existing-cover-card">
+                <img [src]="selectedExistingCoverUrl" [alt]="article.title || 'Capa atual'" />
+                <div>
+                  <strong>Esta imagem esta marcada como capa</strong>
+                  <p>Voce pode manter a capa atual ou selecionar uma das imagens novas abaixo.</p>
+                </div>
+              </div>
+            </article>
+          }
+
+          @if (existingMedia.length) {
+            <article class="editor-card">
+              <div class="card-heading">
+                <p class="eyebrow">Galeria atual</p>
+                <h3>Imagens ja publicadas</h3>
+              </div>
+
+              <div class="media-grid">
+                @for (media of existingMedia; track media.id) {
+                  <article class="media-card">
+                    <div class="media-preview">
+                      <img [src]="media.url" [alt]="media.altText || article.title" />
+                    </div>
+
+                    <div class="media-body">
+                      <label>{{ media.altText || 'Sem descricao' }}</label>
+
+                      <div class="media-actions">
+                        <button
+                          type="button"
+                          class="chip-button"
+                          [class.active]="selectedExistingCoverUrl === media.url"
+                          (click)="setExistingCover(media.url)"
+                        >
+                          {{ selectedExistingCoverUrl === media.url ? 'Capa selecionada' : 'Usar como capa' }}
+                        </button>
+
+                        <button type="button" class="remove-button" (click)="removeExistingMedia(media.id)">
+                          Remover
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                }
+              </div>
+            </article>
+          }
+
+          <article class="editor-card">
+            <div class="card-heading">
+              <p class="eyebrow">Imagens</p>
+              <h3>Galeria do artigo</h3>
+            </div>
+
+            <div class="upload-dropzone">
+              <div>
+                <strong>Anexe ate 5 imagens por artigo</strong>
+                <p>Formatos aceitos: JPG, PNG, WEBP e outras imagens. O backend aceita ate 200 MB por arquivo.</p>
+              </div>
+
+              <label class="upload-button" for="mediaInput">Selecionar imagens</label>
+              <input
+                id="mediaInput"
+                type="file"
+                accept="image/*"
+                multiple
+                (change)="onMediaChange($event)"
+              />
+            </div>
+
+            @if (selectedMedia.length) {
+              <div class="media-grid">
+                @for (media of selectedMedia; track media.previewUrl; let index = $index) {
+                  <article class="media-card">
+                    <div class="media-preview">
+                      <img [src]="media.previewUrl" [alt]="media.altText || article.title" />
+
+                      <div class="media-badges">
+                        <span>Imagem</span>
+                        <span>{{ media.sizeLabel }}</span>
+                      </div>
+                    </div>
+
+                    <div class="media-body">
+                      <label>Descricao da midia</label>
+                      <input
+                        type="text"
+                        [name]="'altText-' + index"
+                        [(ngModel)]="media.altText"
+                        placeholder="Descreva a imagem"
+                      />
+
+                      <div class="media-actions">
+                        <button
+                          type="button"
+                          class="chip-button"
+                          [class.active]="media.isCover"
+                          (click)="setCover(index)"
+                        >
+                          {{ media.isCover ? 'Capa selecionada' : 'Usar como capa' }}
+                        </button>
+
+                        <button type="button" class="remove-button" (click)="removeMedia(index)">
+                          Remover
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-media-state">
+                <p>Nenhuma nova imagem selecionada.</p>
+                <span>Se voce nao enviar novas imagens, o artigo continua com a galeria que ja esta publicada.</span>
+              </div>
+            }
+          </article>
+
+          <article class="editor-card">
+            <div class="card-heading">
+              <p class="eyebrow">Videos externos</p>
+              <h3>YouTube e Instagram</h3>
+            </div>
+
+            <div class="link-stack">
+              @for (link of externalVideoLinks; track $index; let index = $index) {
+                <div class="link-card">
+                  <div class="form-group full">
+                    <label [for]="'externalVideoLink-' + index">Link do video {{ index + 1 }}</label>
+                    <input
+                      [id]="'externalVideoLink-' + index"
+                      type="url"
+                      [name]="'externalVideoLink-' + index"
+                      [(ngModel)]="externalVideoLinks[index]"
+                      (blur)="normalizeVideoLink(index)"
+                      placeholder="https://youtube.com/... ou https://instagram.com/..."
+                    />
+                  </div>
+
+                  <div class="link-actions">
+                    <span class="link-hint">Cole links da materia para abrir no YouTube ou Instagram.</span>
+
+                    <button
+                      type="button"
+                      class="remove-button"
+                      [disabled]="externalVideoLinks.length === 1 && !externalVideoLinks[index]"
+                      (click)="removeVideoLink(index)"
+                    >
+                      Remover link
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <button type="button" class="btn-secondary inline-button" (click)="addVideoLink()">
+              Adicionar outro link
+            </button>
+          </article>
+
+          <article class="editor-card">
+            <div class="card-heading">
+              <p class="eyebrow">Conteudo</p>
+              <h3>Corpo da materia</h3>
+            </div>
+
+            <div class="form-group full">
+              <label for="content">Conteudo</label>
+              <textarea
+                id="content"
+                name="content"
+                [(ngModel)]="article.content"
+                placeholder="Escreva o conteudo completo do artigo..."
+                rows="16"
+                required
+              ></textarea>
+            </div>
+          </article>
+        </div>
+
+        <aside class="editor-sidebar">
+          <article class="editor-card side-card">
+            <div class="card-heading">
+              <p class="eyebrow">Publicacao</p>
+              <h3>Status e destaque</h3>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" name="status" [(ngModel)]="article.status">
+                <option value="DRAFT">Rascunho</option>
+                <option value="PUBLISHED">Publicar agora</option>
+                <option value="SCHEDULED">Agendar</option>
+              </select>
+            </div>
+
+            @if (article.status === 'SCHEDULED') {
+              <div class="form-group">
+                <label for="publishAt">Data de publicacao</label>
+                <input
+                  id="publishAt"
+                  type="datetime-local"
+                  name="publishAt"
+                  [(ngModel)]="publishAtString"
+                  [min]="minDate"
+                  required
+                />
+              </div>
+            }
+
+            <div class="toggle-list">
+              <label class="toggle-option">
+                <input type="checkbox" name="featured" [(ngModel)]="article.featured" />
+                <span>
+                  <strong>Destaque</strong>
+                  <small>Entra nas vitrines e blocos principais.</small>
+                </span>
+              </label>
+
+              <label class="toggle-option">
+                <input type="checkbox" name="pinned" [(ngModel)]="article.pinned" />
+                <span>
+                  <strong>Fixado</strong>
+                  <small>Mantem o artigo em posicao privilegiada.</small>
+                </span>
+              </label>
+            </div>
+          </article>
+
+          <article class="editor-card side-card summary-card">
+            <div class="card-heading">
+              <p class="eyebrow">Resumo rapido</p>
+              <h3>Checklist</h3>
+            </div>
+
+            @if (isEditMode) {
+              <div class="resume-note">
+                <strong>Edicao em andamento</strong>
+                <p>O artigo ja existe. Ao salvar, o texto e as imagens pendentes serao atualizados na materia.</p>
+              </div>
+            }
+
+            <ul class="summary-list">
+              <li>
+                <span>{{ existingMedia.length + selectedMedia.length }}/5</span>
+                <p>imagens totais no artigo</p>
+              </li>
+              <li>
+                <span>{{ externalVideoLinkCount }}/5</span>
+                <p>links externos adicionados</p>
+              </li>
+              <li>
+                <span>{{ article.status === 'SCHEDULED' ? 'Agenda' : 'Fluxo direto' }}</span>
+                <p>modo atual de publicacao</p>
+              </li>
+              <li>
+                <span>{{ article.featured || article.pinned ? 'Turbo' : 'Padrao' }}</span>
+                <p>nivel de destaque editorial</p>
+              </li>
+            </ul>
+          </article>
+        </aside>
+      </section>
+    </form>
+  }
+</section>
+

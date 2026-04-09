@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, switchMap } from 'rxjs';
+import { catchError, map, Observable, retry, switchMap, throwError } from 'rxjs';
 import {
   ApiEnvelope,
   ArticleApi,
   ArticleSummaryApi,
+  MediaItem,
   News,
   PagedResponse,
 } from '../models/news';
@@ -14,19 +15,72 @@ import { Category } from '../models/category';
   providedIn: 'root',
 })
 export class PublicArticleService {
-  private readonly articlesUrl = '/api/articles';
+  private readonly apiBaseUrl = 'http://localhost:8080';
+  private readonly articlesUrl = `${this.apiBaseUrl}/api/articles`;
+  private readonly retryStrategy = {
+    count: 2,
+    delay: (_error: unknown, retryCount: number) => {
+      return new Observable<number>((subscriber) => {
+        setTimeout(() => {
+          subscriber.next(retryCount);
+          subscriber.complete();
+        }, 400 * retryCount);
+      });
+    },
+  };
 
   constructor(private http: HttpClient) {}
 
   getLatestArticles(limit: number = 6): Observable<News[]> {
     return this.http
       .get<ApiEnvelope<ArticleSummaryApi[]>>(`${this.articlesUrl}/latest?limit=${limit}`)
-      .pipe(map((response) => response.data.map((article) => this.mapArticleToNews(article))));
+      .pipe(retry(this.retryStrategy))
+      .pipe(
+        catchError(() =>
+          this.http
+            .get<ApiEnvelope<PagedResponse<ArticleSummaryApi>>>(
+              `${this.articlesUrl}?page=0&size=${Math.max(limit, 12)}`
+            )
+            .pipe(
+              retry(this.retryStrategy),
+              map((response) => response.data.content.slice(0, limit).map((article) => this.mapArticleToNews(article)))
+            )
+        )
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response)
+            ? response
+            : response.data.map((article) => this.mapArticleToNews(article))
+        )
+      );
   }
 
   getArticleBySlug(slug: string): Observable<News> {
     return this.http
       .get<ApiEnvelope<ArticleApi>>(`${this.articlesUrl}/slug/${slug}`)
+      .pipe(retry(this.retryStrategy))
+      .pipe(
+        catchError(() =>
+          this.http
+            .get<ApiEnvelope<PagedResponse<ArticleSummaryApi>>>(
+              `${this.articlesUrl}?page=0&size=100`
+            )
+            .pipe(
+              retry(this.retryStrategy),
+              map((response) => response.data.content.find((article) => article.slug === slug)),
+              switchMap((article) => {
+                if (!article) {
+                  return throwError(() => new Error('ARTICLE_NOT_FOUND'));
+                }
+
+                return this.http
+                  .get<ApiEnvelope<ArticleApi>>(`${this.articlesUrl}/${article.id}`)
+                  .pipe(retry(this.retryStrategy));
+              })
+            )
+        )
+      )
       .pipe(map((response) => this.mapArticleToNews(response.data)));
   }
 
@@ -35,6 +89,7 @@ export class PublicArticleService {
       .get<ApiEnvelope<PagedResponse<ArticleSummaryApi>>>(
         `${this.articlesUrl}?page=${page}&size=${size}`
       )
+      .pipe(retry(this.retryStrategy))
       .pipe(map((response) => response.data.content.map((article) => this.mapArticleToNews(article))));
   }
 
@@ -45,17 +100,19 @@ export class PublicArticleService {
       .get<ApiEnvelope<PagedResponse<ArticleSummaryApi>>>(
         `${this.articlesUrl}/search?q=${query}&page=${page}&size=${size}`
       )
+      .pipe(retry(this.retryStrategy))
       .pipe(map((response) => response.data.content.map((article) => this.mapArticleToNews(article))));
   }
 
   getArticlesByCategorySlug(slug: string, page: number = 0, size: number = 30): Observable<News[]> {
     return this.http
-      .get<ApiEnvelope<Category>>(`/api/categories/slug/${slug}`)
+      .get<ApiEnvelope<Category>>(`${this.apiBaseUrl}/api/categories/slug/${slug}`)
+      .pipe(retry(this.retryStrategy))
       .pipe(
         switchMap((categoryResponse) =>
           this.http.get<ApiEnvelope<PagedResponse<ArticleSummaryApi>>>(
             `${this.articlesUrl}/category/${categoryResponse.data.id}?page=${page}&size=${size}`
-          )
+          ).pipe(retry(this.retryStrategy))
         ),
         map((response) => response.data.content.map((article) => this.mapArticleToNews(article)))
       );
@@ -66,6 +123,7 @@ export class PublicArticleService {
     const content = 'content' in article ? article.content : summary;
     const categoryName = article.category?.name || 'Noticias';
     const publishAt = article.publishedAt ? new Date(article.publishedAt) : new Date();
+    const mediaItems = this.normalizeMediaItems('mediaFiles' in article ? article.mediaFiles : undefined);
 
     return {
       id: article.id,
@@ -77,13 +135,15 @@ export class PublicArticleService {
           ? new Date(article.updatedAt)
           : undefined,
       author: article.author?.name || 'Redacao Soft Chaos',
-      imageURL: article.coverImageUrl || this.extractFirstImage(article),
+      imageURL: this.normalizeAssetUrl(article.coverImageUrl || this.extractFirstImage(article)),
       slug: article.slug,
       type: categoryName,
       description: summary,
       readTime: this.estimateReadTime(content),
-      firstImageUrl: article.coverImageUrl,
+      firstImageUrl: this.normalizeAssetUrl(article.coverImageUrl),
       tag: categoryName,
+      mediaItems,
+      externalVideoLinks: article.externalVideoLinks?.filter(Boolean),
     };
   }
 
@@ -100,5 +160,28 @@ export class PublicArticleService {
     const plainText = content.replace(/<[^>]*>/g, ' ').trim();
     const words = plainText ? plainText.split(/\s+/).length : 0;
     return Math.max(1, Math.ceil(words / 200));
+  }
+
+  private normalizeAssetUrl(url?: string): string | undefined {
+    if (!url) {
+      return undefined;
+    }
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    return `${this.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
+  }
+
+  private normalizeMediaItems(mediaFiles?: MediaItem[]): MediaItem[] | undefined {
+    if (!mediaFiles?.length) {
+      return undefined;
+    }
+
+    return mediaFiles.map((item) => ({
+      ...item,
+      url: this.normalizeAssetUrl(item.url) || item.url,
+    }));
   }
 }

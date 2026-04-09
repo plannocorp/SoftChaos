@@ -21,6 +21,12 @@
     width: 70%;
 }
 
+.novidades .main-content > app-loading-indicator,
+.novidades .main-content > .no-news {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
 .novidades .main-content a {
     width: 100%;
     margin: auto;

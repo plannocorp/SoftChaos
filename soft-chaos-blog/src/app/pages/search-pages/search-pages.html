@@ -9,11 +9,17 @@
 
   @if (loading) {
     <div class="loading-container">
-      <p>Carregando resultados...</p>
+      <app-loading-indicator label="Carregando resultados..." size="lg" />
     </div>
   }
 
-  @if (!loading && resultados.length === 0) {
+  @if (!loading && error) {
+    <div class="loading-container">
+      <app-loading-indicator [label]="error" size="md" surface="plain" />
+    </div>
+  }
+
+  @if (!loading && !error && resultados.length === 0) {
     <div class="no-results">
       <h1 class="error-404">
         <span class="green-number">4</span>
@@ -30,7 +36,11 @@
       @for (noticia of resultados; track noticia.id) {
         <article class="news-card">
           <div class="img-box">
-            <img [src]="noticia.imageURL || 'https://placehold.co/800x600?text=Soft+Chaos'" [alt]="noticia.title" class="card-img">
+            <app-progressive-image
+              [src]="noticia.imageURL"
+              [alt]="noticia.title"
+              fallback="https://placehold.co/800x600?text=Soft+Chaos"
+            />
           </div>
           
           <div class="card-content">

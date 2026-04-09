@@ -3,17 +3,23 @@ package com.softchaos.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "articles")
 @Data
+@EqualsAndHashCode(of = "slug")
+@ToString(exclude = {"author", "category", "mediaFiles", "comments", "externalVideoLinks"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Article {
@@ -49,6 +55,12 @@ public class Article {
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name = "article_external_video_links", joinColumns = @JoinColumn(name = "article_id"))
+    @OrderColumn(name = "link_order")
+    @Column(name = "url", length = 1000)
+    private List<String> externalVideoLinks = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

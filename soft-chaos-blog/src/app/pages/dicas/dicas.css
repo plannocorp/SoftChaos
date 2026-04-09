@@ -21,6 +21,12 @@
     width: 70%;
 }
 
+.dicas .main-content > app-loading-indicator,
+.dicas .main-content > .no-news {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
 .dicas .main-content a {
     width: 100%;
     margin: auto;

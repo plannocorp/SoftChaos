@@ -1,0 +1,115 @@
+<section class="overview-modern">
+  @if (loading) {
+    <div class="state-card">Carregando estatisticas do painel...</div>
+  } @else if (error) {
+    <div class="state-card error">{{ error }}</div>
+  } @else if (stats) {
+    <section class="hero-grid">
+      <article class="hero-card highlight">
+        <p class="eyebrow">Publicacao</p>
+        <h2>{{ stats.totalArticles }}</h2>
+        <p>Total de artigos cadastrados no portal.</p>
+      </article>
+
+      <article class="hero-card">
+        <p class="eyebrow">Comentarios</p>
+        <h2>{{ stats.totalComments }}</h2>
+        <p>{{ stats.pendingComments }} aguardando moderacao.</p>
+      </article>
+
+      <article class="hero-card">
+        <p class="eyebrow">Usuarios</p>
+        <h2>{{ stats.totalUsers }}</h2>
+        <p>{{ stats.activeUsers }} perfis ativos na operacao.</p>
+      </article>
+    </section>
+
+    <section class="metrics-grid">
+      <article class="metric-card">
+        <span>Publicados</span>
+        <strong>{{ stats.publishedArticles }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Rascunhos</span>
+        <strong>{{ stats.draftArticles }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Agendados</span>
+        <strong>{{ stats.scheduledArticles }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Aprovados</span>
+        <strong>{{ stats.approvedComments }}</strong>
+      </article>
+    </section>
+
+    <section class="insights-grid">
+      <article class="panel-card">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Performance</p>
+            <h3>Top artigos</h3>
+          </div>
+        </div>
+
+        <div class="top-list">
+          @for (article of stats.topArticles; track article.id) {
+            <article class="top-item">
+              <div>
+                <strong>{{ article.title }}</strong>
+                <span>{{ article.authorName }}</span>
+              </div>
+              <b>{{ article.views }} views</b>
+            </article>
+          }
+        </div>
+      </article>
+
+      <article class="panel-card">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Atividade</p>
+            <h3>Recentes</h3>
+          </div>
+
+          <div class="toggle-tabs">
+            <button [class.active]="activeTab === 'articles'" (click)="setTab('articles')">Artigos</button>
+            <button [class.active]="activeTab === 'comments'" (click)="setTab('comments')">Comentarios</button>
+          </div>
+        </div>
+
+        @if (activeTab === 'articles') {
+          <div class="activity-list">
+            @for (article of stats.recentArticles; track article.id) {
+              <article class="activity-item">
+                <div>
+                  <strong>{{ article.title }}</strong>
+                  <span>{{ article.authorName }}</span>
+                </div>
+                <aside>
+                  <em>{{ article.status }}</em>
+                  <small>{{ article.createdAt | date:'dd/MM HH:mm' }}</small>
+                </aside>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="activity-list">
+            @for (comment of stats.recentComments; track comment.id) {
+              <article class="activity-item">
+                <div>
+                  <strong>{{ comment.authorName }}</strong>
+                  <span>{{ comment.articleTitle }}</span>
+                </div>
+                <aside>
+                  <em>{{ comment.status }}</em>
+                  <small>{{ comment.createdAt | date:'dd/MM HH:mm' }}</small>
+                </aside>
+              </article>
+            }
+          </div>
+        }
+      </article>
+    </section>
+  }
+</section>

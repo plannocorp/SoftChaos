@@ -6,6 +6,7 @@ import com.softchaos.dto.response.ApiResponse;
 import com.softchaos.dto.response.ArticleResponse;
 import com.softchaos.dto.response.ArticleSummaryResponse;
 import com.softchaos.dto.response.PagedResponse;
+import com.softchaos.model.Article;
 import com.softchaos.security.UserPrincipal;
 import com.softchaos.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,7 +39,7 @@ public class ArticleController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR', 'AUTHOR')")
     @SecurityRequirement(name = "bearer-jwt")
-    @Operation(summary = "Criar artigo", description = "Cria um novo artigo (requer autenticação)")
+    @Operation(summary = "Criar artigo", description = "Cria um novo artigo (requer autenticaÃ§Ã£o)")
     public ResponseEntity<ApiResponse<ArticleResponse>> createArticle(
             @Valid @RequestBody CreateArticleRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser) {
@@ -62,12 +63,9 @@ public class ArticleController {
      * Busca artigo por slug
      */
     @GetMapping("/slug/{slug}")
-    @Operation(summary = "Buscar artigo por slug", description = "Retorna artigo pela URL amigável")
+    @Operation(summary = "Buscar artigo por slug", description = "Retorna artigo pela URL amigÃ¡vel")
     public ResponseEntity<ApiResponse<ArticleResponse>> getArticleBySlug(@PathVariable String slug) {
         ArticleResponse article = articleService.getArticleBySlug(slug);
-
-        // Incrementa contador de visualizações
-        articleService.incrementViewCount(article.getId());
 
         return ResponseEntity.ok(ApiResponse.success(article));
     }
@@ -94,7 +92,7 @@ public class ArticleController {
      * Lista artigos por categoria
      */
     @GetMapping("/category/{categoryId}")
-    @Operation(summary = "Listar artigos por categoria", description = "Retorna artigos de uma categoria específica")
+    @Operation(summary = "Listar artigos por categoria", description = "Retorna artigos de uma categoria especÃ­fica")
     public ResponseEntity<ApiResponse<PagedResponse<ArticleSummaryResponse>>> getArticlesByCategory(
             @PathVariable Long categoryId,
             @RequestParam(defaultValue = "0") int page,
@@ -110,7 +108,7 @@ public class ArticleController {
      * Lista artigos por autor
      */
     @GetMapping("/author/{authorId}")
-    @Operation(summary = "Listar artigos por autor", description = "Retorna artigos de um autor específico")
+    @Operation(summary = "Listar artigos por autor", description = "Retorna artigos de um autor especÃ­fico")
     public ResponseEntity<ApiResponse<PagedResponse<ArticleSummaryResponse>>> getArticlesByAuthor(
             @PathVariable Long authorId,
             @RequestParam(defaultValue = "0") int page,
@@ -149,7 +147,7 @@ public class ArticleController {
      * Lista artigos mais lidos
      */
     @GetMapping("/most-viewed")
-    @Operation(summary = "Artigos mais lidos", description = "Retorna artigos com mais visualizações")
+    @Operation(summary = "Artigos mais lidos", description = "Retorna artigos com mais visualizaÃ§Ãµes")
     public ResponseEntity<ApiResponse<PagedResponse<ArticleSummaryResponse>>> getMostViewedArticles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -160,14 +158,42 @@ public class ArticleController {
     }
 
     /**
-     * Lista últimos artigos publicados
+     * Lista Ãºltimos artigos publicados
      */
     @GetMapping("/latest")
-    @Operation(summary = "Últimos artigos", description = "Retorna os artigos mais recentes")
+    @Operation(summary = "Ãšltimos artigos", description = "Retorna os artigos mais recentes")
     public ResponseEntity<ApiResponse<List<ArticleSummaryResponse>>> getLatestArticles(
             @RequestParam(defaultValue = "5") int limit) {
 
         List<ArticleSummaryResponse> articles = articleService.getLatestPublishedArticles(limit);
+        return ResponseEntity.ok(ApiResponse.success(articles));
+    }
+
+    /**
+     * Lista artigos do painel por status
+     */
+    @GetMapping("/admin")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR', 'AUTHOR')")
+    @SecurityRequirement(name = "bearer-jwt")
+    @Operation(summary = "Listar artigos do painel", description = "Retorna artigos do painel filtrando por status")
+    public ResponseEntity<ApiResponse<PagedResponse<ArticleSummaryResponse>>> getAdminArticlesByStatus(
+            @RequestParam Article.Status status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "DESC") String direction,
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String resolvedSortBy = resolveAdminSort(status, sortBy);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, resolvedSortBy));
+
+        PagedResponse<ArticleSummaryResponse> articles = articleService.getAdminArticlesByStatus(
+                status,
+                currentUser.getId(),
+                currentUser.getRole(),
+                pageable
+        );
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
 
@@ -188,7 +214,7 @@ public class ArticleController {
      * Busca artigos por termo
      */
     @GetMapping("/search")
-    @Operation(summary = "Buscar artigos", description = "Busca artigos por termo (título, resumo ou conteúdo)")
+    @Operation(summary = "Buscar artigos", description = "Busca artigos por termo (tÃ­tulo, resumo ou conteÃºdo)")
     public ResponseEntity<ApiResponse<PagedResponse<ArticleSummaryResponse>>> searchArticles(
             @RequestParam String q,
             @RequestParam(defaultValue = "0") int page,
@@ -248,5 +274,17 @@ public class ArticleController {
     public ResponseEntity<ApiResponse<Void>> deleteArticle(@PathVariable Long id) {
         articleService.deleteArticle(id);
         return ResponseEntity.ok(ApiResponse.success("Artigo deletado com sucesso", null));
+    }
+
+    private String resolveAdminSort(Article.Status status, String sortBy) {
+        if (sortBy != null && !sortBy.isBlank()) {
+            return sortBy;
+        }
+
+        return switch (status) {
+            case SCHEDULED -> "scheduledFor";
+            case PUBLISHED -> "publishedAt";
+            default -> "updatedAt";
+        };
     }
 }

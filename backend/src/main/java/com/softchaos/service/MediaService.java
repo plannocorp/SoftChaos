@@ -1,10 +1,10 @@
 package com.softchaos.service;
 
+import com.softchaos.dto.mapper.MediaMapper;
 import com.softchaos.dto.request.UploadMediaRequest;
 import com.softchaos.dto.response.MediaResponse;
 import com.softchaos.exception.BadRequestException;
 import com.softchaos.exception.ResourceNotFoundException;
-import com.softchaos.dto.mapper.MediaMapper;
 import com.softchaos.model.Article;
 import com.softchaos.model.Media;
 import com.softchaos.repository.ArticleRepository;
@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,207 +33,190 @@ import java.util.stream.Collectors;
 @Transactional
 public class MediaService {
 
+    private static final int MAX_IMAGE_MEDIA_PER_ARTICLE = 5;
+    private static final Set<Media.MediaType> IMAGE_MEDIA_TYPES = Set.of(Media.MediaType.IMAGE);
+
     private final MediaRepository mediaRepository;
     private final ArticleRepository articleRepository;
     private final MediaMapper mediaMapper;
+    private final SupabaseStorageService supabaseStorageService;
 
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
 
-    @Value("${app.upload.max-file-size:10485760}") // 10MB default
+    @Value("${app.upload.max-file-size:10485760}")
     private Long maxFileSize;
 
-    /**
-     * Faz upload de arquivo
-     */
     public MediaResponse uploadFile(MultipartFile file, UploadMediaRequest request) {
         log.info("Fazendo upload de arquivo: {}", file.getOriginalFilename());
 
-        // Validações
         if (file.isEmpty()) {
-            throw new BadRequestException("Arquivo não pode estar vazio");
+            throw new BadRequestException("Arquivo nao pode estar vazio");
         }
 
         if (file.getSize() > maxFileSize) {
-            throw new BadRequestException("Arquivo excede o tamanho máximo permitido de " +
+            throw new BadRequestException("Arquivo excede o tamanho maximo permitido de " +
                     (maxFileSize / 1024 / 1024) + "MB");
         }
 
-        // Valida tipo de arquivo
-        String contentType = file.getContentType();
-        if (!isValidFileType(contentType, request.getType())) {
-            throw new BadRequestException("Tipo de arquivo inválido para " + request.getType());
+        if (request.getType() == Media.MediaType.VIDEO) {
+            throw new BadRequestException("Upload direto de videos foi desativado. Use links do YouTube ou Instagram no artigo.");
         }
 
+        String contentType = file.getContentType();
+        if (!isValidFileType(contentType, request.getType())) {
+            throw new BadRequestException("Tipo de arquivo invalido para " + request.getType());
+        }
+
+        Article article = null;
+        if (request.getArticleId() != null) {
+            article = articleRepository.findById(request.getArticleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Artigo", "id", request.getArticleId()));
+            validateImageLimit(request.getArticleId(), request.getType());
+        }
+
+        Path filePath = null;
         try {
-            // Cria diretório se não existir
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            String originalFilename = file.getOriginalFilename() != null
+                    ? file.getOriginalFilename()
+                    : "arquivo";
+            String extension = FilenameUtils.getExtension(originalFilename);
+            String uniqueFilename = extension == null || extension.isBlank()
+                    ? UUID.randomUUID().toString()
+                    : UUID.randomUUID() + "." + extension;
+            String storedFilename = uniqueFilename;
+            String storedUrl;
+
+            if (supabaseStorageService.isEnabled()) {
+                storedFilename = "articles/" + uniqueFilename;
+                storedUrl = supabaseStorageService.uploadImage(file, storedFilename);
+            } else {
+                Path uploadPath = resolveUploadPath();
+                filePath = uploadPath.resolve(uniqueFilename);
+                copyFileWithFallback(file, filePath, uniqueFilename);
+                storedUrl = "/uploads/" + uniqueFilename;
             }
 
-            // Gera nome único para o arquivo
-            String originalFilename = file.getOriginalFilename();
-            String extension = FilenameUtils.getExtension(originalFilename);
-            String uniqueFilename = UUID.randomUUID() + "." + extension;
-
-            // Salva arquivo no disco
-            Path filePath = uploadPath.resolve(uniqueFilename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Cria entidade Media
             Media media = new Media();
-            media.setFilename(uniqueFilename);
-            media.setUrl("/uploads/" + uniqueFilename); // URL relativa
+            media.setFilename(storedFilename);
+            media.setUrl(storedUrl);
             media.setType(request.getType());
             media.setAltText(request.getAltText());
             media.setFileSize(file.getSize());
 
-            // Associa ao artigo se fornecido
-            if (request.getArticleId() != null) {
-                Article article = articleRepository.findById(request.getArticleId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Artigo", "id", request.getArticleId()));
+            if (article != null) {
                 media.setArticle(article);
             }
 
             Media savedMedia = mediaRepository.save(media);
-
-            log.info("Arquivo salvo com sucesso. ID: {}, Nome: {}", savedMedia.getId(), uniqueFilename);
+            log.info("Arquivo salvo com sucesso. ID: {}, Nome: {}", savedMedia.getId(), storedFilename);
 
             return mediaMapper.toResponse(savedMedia);
 
         } catch (IOException e) {
             log.error("Erro ao fazer upload do arquivo", e);
             throw new BadRequestException("Erro ao salvar arquivo: " + e.getMessage());
+        } catch (RuntimeException e) {
+            deletePhysicalFileIfExists(filePath);
+            throw e;
         }
     }
 
-    /**
-     * Busca mídia por ID
-     */
     @Transactional(readOnly = true)
     public MediaResponse getMediaById(Long id) {
-        log.info("Buscando mídia por ID: {}", id);
+        log.info("Buscando midia por ID: {}", id);
 
         Media media = mediaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Mídia", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Midia", "id", id));
 
         return mediaMapper.toResponse(media);
     }
 
-    /**
-     * Lista mídias de um artigo
-     */
     @Transactional(readOnly = true)
     public List<MediaResponse> getMediaByArticle(Long articleId) {
-        log.info("Listando mídias do artigo ID: {}", articleId);
+        log.info("Listando midias do artigo ID: {}", articleId);
 
         if (!articleRepository.existsById(articleId)) {
             throw new ResourceNotFoundException("Artigo", "id", articleId);
         }
 
-        return mediaRepository.findByArticleId(articleId).stream()
+        return mediaRepository.findByArticleIdOrderByUploadedAtAsc(articleId).stream()
                 .map(mediaMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Lista mídias por tipo
-     */
     @Transactional(readOnly = true)
     public List<MediaResponse> getMediaByType(Media.MediaType type) {
-        log.info("Listando mídias do tipo: {}", type);
+        log.info("Listando midias do tipo: {}", type);
 
         return mediaRepository.findByType(type).stream()
                 .map(mediaMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Lista mídias órfãs (sem artigo associado)
-     */
     @Transactional(readOnly = true)
     public List<MediaResponse> getOrphanMedia() {
-        log.info("Listando mídias órfãs");
+        log.info("Listando midias orfas");
 
         return mediaRepository.findOrphanMedia().stream()
                 .map(mediaMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Associa mídia a um artigo
-     */
     public MediaResponse associateMediaToArticle(Long mediaId, Long articleId) {
-        log.info("Associando mídia ID: {} ao artigo ID: {}", mediaId, articleId);
+        log.info("Associando midia ID: {} ao artigo ID: {}", mediaId, articleId);
 
         Media media = mediaRepository.findById(mediaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Mídia", "id", mediaId));
+                .orElseThrow(() -> new ResourceNotFoundException("Midia", "id", mediaId));
 
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Artigo", "id", articleId));
 
+        validateImageLimit(articleId, media.getType());
         media.setArticle(article);
+
         Media updatedMedia = mediaRepository.save(media);
-
-        log.info("Mídia associada com sucesso");
-
         return mediaMapper.toResponse(updatedMedia);
     }
 
-    /**
-     * Atualiza alt text da mídia
-     */
     public MediaResponse updateAltText(Long id, String altText) {
-        log.info("Atualizando alt text da mídia ID: {}", id);
+        log.info("Atualizando alt text da midia ID: {}", id);
 
         Media media = mediaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Mídia", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Midia", "id", id));
 
         media.setAltText(altText);
         Media updatedMedia = mediaRepository.save(media);
 
-        log.info("Alt text atualizado com sucesso");
-
         return mediaMapper.toResponse(updatedMedia);
     }
 
-    /**
-     * Deleta mídia
-     */
     public void deleteMedia(Long id) {
-        log.info("Deletando mídia ID: {}", id);
+        log.info("Deletando midia ID: {}", id);
 
         Media media = mediaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Mídia", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Midia", "id", id));
 
-        // Deleta arquivo físico
         try {
-            Path filePath = Paths.get(uploadDir).resolve(media.getFilename());
-            Files.deleteIfExists(filePath);
-            log.info("Arquivo físico deletado: {}", media.getFilename());
+            if (supabaseStorageService.isEnabled()) {
+                supabaseStorageService.deleteObject(media.getFilename());
+            } else {
+                Path filePath = resolveUploadPath().resolve(media.getFilename());
+                Files.deleteIfExists(filePath);
+            }
         } catch (IOException e) {
-            log.error("Erro ao deletar arquivo físico", e);
+            log.error("Erro ao deletar arquivo fisico", e);
         }
 
-        // Deleta registro do banco
         mediaRepository.delete(media);
-
-        log.info("Mídia deletada com sucesso. ID: {}", id);
     }
 
-    /**
-     * Calcula espaço total usado
-     */
     @Transactional(readOnly = true)
     public Long calculateTotalStorageUsed() {
         Long totalBytes = mediaRepository.calculateTotalStorageUsed();
         return totalBytes != null ? totalBytes : 0L;
     }
 
-    /**
-     * Valida tipo de arquivo
-     */
     private boolean isValidFileType(String contentType, Media.MediaType mediaType) {
         if (contentType == null) {
             return false;
@@ -241,11 +225,87 @@ public class MediaService {
         return switch (mediaType) {
             case IMAGE -> contentType.startsWith("image/");
             case VIDEO -> contentType.startsWith("video/");
-            case DOCUMENT -> contentType.equals("application/pdf") ||
-                    contentType.equals("application/msword") ||
-                    contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
-                    contentType.equals("application/vnd.ms-excel") ||
-                    contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            case DOCUMENT -> contentType.equals("application/pdf")
+                    || contentType.equals("application/msword")
+                    || contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                    || contentType.equals("application/vnd.ms-excel")
+                    || contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         };
     }
+
+    private void validateImageLimit(Long articleId, Media.MediaType mediaType) {
+        if (!IMAGE_MEDIA_TYPES.contains(mediaType)) {
+            return;
+        }
+
+        Long currentImageCount = mediaRepository.countByArticleIdAndTypeIn(articleId, IMAGE_MEDIA_TYPES);
+        if (currentImageCount != null && currentImageCount >= MAX_IMAGE_MEDIA_PER_ARTICLE) {
+            throw new BadRequestException("Cada artigo pode ter no maximo 5 imagens");
+        }
+    }
+
+    private void deletePhysicalFileIfExists(Path filePath) {
+        if (filePath == null) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(filePath);
+        } catch (IOException ex) {
+            log.warn("Nao foi possivel remover o arquivo {} apos falha no upload", filePath, ex);
+        }
+    }
+
+    private Path resolveUploadPath() {
+        if (isUnixStylePathOnWindows(uploadDir)) {
+            Path fallbackPath = buildFallbackUploadPath();
+            createDirectoriesOrFail(fallbackPath);
+            log.warn("Diretorio de upload {} e incompatível com Windows. Usando fallback em {}", uploadDir, fallbackPath);
+            return fallbackPath;
+        }
+
+        Path preferredPath = Paths.get(uploadDir);
+
+        try {
+            Files.createDirectories(preferredPath);
+            return preferredPath;
+        } catch (IOException | RuntimeException ex) {
+            Path fallbackPath = buildFallbackUploadPath();
+            createDirectoriesOrFail(fallbackPath);
+            log.warn("Nao foi possivel usar o diretorio de upload configurado ({}). Usando fallback em {}",
+                    preferredPath, fallbackPath);
+            return fallbackPath;
+        }
+    }
+
+    private void copyFileWithFallback(MultipartFile file, Path preferredTarget, String uniqueFilename) throws IOException {
+        try {
+            Files.copy(file.getInputStream(), preferredTarget, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            Path fallbackPath = buildFallbackUploadPath();
+            createDirectoriesOrFail(fallbackPath);
+
+            Path fallbackTarget = fallbackPath.resolve(uniqueFilename);
+            Files.copy(file.getInputStream(), fallbackTarget, StandardCopyOption.REPLACE_EXISTING);
+            log.warn("Falha ao gravar em {}. Arquivo salvo no fallback {}", preferredTarget, fallbackTarget);
+        }
+    }
+
+    private void createDirectoriesOrFail(Path path) {
+        try {
+            Files.createDirectories(path);
+        } catch (IOException ex) {
+            throw new BadRequestException("Erro ao preparar diretorio de upload: " + ex.getMessage());
+        }
+    }
+
+    private Path buildFallbackUploadPath() {
+        return Paths.get(System.getProperty("user.home"), "softchaos-uploads", "runtime");
+    }
+
+    private boolean isUnixStylePathOnWindows(String pathValue) {
+        String osName = System.getProperty("os.name", "").toLowerCase();
+        return osName.contains("win") && (pathValue.startsWith("/") || pathValue.startsWith("\\"));
+    }
 }
+

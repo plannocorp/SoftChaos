@@ -16,8 +16,11 @@ import java.time.LocalDateTime;
 public class CommentResponse {
     private Long id;
     private String authorName;
+    private String authorEmail;
     private String content;
     private CommentStatus status;
     private LocalDateTime createdAt;
     private String articleTitle;
+    private String articleSlug;
+    private String articleCoverImageUrl;
 }

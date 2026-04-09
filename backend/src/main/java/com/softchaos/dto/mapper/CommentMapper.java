@@ -12,10 +12,13 @@ public class CommentMapper {
         return CommentResponse.builder()
                 .id(comment.getId())
                 .authorName(comment.getAuthorName())
+                .authorEmail(comment.getAuthorEmail())
                 .content(comment.getContent())
                 .status(comment.getStatus())
                 .createdAt(comment.getCreatedAt())
                 .articleTitle(comment.getArticle().getTitle())
+                .articleSlug(comment.getArticle().getSlug())
+                .articleCoverImageUrl(comment.getArticle().getCoverImageUrl())
                 .build();
     }
 

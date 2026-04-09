@@ -31,7 +31,7 @@ public class CommentService {
     private final CommentMapper commentMapper;
 
     public CommentResponse createComment(CreateCommentRequest request) {
-        log.info("Criando novo comentário no artigo ID: {}", request.getArticleId());
+        log.info("Criando novo comentario no artigo ID: {}", request.getArticleId());
 
         Article article = articleRepository.findById(request.getArticleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Artigo", "id", request.getArticleId()));
@@ -40,14 +40,14 @@ public class CommentService {
         comment.setArticle(article);
 
         Comment savedComment = commentRepository.save(comment);
-        log.info("Comentário criado com sucesso. ID: {}", savedComment.getId());
+        log.info("Comentario criado com sucesso. ID: {}", savedComment.getId());
 
         return commentMapper.toResponse(savedComment);
     }
 
     @Transactional(readOnly = true)
     public PagedResponse<CommentResponse> getApprovedCommentsByArticle(Long articleId, Pageable pageable) {
-        log.info("Listando comentários aprovados do artigo ID: {}", articleId);
+        log.info("Listando comentarios aprovados do artigo ID: {}", articleId);
 
         if (!articleRepository.existsById(articleId)) {
             throw new ResourceNotFoundException("Artigo", "id", articleId);
@@ -61,7 +61,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentResponse> getAllCommentsByArticle(Long articleId) {
-        log.info("Listando todos os comentários do artigo ID: {}", articleId);
+        log.info("Listando todos os comentarios do artigo ID: {}", articleId);
 
         if (!articleRepository.existsById(articleId)) {
             throw new ResourceNotFoundException("Artigo", "id", articleId);
@@ -74,7 +74,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public PagedResponse<CommentResponse> getPendingComments(Pageable pageable) {
-        log.info("Listando comentários pendentes de aprovação");
+        log.info("Listando comentarios pendentes de aprovacao");
 
         Page<Comment> commentsPage = commentRepository
                 .findByStatusOrderByCreatedAtDesc(CommentStatus.PENDING, pageable);
@@ -82,39 +82,50 @@ public class CommentService {
         return buildPagedResponse(commentsPage);
     }
 
+    @Transactional(readOnly = true)
+    public PagedResponse<CommentResponse> getAdminComments(CommentStatus status, Pageable pageable) {
+        log.info("Listando comentarios do painel com status: {}", status);
+
+        Page<Comment> commentsPage = status == null
+                ? commentRepository.findAllByOrderByCreatedAtDesc(pageable)
+                : commentRepository.findByStatusOrderByCreatedAtDesc(status, pageable);
+
+        return buildPagedResponse(commentsPage);
+    }
+
     public CommentResponse approveComment(Long id) {
-        log.info("Aprovando comentário ID: {}", id);
+        log.info("Aprovando comentario ID: {}", id);
 
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Comentário", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Comentario", "id", id));
 
         comment.setStatus(CommentStatus.APPROVED);
-        log.info("Comentário aprovado com sucesso. ID: {}", id);
+        log.info("Comentario aprovado com sucesso. ID: {}", id);
 
         return commentMapper.toResponse(commentRepository.save(comment));
     }
 
     public CommentResponse rejectComment(Long id) {
-        log.info("Reprovando comentário ID: {}", id);
+        log.info("Reprovando comentario ID: {}", id);
 
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Comentário", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Comentario", "id", id));
 
         comment.setStatus(CommentStatus.REJECTED);
-        log.info("Comentário reprovado com sucesso. ID: {}", id);
+        log.info("Comentario reprovado com sucesso. ID: {}", id);
 
         return commentMapper.toResponse(commentRepository.save(comment));
     }
 
     public void deleteComment(Long id) {
-        log.info("Deletando comentário ID: {}", id);
+        log.info("Marcando comentario como deletado. ID: {}", id);
 
-        if (!commentRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Comentário", "id", id);
-        }
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Comentario", "id", id));
 
-        commentRepository.deleteById(id);
-        log.info("Comentário deletado com sucesso. ID: {}", id);
+        comment.setStatus(CommentStatus.DELETED);
+        commentRepository.save(comment);
+        log.info("Comentario marcado como deletado com sucesso. ID: {}", id);
     }
 
     @Transactional(readOnly = true)
@@ -135,3 +146,4 @@ public class CommentService {
                 .build();
     }
 }
+

@@ -1,0 +1,20 @@
+<div class="image-shell" [class.image-ready]="!loading">
+  @if (loading) {
+    <div class="image-loader">
+      <app-loading-indicator label="Carregando imagem..." size="sm" surface="plain" />
+    </div>
+  }
+
+  <img
+    class="image"
+    [src]="currentSrc"
+    [alt]="alt"
+    [class.hidden]="loading"
+    (load)="onLoad()"
+    (error)="onError()"
+  />
+
+  @if (failed) {
+    <div class="image-fallback">Imagem indisponivel</div>
+  }
+</div>
