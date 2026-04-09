@@ -90,8 +90,7 @@ public class ArticleService {
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Artigo", "id", id));
 
-        Long commentsCount = commentRepository.countByArticleIdAndStatus(article.getId(), CommentStatus.APPROVED);
-        return articleMapper.toResponse(article, commentsCount);
+        return articleMapper.toResponse(article, countApprovedComments(article.getId()));
     }
 
     /**
@@ -100,14 +99,13 @@ public class ArticleService {
     public ArticleResponse getArticleBySlug(String slug) {
         log.info("Buscando artigo por slug: {}", slug);
 
-        Article article = articleRepository.findBySlug(slug)
+        Article article = articleRepository.findBySlugAndStatus(slug, Article.Status.PUBLISHED)
                 .orElseThrow(() -> new ResourceNotFoundException("Artigo", "slug", slug));
 
         articleRepository.incrementViewCount(article.getId());
         article.setViewCount(article.getViewCount() + 1);
 
-        Long commentsCount = commentRepository.countByArticleIdAndStatus(article.getId(), CommentStatus.APPROVED);
-        return articleMapper.toResponse(article, commentsCount);
+        return articleMapper.toResponse(article, countApprovedComments(article.getId()));
     }
 
     /**
@@ -177,8 +175,7 @@ public class ArticleService {
         return articleRepository.findByPinnedTrueAndStatusOrderByPublishedAtDesc(Article.Status.PUBLISHED)
                 .stream()
                 .map(article -> {
-                    Long commentsCount = commentRepository.countByArticleIdAndStatus(article.getId(), CommentStatus.APPROVED);
-                    return articleMapper.toSummaryResponse(article, commentsCount);
+                    return articleMapper.toSummaryResponse(article, countApprovedComments(article.getId()));
                 })
                 .collect(Collectors.toList());
     }
@@ -202,8 +199,7 @@ public class ArticleService {
         Pageable pageable = PageRequest.of(0, limit);
         return articleRepository.findLatestPublished(pageable).stream()
                 .map(article -> {
-                    Long commentsCount = commentRepository.countByArticleIdAndStatus(article.getId(), CommentStatus.APPROVED);
-                    return articleMapper.toSummaryResponse(article, commentsCount);
+                    return articleMapper.toSummaryResponse(article, countApprovedComments(article.getId()));
                 })
                 .collect(Collectors.toList());
     }
@@ -221,8 +217,7 @@ public class ArticleService {
         return articleRepository.findRelatedArticles(article.getCategory().getId(), articleId, pageable)
                 .stream()
                 .map(relatedArticle -> {
-                    Long commentsCount = commentRepository.countByArticleIdAndStatus(relatedArticle.getId(), CommentStatus.APPROVED);
-                    return articleMapper.toSummaryResponse(relatedArticle, commentsCount);
+                    return articleMapper.toSummaryResponse(relatedArticle, countApprovedComments(relatedArticle.getId()));
                 })
                 .collect(Collectors.toList());
     }
@@ -296,8 +291,7 @@ public class ArticleService {
         articleMapper.updateEntity(article, request);
         Article updatedArticle = articleRepository.save(article);
 
-        Long commentsCount = commentRepository.countByArticleIdAndStatus(updatedArticle.getId(), CommentStatus.APPROVED);
-        return articleMapper.toResponse(updatedArticle, commentsCount);
+        return articleMapper.toResponse(updatedArticle, countApprovedComments(updatedArticle.getId()));
     }
 
     /**
@@ -428,8 +422,7 @@ public class ArticleService {
 
     private PagedResponse<ArticleSummaryResponse> buildPagedSummaryResponse(Page<Article> articlesPage) {
         Page<ArticleSummaryResponse> responsePage = articlesPage.map(article -> {
-            Long commentsCount = commentRepository.countByArticleIdAndStatus(article.getId(), CommentStatus.APPROVED);
-            return articleMapper.toSummaryResponse(article, commentsCount);
+            return articleMapper.toSummaryResponse(article, countApprovedComments(article.getId()));
         });
 
         return PagedResponse.<ArticleSummaryResponse>builder()
@@ -440,5 +433,9 @@ public class ArticleService {
                 .totalPages(responsePage.getTotalPages())
                 .last(responsePage.isLast())
                 .build();
+    }
+
+    private Long countApprovedComments(Long articleId) {
+        return commentRepository.countByArticleIdAndStatus(articleId, CommentStatus.APPROVED);
     }
 }

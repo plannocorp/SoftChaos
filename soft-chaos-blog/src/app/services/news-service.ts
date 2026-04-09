@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { News } from '../models/news';               // seu modelo local (pode ser adaptado)
+import { Observable, forkJoin, map, of, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ArticleSummary } from '../models/article-summary';
 import { ArticleResponse } from '../models/article-response';
 import { PagedResponse } from '../models/paged-response';
@@ -35,17 +34,11 @@ interface BackendArticleSummary {
 
 @Injectable({ providedIn: 'root' })
 export class NewsService {
-  private apiUrl = '/api/articles';   // base dos endpoints de artigo
+  private apiUrl = '/api/articles';
   private categoriesUrl = '/api/categories';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  // ===================== MÉTODOS PÚBLICOS =====================
-
-  /**
-   * Retorna todos os artigos publicados (sem paginação explícita).
-   * Usa uma página grande (limite 1000) – use com moderação.
-   */
   public getAll(): Observable<ArticleSummary[]> {
     const params = new HttpParams().set('size', '1000');
 
@@ -55,36 +48,24 @@ export class NewsService {
     );
   }
 
-  /**
-   * Retorna a notícia mais recente (primeira da lista "latest").
-   */
   public getLatestNews(): Observable<ArticleResponse> {
     return this.getLatestPublishedArticles(1).pipe(
       map(articles => articles[0])
     );
   }
 
-  /**
-   * Retorna a 2ª e 3ª notícias mais recentes.
-   */
   public getSecondaryNews(): Observable<ArticleResponse[]> {
     return this.getLatestPublishedArticles(3).pipe(
       map(articles => articles.slice(1, 3))
     );
   }
 
-  /**
-   * Retorna as notícias para os cards (4ª, 5ª e 6ª mais recentes).
-   */
   public getCardNews(): Observable<ArticleResponse[]> {
     return this.getLatestPublishedArticles(6).pipe(
       map(articles => articles.slice(3, 6))
     );
   }
 
-  /**
-   * Busca um artigo pelo slug (identificador único amigável).
-   */
   public getBySlug(slug: string): Observable<ArticleResponse> {
     return this.http.get<any>(`${this.apiUrl}/slug/${slug}`).pipe(
       map(response => this.mapBackendArticle(response.data)),
@@ -92,9 +73,6 @@ export class NewsService {
     );
   }
 
-  /**
-   * Busca um artigo pelo ID numérico.
-   */
   public getById(id: number): Observable<ArticleResponse> {
     return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
       map(response => this.mapBackendArticle(response.data)),
@@ -102,73 +80,64 @@ export class NewsService {
     );
   }
 
-  /**
-   * Busca artigos por "tipo". ATENÇÃO: o backend não possui esse campo.
-   * Você pode mapear para status (ex: 'published', 'draft') ou category.
-   * Por enquanto, lança um erro.
-   */
   public getByType(type: string): Observable<ArticleResponse[]> {
-    console.warn('getByType não implementado – campo "type" não existe no backend');
-    return throwError(() => new Error('Método getByType não suportado sem o campo "type"'));
-    // Exemplo de implementação alternativa (usando status):
-    // const params = new HttpParams().set('status', type);
-    // return this.http.get<PagedResponse<ArticleSummaryResponse>>(this.apiUrl, { params })
-    //   .pipe(map(res => res.content));
+    console.warn('getByType nao implementado: campo "type" nao existe no backend');
+    return throwError(() => new Error('Metodo getByType nao suportado sem o campo "type"'));
   }
 
-  /**
-   * Retorna notícias publicadas hoje (filtro local em cima dos artigos mais recentes).
-   * Busca os últimos 50 artigos e filtra pela data de publicação.
-   */
   public getTodayNews(): Observable<ArticleResponse[]> {
     const params = new HttpParams().set('size', '50');
-    return this.http.get<PagedResponse<ArticleResponse>>(this.apiUrl, { params })
-      .pipe(
-        map(response => response.content.filter(article => this.isToday(new Date(article.publishedAt))))
-      );
+    return this.http.get<PagedResponse<ArticleResponse>>(this.apiUrl, { params }).pipe(
+      map(response => response.content.filter(article => this.isToday(new Date(article.publishedAt))))
+    );
   }
 
-  /**
-   * Estatísticas: total de artigos publicados + quantos foram publicados hoje.
-   */
   public getStats(): Observable<{ totalArticles: number; newToday: number }> {
-    // Busca total de artigos (via paginação)
-    const total$ = this.http.get<PagedResponse<ArticleResponse>>(this.apiUrl, { params: new HttpParams().set('size', '1') })
-      .pipe(map(res => res.totalElements));
+    const total$ = this.http.get<PagedResponse<ArticleResponse>>(this.apiUrl, {
+      params: new HttpParams().set('size', '1')
+    }).pipe(map(response => response.totalElements));
 
-    // Busca artigos de hoje
     const today$ = this.getTodayNews().pipe(map(list => list.length));
 
-    return total$.pipe(
-      map(total => ({ totalArticles: total, newToday: 0 })),
-      // Combina com today$ – implementação simplificada; para código robusto use forkJoin
+    return forkJoin([total$, today$]).pipe(
+      map(([totalArticles, newToday]) => ({ totalArticles, newToday })),
+      catchError(this.handleError<{ totalArticles: number; newToday: number }>('getStats', { totalArticles: 0, newToday: 0 }))
     );
-    // Melhor com forkJoin:
-    // return forkJoin([total$, today$]).pipe(map(([total, newToday]) => ({ totalArticles: total, newToday })));
   }
 
-  /**
-   * Retorna os N artigos mais recentes.
-   */
   public getRecentNews(limit: number = 5): Observable<ArticleResponse[]> {
     return this.getLatestPublishedArticles(limit);
   }
 
-  /**
-   * Retorna todas as categorias disponíveis.
-   */
   public getCategories(): Observable<Category[]> {
     return this.http.get<any>(this.categoriesUrl).pipe(
-      map(response => response.data) // ou response.data.content, dependendo do formato
+      map(response => response.data),
+      catchError(this.handleError<Category[]>('getCategories', []))
     );
   }
 
-  // ===================== MÉTODOS PRIVADOS (auxiliares) =====================
+  public getPinnedArticles(): Observable<ArticleResponse[]> {
+    return this.http.get<any>(`${this.apiUrl}/pinned`).pipe(
+      map(response => response.data.map((article: BackendArticleSummary) => this.mapBackendArticle(article))),
+      catchError(this.handleError<ArticleResponse[]>('getPinnedArticles', []))
+    );
+  }
 
-  /**
-   * Invoca o endpoint de artigos mais recentes (limitado).
-   * Endpoint backend: GET /api/articles/latest?limit={limit}
-   */
+  public getArticlesPaginated(page: number, size: number): Observable<PagedResponse<ArticleSummary>> {
+    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    return this.http.get<any>(this.apiUrl, { params }).pipe(
+      map(response => response.data),
+      catchError(this.handleError<PagedResponse<ArticleSummary>>('getArticlesPaginated', {
+        content: [],
+        totalPages: 0,
+        totalElements: 0,
+        pageNumber: 0,
+        pageSize: size,
+        last: true
+      }))
+    );
+  }
+
   private getLatestPublishedArticles(limit: number): Observable<ArticleResponse[]> {
     const params = new HttpParams().set('limit', limit.toString());
 
@@ -178,61 +147,18 @@ export class NewsService {
     );
   }
 
-  /**
-   * Incrementa o contador de visualizações de um artigo.
-   * Endpoint backend: PATCH /api/articles/{id}/view (ou PUT)
-   */
-  private incrementViewCount(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/${id}/view`, {})
-      .pipe(catchError(err => {
-        console.error(`Erro ao incrementar views do artigo ${id}`, err);
-        return of(void 0);
-      }));
-  }
-
-  /**
-   * Verifica se uma data é "hoje" (comparando dia/mês/ano).
-   */
   private isToday(date: Date): boolean {
     const today = new Date();
-    return date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear();
+    return date.getDate() === today.getDate()
+      && date.getMonth() === today.getMonth()
+      && date.getFullYear() === today.getFullYear();
   }
 
-  /**
-   * Tratamento genérico de erros HTTP.
-   */
   private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
+    return (error: unknown): Observable<T> => {
       console.error(`${operation} falhou:`, error);
       return of(result as T);
     };
-  }
-
-  /**
- * Retorna artigos fixados (pinned=true) ordenados por data decrescente.
- * Endpoint backend: GET /api/articles/pinned
- */
-  public getPinnedArticles(): Observable<ArticleResponse[]> {
-    return this.http.get<any>(`${this.apiUrl}/pinned`).pipe(
-      map(response => response.data.map((article: BackendArticleSummary) => this.mapBackendArticle(article))),
-      catchError(this.handleError<ArticleResponse[]>('getPinnedArticles', []))
-    );
-  }
-
-  /**
- * Retorna artigos paginados (com suporte a página e tamanho).
- * @param page Número da página (0-indexed)
- * @param size Quantidade de itens por página
- * @returns Observable<PagedResponse<ArticleSummary>>
- */
-  public getArticlesPaginated(page: number, size: number): Observable<PagedResponse<ArticleSummary>> {
-    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
-    return this.http.get<any>(this.apiUrl, { params }).pipe(
-      map(response => response.data), // ← extrai o objeto PagedResponse
-      catchError(this.handleError<PagedResponse<ArticleSummary>>('getArticlesPaginated', { content: [], totalPages: 0, totalElements: 0, pageNumber: 0, pageSize: size, last: true }))
-    );
   }
 
   private mapBackendArticle(article: BackendArticleSummary): ArticleResponse {
@@ -240,7 +166,7 @@ export class NewsService {
       id: article.id,
       slug: article.slug,
       title: article.title,
-      subtitle: article.summary || 'Clique para ler a matéria completa',
+      subtitle: article.summary || 'Clique para ler a materia completa',
       imageUrl: article.coverImageUrl || 'assets/default-news.jpg',
       publishedAt: article.publishedAt ? new Date(article.publishedAt) : new Date(),
       viewCount: article.viewCount ?? 0,

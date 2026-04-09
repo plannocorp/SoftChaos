@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { App } from './app';
 import { NewsPage } from './pages/news-page/news-page';
 import { Home } from './pages/home/home';
 import { ExplorarChaosPage } from './pages/explorar-chaos-page/explorar-chaos-page';

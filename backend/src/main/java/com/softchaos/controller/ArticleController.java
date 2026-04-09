@@ -53,6 +53,8 @@ public class ArticleController {
      * Busca artigo por ID
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR', 'AUTHOR')")
+    @SecurityRequirement(name = "bearer-jwt")
     @Operation(summary = "Buscar artigo por ID", description = "Retorna detalhes completos de um artigo")
     public ResponseEntity<ApiResponse<ArticleResponse>> getArticleById(@PathVariable Long id) {
         ArticleResponse article = articleService.getArticleById(id);

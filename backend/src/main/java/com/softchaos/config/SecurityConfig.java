@@ -2,6 +2,7 @@ package com.softchaos.config;
 
 import com.softchaos.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -31,6 +32,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @Value("${app.cors.allowed-origins:http://localhost:4200}")
+    private String allowedOrigins;
+
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -38,50 +42,42 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. Configuração de CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // 2. Desabilitar CSRF (Necessário para APIs Stateless)
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // 3. Regras de Autorização
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/**",
-                                "/api/articles/**",      // Público: Leitura de artigos
-                                "/api/categories/**",    // Público: Categorias
-                                "/api/tags/**",          // Público: Tags
-                                "/api/pages/**",         // Público: Páginas institucionais
-                                "/api/comments/article/**", // PÚBLICO: Rota de comentários que você está testando
-                                "/api/newsletter/**",    // Público: Inscrição
-                                "/uploads/**",           // Público: Imagens e arquivos
-                                "/static/**",            // Público: Recursos estáticos
-                                "/h2-console/**",        // Público: Console de banco de dados (se houver)
-                                "/v3/api-docs/**",       // Swagger/OpenAPI
+                                "/api/auth/login",
+                                "/api/articles",
+                                "/api/articles/category/**",
+                                "/api/articles/author/**",
+                                "/api/articles/featured",
+                                "/api/articles/pinned",
+                                "/api/articles/most-viewed",
+                                "/api/articles/latest",
+                                "/api/articles/*/related",
+                                "/api/articles/search",
+                                "/api/articles/slug/**",
+                                "/api/categories",
+                                "/api/categories/slug/**",
+                                "/api/categories/with-articles",
+                                "/api/pages/**",
+                                "/api/comments/article/**",
+                                "/api/newsletter/**",
+                                "/uploads/**",
+                                "/static/**",
+                                "/h2-console/**",
+                                "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/actuator/**"           // Métricas do sistema
+                                "/actuator/health",
+                                "/actuator/info"
                         ).permitAll()
-
-                        // Qualquer outra rota exige login (Painel Administrativo, etc)
                         .anyRequest().authenticated()
                 )
-
-                // 4. Configuração de Sessão (Stateless para JWT)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-
-                // 5. Provedor de Autenticação
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-
-                // 6. Filtro JWT antes do filtro de usuário/senha
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-
-                // 7. Permitir Frames para o H2 Console
-                .headers(headers -> headers
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-                );
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 
         return http.build();
     }
@@ -89,12 +85,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Em produção, substitua "*" pela URL do seu Frontend (ex: https://softchaos.com.br)
-        config.setAllowedOriginPatterns(List.of("*"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedOriginPatterns(resolveAllowedOriginPatterns());
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -113,5 +108,18 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    private List<String> resolveAllowedOriginPatterns() {
+        List<String> origins = new ArrayList<>();
+
+        for (String origin : allowedOrigins.split(",")) {
+            String normalizedOrigin = origin.trim();
+            if (!normalizedOrigin.isEmpty()) {
+                origins.add(normalizedOrigin);
+            }
+        }
+
+        return origins.isEmpty() ? List.of("http://localhost:4200") : List.copyOf(origins);
     }
 }

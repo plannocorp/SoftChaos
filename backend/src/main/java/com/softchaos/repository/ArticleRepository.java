@@ -23,6 +23,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
      */
     Optional<Article> findBySlug(String slug);
 
+    Optional<Article> findBySlugAndStatus(String slug, Article.Status status);
+
     /**
      * Verifica se existe por slug
      */
