@@ -97,12 +97,14 @@ public class ArticleService {
     /**
      * Busca artigo por slug
      */
-    @Transactional(readOnly = true)
     public ArticleResponse getArticleBySlug(String slug) {
         log.info("Buscando artigo por slug: {}", slug);
 
         Article article = articleRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Artigo", "slug", slug));
+
+        articleRepository.incrementViewCount(article.getId());
+        article.setViewCount(article.getViewCount() + 1);
 
         Long commentsCount = commentRepository.countByArticleIdAndStatus(article.getId(), CommentStatus.APPROVED);
         return articleMapper.toResponse(article, commentsCount);
