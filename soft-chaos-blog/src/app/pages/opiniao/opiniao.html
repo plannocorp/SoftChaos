@@ -4,22 +4,37 @@
     <h1 class="main-title">OPINIÃO</h1>
 
     <div class="main-content">
-        @if (newsOpiniao.length > 0) {
+        @if (loading) {
+            <app-loading-indicator label="Carregando opiniao..." size="lg" />
+        }
+
+        @else if (error) {
+            <app-loading-indicator [label]="error" size="md" surface="plain" />
+        }
+
+        @else if (newsOpiniao) {
             @for (news of newsOpiniao; track news.id) {
-                <a [routerLink]="['/noticia/', news.slug]">
+                <a [routerLink]="['/noticia', news.slug]">
                     <div class="card">
                         <div class="img-box">
-                            <img [src]="news.imageUrl" [alt]="news.title">
+                            <app-progressive-image
+                              [src]="news.imageURL"
+                              [alt]="news.title"
+                              fallback="https://placehold.co/800x600?text=Soft+Chaos"
+                            />
                         </div>
-
+                        
                         <div class="text-box">
                             <h1 class="card-title">{{ news.title }}</h1>
-                            <p class="card-desc">{{ news.subtitle || 'Clique para ler a matéria completa' }}</p>
+
+                            <p class="card-desc">{{ news.description }}</p>
                         </div>
                     </div>
                 </a>
             }
-        } @else {
+        }
+
+        @else {
             <div class="no-news">
                 <p>Nenhuma notícia até o momento...</p>
             </div>

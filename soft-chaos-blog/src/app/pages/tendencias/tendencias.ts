@@ -1,37 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
+import { News } from '../../models/news';
 import { RouterLink } from "@angular/router";
-import { NewsService } from '../../services/news-service';
-import { ArticleSummary } from '../../models/article-summary';
+import { PublicArticleService } from '../../services/public-article-service';
+import { LoadingIndicator } from '../../components/shared/loading-indicator/loading-indicator';
+import { ProgressiveImage } from '../../components/shared/progressive-image/progressive-image';
 
 @Component({
   selector: 'app-tendencias',
-  imports: [Header, Footer, RouterLink],
+  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage],
   templateUrl: './tendencias.html',
   styleUrl: './tendencias.css',
 })
 export class Tendencias implements OnInit {
-  public newsTendencias: ArticleSummary[] = [];
+  public newsTendencias: News[] | undefined;
+  public loading = true;
+  public error = '';
 
-  constructor(private newsService: NewsService) {}
+  constructor(private publicArticleService: PublicArticleService) {}
 
   ngOnInit(): void {
     this.loadTendenciasNews();
   }
 
   public loadTendenciasNews(): void {
-    this.newsService.getAll().subscribe({
-      next: (allArticles) => {
-        // Filtra artigos cuja categoria seja "Tendencias" (sem acento, case-insensitive)
-        this.newsTendencias = allArticles.filter(
-          article => article.categoryName?.toLowerCase() === 'tendencias'
-        );
-        console.log(`Tendências: ${this.newsTendencias.length} artigos encontrados`);
+    this.loading = true;
+    this.error = '';
+
+    this.publicArticleService.getArticlesByCategorySlug('tendencias').subscribe({
+      next: (articles) => {
+        this.newsTendencias = articles;
+        this.loading = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar notícias de Tendências', err);
+        console.error('Erro ao carregar noticias de tendencias:', err);
         this.newsTendencias = [];
+        this.error = 'Nao foi possivel carregar as noticias de tendencias agora.';
+        this.loading = false;
       }
     });
   }

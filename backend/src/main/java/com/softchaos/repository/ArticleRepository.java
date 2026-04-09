@@ -35,6 +35,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
      */
     Page<Article> findByStatusOrderByPublishedAtDesc(Article.Status status, Pageable pageable);
 
+    Page<Article> findByStatus(Article.Status status, Pageable pageable);
+
     /**
      * Buscar por status com ordenação por visualizações
      */

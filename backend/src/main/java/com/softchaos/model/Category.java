@@ -3,7 +3,9 @@ package com.softchaos.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +13,8 @@ import java.util.Set;
 @Entity
 @Table(name = "categories")
 @Data
+@EqualsAndHashCode(of = "slug")
+@ToString(exclude = "articles")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Category {

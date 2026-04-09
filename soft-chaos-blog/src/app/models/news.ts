@@ -15,6 +15,8 @@ export interface News {
     secondImageUrl?: string;
     thirdImageUrl?: string;
     tag?: string;
+    mediaItems?: MediaItem[];
+    externalVideoLinks?: string[];
 }
 
 export interface CreateArticleRequest {
@@ -26,4 +28,70 @@ export interface CreateArticleRequest {
   status: 'DRAFT' | 'PUBLISHED' | 'SCHEDULED';
   featured?: boolean;
   pinned?: boolean;
+  scheduledFor?: string | null;
+  coverImageUrl?: string;
+  externalVideoLinks?: string[];
+}
+
+export interface ArticleAuthor {
+  id?: number;
+  name: string;
+  email?: string;
+}
+
+export interface ArticleCategory {
+  id: number;
+  name: string;
+  slug?: string;
+}
+
+export interface MediaItem {
+  id: number;
+  url: string;
+  filename: string;
+  type: 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+  altText?: string;
+  fileSize?: number;
+  uploadedAt?: string;
+}
+
+export interface ArticleSummaryApi {
+  id: number;
+  title: string;
+  slug: string;
+  summary?: string;
+  coverImageUrl?: string;
+  author?: ArticleAuthor;
+  category?: ArticleCategory;
+  status?: 'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'ARCHIVED';
+  featured?: boolean;
+  pinned?: boolean;
+  viewCount?: number;
+  commentsCount?: number;
+  publishedAt?: string;
+  scheduledFor?: string;
+  createdAt?: string;
+  externalVideoLinks?: string[];
+}
+
+export interface ArticleApi extends ArticleSummaryApi {
+  content: string;
+  mediaFiles?: MediaItem[];
+  updatedAt?: string;
+}
+
+export interface ApiEnvelope<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+  timestamp?: string;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
 }

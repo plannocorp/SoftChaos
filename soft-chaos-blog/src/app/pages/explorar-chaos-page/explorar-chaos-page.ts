@@ -1,79 +1,44 @@
 import { Component, OnInit } from '@angular/core';
+import { News } from '../../models/news';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
 import { RouterLink } from "@angular/router";
-import { CommonModule } from '@angular/common';
-import { NewsService } from '../../services/news-service';
-import { ArticleSummary } from '../../models/article-summary';
-import { PagedResponse } from '../../models/paged-response';
+import { PublicArticleService } from '../../services/public-article-service';
+import { LoadingIndicator } from '../../components/shared/loading-indicator/loading-indicator';
+import { ProgressiveImage } from '../../components/shared/progressive-image/progressive-image';
 
 @Component({
   selector: 'app-explorar-chaos-page',
-  imports: [Header, Footer, RouterLink, CommonModule],
+  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage],
   templateUrl: './explorar-chaos-page.html',
   styleUrl: './explorar-chaos-page.css',
 })
 export class ExplorarChaosPage implements OnInit {
-  public existentNews: ArticleSummary[] = [];
-  public currentPage: number = 0;
-  public pageSize: number = 9;      // 9 itens por página (3x3 grid)
-  public totalPages: number = 0;
-  public totalElements: number = 0;
-  public loading: boolean = false;
+  public existentNews: News[] | undefined;
+  public loading = true;
+  public error = '';
 
-  constructor(private newsService: NewsService) {}
+  constructor(private publicArticleService: PublicArticleService) {}
 
   ngOnInit(): void {
-    this.loadNews(this.currentPage);
+    this.loadAllNews();
   }
 
-  public loadNews(page: number): void {
+  public loadAllNews(): void {
     this.loading = true;
-    this.newsService.getArticlesPaginated(page, this.pageSize).subscribe({
-      next: (response: PagedResponse<ArticleSummary>) => {
-        this.existentNews = response.content;
-        this.totalPages = response.totalPages;
-        this.totalElements = response.totalElements;
-        this.currentPage = response.pageNumber;
+    this.error = '';
+
+    this.publicArticleService.getPublishedArticles().subscribe({
+      next: (articles) => {
+        this.existentNews = articles;
         this.loading = false;
-        // Rolar para o topo da página
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       error: (err) => {
-        console.error('Erro ao carregar notícias paginadas', err);
+        console.error('Erro ao carregar noticias da exploracao:', err);
         this.existentNews = [];
+        this.error = 'Nao foi possivel carregar as noticias publicadas agora.';
         this.loading = false;
       }
     });
-  }
-
-  public nextPage(): void {
-    if (this.currentPage + 1 < this.totalPages) {
-      this.loadNews(this.currentPage + 1);
-    }
-  }
-
-  public prevPage(): void {
-    if (this.currentPage > 0) {
-      this.loadNews(this.currentPage - 1);
-    }
-  }
-
-  public goToPage(page: number): void {
-    if (page >= 0 && page < this.totalPages && page !== this.currentPage) {
-      this.loadNews(page);
-    }
-  }
-
-  public getPagesArray(): number[] {
-    // Exibe até 5 páginas ao redor da atual
-    const range = 2;
-    const start = Math.max(0, this.currentPage - range);
-    const end = Math.min(this.totalPages - 1, this.currentPage + range);
-    const pages = [];
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
   }
 }

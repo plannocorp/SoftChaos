@@ -1,46 +1,70 @@
 <div class="featured-news">
-  @if (mainNews) {
+  @if (loading) {
+    <div class="no-news">
+      <app-loading-indicator label="Carregando noticias em destaque..." size="lg" />
+    </div>
+  }
+
+  @else if (error) {
+    <div class="no-news">
+      <p>{{ error }}</p>
+    </div>
+  }
+
+  @else if (mainNews) {
     <div class="main-card-container">
       <div class="img-container">
-        <img [src]="mainNews.imageUrl || 'assets/default-news.jpg'" [alt]="mainNews.title">
+        <app-progressive-image
+          [src]="mainNews.imageURL"
+          [alt]="mainNews.title"
+          fallback="https://placehold.co/1200x800?text=Soft+Chaos"
+        />
       </div>
 
       <div class="card-container">
         <div class="uppertitle-text">
-          <p class="news-type">{{ mainNews.categoryName || 'Geral' }}</p>
+          <p class="news-type">{{ mainNews.type }}</p>
+
+          <p class="time-read">{{ mainNews.readTime }} MINUTOS DE LEITURA</p>
         </div>
 
         <h1 class="card-title">{{ mainNews.title }}</h1>
 
-        <p class="card-desc">{{ mainNews.subtitle || 'Clique para ler a matéria completa' }}</p>
+        <p class="card-desc">{{ mainNews.description }}</p>
 
-        <a [routerLink]="['/noticia/', mainNews.slug]">
+        <a [routerLink]="['/noticia', mainNews.slug]">
           <button class="card-btn">LER MATERIA <i class="fas fa-arrow-right"></i></button>
         </a>
       </div>
     </div>
-  } @else {
+  }
+  
+  @else {
     <div class="no-news">
       <p>Nenhuma notícia disponível no momento.</p>
     </div>
   }
 
-  @if (firstSecondNews || secSecondNews) {
+  @if (!loading && !error && (firstSecondNews || secSecondNews)) {
     <div class="minor-card-container">
-      <a [routerLink]="['/noticia/', firstSecondNews?.slug]">
-        <div class="first-minor-news">
-          <p class="news-type">{{ firstSecondNews?.categoryName || 'Geral' }}</p>
-          <h1 class="card-title">{{ firstSecondNews?.title }}</h1>
-          <p class="card-desc">{{ firstSecondNews?.subtitle || 'Clique para ler a matéria completa' }}</p>
-        </div>
+      <a [routerLink]="['/noticia', firstSecondNews?.slug]">
+          <div class="first-minor-news">
+            <p class="news-type">{{ firstSecondNews?.type }}</p>
+
+            <h1 class="card-title">{{ firstSecondNews?.title }}</h1>
+
+            <p class="card-desc">{{ firstSecondNews?.description }}</p>
+          </div>
       </a>
 
-      <a [routerLink]="['/noticia/', secSecondNews?.slug]">
-        <div class="second-minor-news">
-          <p class="news-type">{{ secSecondNews?.categoryName || 'Geral' }}</p>
-          <h1 class="card-title">{{ secSecondNews?.title }}</h1>
-          <p class="card-desc">{{ secSecondNews?.subtitle || 'Clique para ler a matéria completa' }}</p>
-        </div>
+      <a [routerLink]="['/noticia', secSecondNews?.slug]">
+          <div class="second-minor-news">
+            <p class="news-type">{{ secSecondNews?.type }}</p>
+
+            <h1 class="card-title">{{ secSecondNews?.title }}</h1>
+
+            <p class="card-desc">{{ secSecondNews?.description }}</p>
+          </div>
       </a>
     </div>
   }

@@ -3,7 +3,9 @@ package com.softchaos.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "media")
 @Data
+@EqualsAndHashCode(of = "filename")
+@ToString(exclude = "article")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Media {

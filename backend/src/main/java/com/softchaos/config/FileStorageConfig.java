@@ -15,8 +15,15 @@ public class FileStorageConfig {
     @Value("${app.upload.dir}")
     private String uploadDir;
 
+    @Value("${media.storage.provider:local}")
+    private String storageProvider;
+
     @Bean
     public Path fileStorageLocation() {
+        if ("supabase".equalsIgnoreCase(storageProvider)) {
+            return Paths.get(System.getProperty("java.io.tmpdir"), "softchaos-storage");
+        }
+
         Path path = Paths.get(uploadDir).toAbsolutePath().normalize();
 
         try {

@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -40,4 +41,6 @@ public class CreateArticleRequest {
     private Boolean pinned = false;
 
     private LocalDateTime scheduledFor;
+
+    private List<String> externalVideoLinks;
 }

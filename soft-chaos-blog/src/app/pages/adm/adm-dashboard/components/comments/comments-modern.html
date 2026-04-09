@@ -1,0 +1,172 @@
+﻿<section class="comments-modern">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Moderacao completa</p>
+      <h2>Comentarios por status</h2>
+      <p>Visualize cada comentario com a materia relacionada, filtre por status e aprove, rejeite ou apague com clareza.</p>
+    </div>
+
+    <label class="search-box">
+      <span>Buscar</span>
+      <input
+        type="text"
+        name="searchTerm"
+        [(ngModel)]="searchTerm"
+        (input)="filterComments()"
+        placeholder="Autor, email, comentario ou artigo"
+      />
+    </label>
+  </div>
+
+  <div class="filter-row">
+    @for (filter of filters; track filter.status) {
+      <button
+        type="button"
+        class="filter-chip"
+        [class.active]="activeStatus === filter.status"
+        (click)="setStatusFilter(filter.status)"
+      >
+        <strong>{{ filter.label }}</strong>
+        <span>{{ getFilterCount(filter.status) }}</span>
+      </button>
+    }
+  </div>
+
+  @if (error) {
+    <div class="state-card error">{{ error }}</div>
+  }
+
+  <div class="comments-layout">
+    <div class="comments-list">
+      @if (loading) {
+        <div class="state-card">Carregando comentarios...</div>
+      } @else if (!filteredComments.length) {
+        <div class="state-card">Nenhum comentario encontrado para este filtro.</div>
+      } @else {
+        <div class="comment-grid">
+          @for (comment of filteredComments; track comment.id) {
+            <article class="comment-card" [class.selected]="selectedComment?.id === comment.id">
+              <div class="comment-top">
+                <div>
+                  <strong>{{ comment.author }}</strong>
+                  <span>{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <b [ngClass]="comment.rawStatus.toLowerCase()">{{ comment.status }}</b>
+              </div>
+
+              <div class="publication-card">
+                @if (getArticleCover(comment)) {
+                  <img [src]="getArticleCover(comment)!" [alt]="comment.articleTitle" />
+                }
+
+                <div class="publication-copy">
+                  <small>Artigo relacionado</small>
+                  <strong>{{ comment.articleTitle }}</strong>
+                  <span>{{ comment.email }}</span>
+                </div>
+              </div>
+
+              <p class="comment-text">{{ comment.content }}</p>
+
+              <div class="comment-actions">
+                <button type="button" class="preview" (click)="viewComment(comment)">Visualizar</button>
+
+                @if (comment.rawStatus !== 'APPROVED') {
+                  <button
+                    type="button"
+                    class="approve"
+                    [disabled]="actionLoadingId === comment.id"
+                    (click)="approveComment(comment)"
+                  >
+                    Aprovar
+                  </button>
+                }
+
+                @if (comment.rawStatus !== 'REJECTED') {
+                  <button
+                    type="button"
+                    class="reject"
+                    [disabled]="actionLoadingId === comment.id"
+                    (click)="rejectComment(comment)"
+                  >
+                    Rejeitar
+                  </button>
+                }
+
+                @if (comment.rawStatus !== 'DELETED') {
+                  <button
+                    type="button"
+                    class="delete"
+                    [disabled]="actionLoadingId === comment.id"
+                    (click)="deleteComment(comment)"
+                  >
+                    Apagar
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </div>
+
+    <aside class="preview-panel">
+      @if (!selectedComment) {
+        <div class="preview-empty">
+          <p class="eyebrow">Visualizacao</p>
+          <h3>Selecione um comentario</h3>
+          <p>Ao clicar em visualizar, voce ve o comentario inteiro e o artigo relacionado ao lado.</p>
+        </div>
+      } @else {
+        <div class="preview-head">
+          <div>
+            <p class="eyebrow">Comentario selecionado</p>
+            <h3>{{ selectedComment.author }}</h3>
+            <span>{{ selectedComment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+
+          <button type="button" class="preview-close" (click)="closePreview()">Fechar</button>
+        </div>
+
+        <div class="preview-publication">
+          @if (getArticleCover(selectedComment)) {
+            <img [src]="getArticleCover(selectedComment)!" [alt]="selectedComment.articleTitle" />
+          }
+
+          <div>
+            <small>Publicado em</small>
+            <strong>{{ selectedComment.articleTitle }}</strong>
+
+            @if (getPublicationLink(selectedComment)) {
+              <a [href]="getPublicationLink(selectedComment)!" target="_blank" rel="noopener noreferrer">
+                Abrir materia
+              </a>
+            }
+          </div>
+        </div>
+
+        <div class="preview-content">
+          <div class="preview-meta">
+            <span>{{ selectedComment.email }}</span>
+            <b [ngClass]="selectedComment.rawStatus.toLowerCase()">{{ selectedComment.status }}</b>
+          </div>
+
+          <p>{{ selectedComment.content }}</p>
+        </div>
+
+        <div class="preview-actions">
+          @if (selectedComment.rawStatus !== 'APPROVED') {
+            <button type="button" class="approve" (click)="approveComment(selectedComment)">Aprovar</button>
+          }
+          @if (selectedComment.rawStatus !== 'REJECTED') {
+            <button type="button" class="reject" (click)="rejectComment(selectedComment)">Rejeitar</button>
+          }
+          @if (selectedComment.rawStatus !== 'DELETED') {
+            <button type="button" class="delete" (click)="deleteComment(selectedComment)">Apagar</button>
+          }
+        </div>
+      }
+    </aside>
+  </div>
+</section>
+

@@ -1,30 +1,35 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { News } from '../../models/news';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
-import { NewsService } from '../../services/news-service';
-import { ArticleSummary } from '../../models/article-summary';
+import { PublicArticleService } from '../../services/public-article-service';
+import { LoadingIndicator } from '../../components/shared/loading-indicator/loading-indicator';
+import { ProgressiveImage } from '../../components/shared/progressive-image/progressive-image';
 
 @Component({
   selector: 'app-search-pages',
-  imports: [CommonModule, RouterLink, Header, Footer],
+  standalone: true,
+  imports: [CommonModule, RouterLink, Header, Footer, LoadingIndicator, ProgressiveImage],
   templateUrl: './search-pages.html',
   styleUrl: './search-pages.css',
 })
 export class SearchPages implements OnInit {
   searchTerm: string = '';
-  resultados: ArticleSummary[] = [];
+  resultados: News[] = [];
   loading: boolean = false;
+  error = '';
 
   constructor(
     private route: ActivatedRoute,
-    private newsService: NewsService
+    private publicArticleService: PublicArticleService
   ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.searchTerm = params['q'] || '';
+
       if (this.searchTerm.trim()) {
         this.buscarNoticias();
       } else {
@@ -35,31 +40,19 @@ export class SearchPages implements OnInit {
 
   private buscarNoticias(): void {
     this.loading = true;
-    const termoNormalizado = this.normalizeString(this.searchTerm.toLowerCase().trim());
+    this.error = '';
 
-    this.newsService.getAll().subscribe({
-      next: (todasNoticias) => {
-        this.resultados = todasNoticias.filter(noticia => {
-          const titleMatch = this.normalizeString(noticia.title.toLowerCase()).includes(termoNormalizado);
-          const descMatch = noticia.subtitle ? this.normalizeString(noticia.subtitle.toLowerCase()).includes(termoNormalizado) : false;
-          const categoryMatch = this.normalizeString(noticia.categoryName.toLowerCase()).includes(termoNormalizado);
-          return titleMatch || descMatch || categoryMatch;
-        });
+    this.publicArticleService.searchArticles(this.searchTerm).subscribe({
+      next: (articles) => {
+        this.resultados = articles;
         this.loading = false;
-        console.log(`Busca por "${this.searchTerm}" encontrou ${this.resultados.length} resultados`);
       },
       error: (err) => {
-        console.error('Erro ao carregar artigos para busca', err);
+        console.error('Erro ao buscar noticias:', err);
         this.resultados = [];
+        this.error = 'Nao foi possivel carregar os resultados da busca agora.';
         this.loading = false;
       }
     });
-  }
-
-  private normalizeString(str: string): string {
-    return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s]/g, '');
   }
 }

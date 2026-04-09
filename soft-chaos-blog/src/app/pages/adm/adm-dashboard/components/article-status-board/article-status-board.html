@@ -1,0 +1,156 @@
+﻿<section class="status-board">
+  <section class="status-header">
+    <div>
+      <p class="eyebrow">Gestao editorial</p>
+      <h2>{{ title }}</h2>
+      <p>{{ subtitle }}</p>
+    </div>
+
+    <a class="header-action" routerLink="/security/adimin-dashboard/create-article">
+      Nova materia
+    </a>
+  </section>
+
+  @if (actionMessage) {
+    <div class="state-card info">{{ actionMessage }}</div>
+  }
+
+  @if (loading) {
+    <div class="state-card">Carregando artigos...</div>
+  } @else if (error) {
+    <div class="state-card error">{{ error }}</div>
+  } @else if (!articles.length) {
+    <div class="state-card">Nenhum artigo encontrado nesta etapa.</div>
+  } @else {
+    <section class="article-grid">
+      @for (article of articles; track article.id) {
+        <article class="article-card">
+          <div class="card-top">
+            <span class="status-chip">{{ getStatusLabel(article) }}</span>
+
+            <div class="flag-list">
+              @if (article.featured) {
+                <span>Destaque</span>
+              }
+              @if (article.pinned) {
+                <span>Fixado</span>
+              }
+            </div>
+          </div>
+
+          @if (getArticleCover(article)) {
+            <img class="article-cover" [src]="getArticleCover(article)!" [alt]="article.title" />
+          }
+
+          <div class="card-copy">
+            <h3>{{ article.title }}</h3>
+            <p>{{ article.summary || 'Sem resumo cadastrado.' }}</p>
+          </div>
+
+          <div class="card-meta">
+            <span>{{ article.category?.name || 'Sem categoria' }}</span>
+            <span>{{ article.author?.name || 'Equipe Soft Chaos' }}</span>
+          </div>
+
+          <div class="card-footer">
+            <div class="date-stack">
+              @if (status === 'SCHEDULED') {
+                <strong>Agenda</strong>
+                <small>{{ article.scheduledFor | date:'dd/MM/yyyy HH:mm' }}</small>
+              } @else if (status === 'PUBLISHED') {
+                <strong>Publicado</strong>
+                <small>{{ article.publishedAt | date:'dd/MM/yyyy HH:mm' }}</small>
+              } @else {
+                <strong>Atualizado</strong>
+                <small>{{ article.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+              }
+            </div>
+
+            <div class="action-stack">
+              <a class="edit-button" [routerLink]="['/security/adimin-dashboard/articles', article.id, 'edit']">
+                Editar
+              </a>
+
+              <button type="button" class="preview-button" (click)="openPreview(article.id)">
+                Visualizar
+              </button>
+
+              @if (status === 'SCHEDULED') {
+                <button
+                  type="button"
+                  class="publish-button"
+                  [disabled]="publishingId === article.id"
+                  (click)="publishNow(article.id)"
+                >
+                  {{ publishingId === article.id ? 'Publicando...' : 'Publicar agora' }}
+                </button>
+              }
+
+              @if (status === 'PUBLISHED') {
+                <button
+                  type="button"
+                  class="archive-button"
+                  [disabled]="archivingId === article.id"
+                  (click)="archiveArticle(article.id)"
+                >
+                  {{ archivingId === article.id ? 'Arquivando...' : 'Arquivar' }}
+                </button>
+              }
+
+              <button
+                type="button"
+                class="delete-button"
+                [disabled]="deletingId === article.id"
+                (click)="deleteArticle(article.id)"
+              >
+                {{ deletingId === article.id ? 'Excluindo...' : 'Excluir' }}
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </section>
+  }
+
+  @if (previewLoading) {
+    <div class="preview-panel state-card info">Carregando visualizacao...</div>
+  } @else if (previewArticle) {
+    <section class="preview-panel">
+      <div class="preview-head">
+        <div>
+          <p class="eyebrow">Visualizacao simples</p>
+          <h3>{{ previewArticle.title }}</h3>
+          <p>{{ previewArticle.summary || 'Sem resumo cadastrado.' }}</p>
+        </div>
+
+        <button type="button" class="preview-close" (click)="closePreview()">Fechar</button>
+      </div>
+
+      <div class="preview-layout">
+        @if (getArticleCover(previewArticle)) {
+          <img [src]="getArticleCover(previewArticle)!" [alt]="previewArticle.title" />
+        }
+
+        <div class="preview-copy">
+          <div class="preview-meta">
+            <span>{{ previewArticle.category?.name || 'Sem categoria' }}</span>
+            <span>{{ getStatusLabel(previewArticle) }}</span>
+            <span>{{ previewArticle.author?.name || 'Equipe Soft Chaos' }}</span>
+          </div>
+
+          <p>{{ previewArticle.content }}</p>
+
+          @if (previewArticle.externalVideoLinks?.length) {
+            <div class="preview-links">
+              <strong>Links externos</strong>
+              @for (link of previewArticle.externalVideoLinks; track link) {
+                <a [href]="link" target="_blank" rel="noopener noreferrer">{{ link }}</a>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+</section>
+

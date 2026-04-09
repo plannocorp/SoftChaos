@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 //para listagens/cards
@@ -22,6 +23,7 @@ public class ArticleSummaryResponse {
     private String slug;
     private String summary;
     private String coverImageUrl;
+    private List<String> externalVideoLinks;
     private UserSummaryResponse author;
     private CategoryResponse category;
     private Article.Status status;
@@ -30,4 +32,6 @@ public class ArticleSummaryResponse {
     private Long viewCount;
     private Long commentsCount;
     private LocalDateTime publishedAt;
+    private LocalDateTime scheduledFor;
+    private LocalDateTime createdAt;
 }

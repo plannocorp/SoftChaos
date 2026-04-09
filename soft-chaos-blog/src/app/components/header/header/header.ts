@@ -1,8 +1,6 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -12,7 +10,7 @@ import { fromEvent } from 'rxjs';
   styleUrl: './header.css',
 })
 export class Header {
-  searchTerm: string = '';
+  searchTerm = '';
 
   constructor(private router: Router) {}
 
@@ -23,13 +21,11 @@ export class Header {
   }
 
   onSearchInput(): void {
-    // Debounce simples: busque após 300ms sem digitar
-    // Para live search, integre com serviço de posts
-    console.log('Buscando:', this.searchTerm); // Aqui: chame serviço de notícias
+    return;
   }
 
   onSubscribe(): void {
-    // Lógica para newsletter
-    console.log('Abrir modal assinatura');
+    document.getElementById('newsletter-signup')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }
+

@@ -21,6 +21,12 @@
     width: 70%;
 }
 
+.opiniao .main-content > app-loading-indicator,
+.opiniao .main-content > .no-news {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
 .opiniao .main-content a {
     width: 100%;
     margin: auto;

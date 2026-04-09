@@ -1,100 +1,216 @@
 <app-header />
 
 <div class="news-page">
-    @if (loading) {
-        <div class="loading-spinner">Carregando notícia...</div>
-    } @else if (notFound) {
-        <div class="no-news">
-            <h1 class="error-404">
-                <span class="green-number">4</span>
-                <span class="pink-number">0</span>
-                <span class="red-number">4</span>
-            </h1>
-            <p>Essa página de notícias não existe...</p>
+  @if (loading) {
+    <div class="no-news">
+      <app-loading-indicator label="Carregando noticia..." size="lg" />
+    </div>
+  }
+
+  @else if (news) {
+    <section class="story-shell">
+      <div class="news-header">
+        <div class="meta-pills">
+          <span class="meta-pill type">{{ news.type }}</span>
+          <span class="meta-pill">{{ news.readTime }} min de leitura</span>
+          <span class="meta-pill">{{ news.publishAt | date:'dd/MM/yyyy HH:mm' }}</span>
         </div>
-    } @else if (news) {
-        <div class="news-header">
-            <div class="img-box">
-                <img [src]="news.imageUrl" [alt]="news.title" class="main-img">
+
+        <h1 class="main-title">{{ news.title }}</h1>
+        <p class="main-desc">{{ news.description }}</p>
+
+        <div class="author-block">
+          <div>
+            <p class="eyebrow">Reportagem</p>
+            <p class="author-desc">{{ news.author }}</p>
+          </div>
+
+          <div class="publish-card">
+            <span>Publicado em</span>
+            <strong>{{ news.publishAt | date:'dd/MM/yyyy HH:mm' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      @if (news.imageURL) {
+        <div class="hero-media image">
+          <app-progressive-image
+            [src]="news.imageURL"
+            [alt]="news.title"
+            fallback="https://placehold.co/1200x800?text=Soft+Chaos"
+          />
+        </div>
+      } @else if (getHeroVideo()) {
+        <div class="hero-media video">
+          <video [src]="getHeroVideo()!.url" controls preload="metadata"></video>
+        </div>
+      }
+
+      <article class="news-content">
+        <p class="content">{{ news.content }}</p>
+      </article>
+
+      @if (getGalleryMedia().length) {
+        <section class="media-gallery">
+          <div class="section-heading">
+            <p class="eyebrow">Galeria</p>
+            <h2>Imagens do artigo</h2>
+          </div>
+
+          <div class="gallery-grid">
+            @for (media of getGalleryMedia(); track media.id) {
+              <article class="gallery-card" [class.video-card]="media.type === 'VIDEO'">
+                <div class="gallery-surface">
+                  @if (media.type === 'VIDEO') {
+                    <video [src]="media.url" controls preload="metadata"></video>
+                  } @else {
+                    <app-progressive-image
+                      [src]="media.url"
+                      [alt]="media.altText || news.title"
+                      fallback="https://placehold.co/800x600?text=Soft+Chaos"
+                    />
+                  }
+                </div>
+
+                <div class="gallery-meta">
+                  <span class="gallery-badge">{{ media.type === 'VIDEO' ? 'Video' : 'Foto' }}</span>
+                  <p>{{ media.altText || news.title }}</p>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+
+      @if (getExternalVideoLinks().length) {
+        <section class="media-gallery external-videos">
+          <div class="section-heading">
+            <p class="eyebrow">Videos externos</p>
+            <h2>YouTube e Instagram</h2>
+          </div>
+
+          <div class="gallery-grid external-grid">
+            @for (video of getExternalVideoLinks(); track video.url) {
+              <article class="gallery-card video-link-card">
+                <div class="gallery-surface external-surface">
+                  @if (video.embedUrl) {
+                    <iframe
+                      [src]="video.embedUrl"
+                      title="Video externo"
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowfullscreen
+                    ></iframe>
+                  } @else {
+                    <div class="external-link-panel">
+                      <span>{{ video.platform }}</span>
+                      <strong>{{ video.label }}</strong>
+                      <a [href]="video.url" target="_blank" rel="noopener noreferrer">Abrir link</a>
+                    </div>
+                  }
+                </div>
+
+                <div class="gallery-meta">
+                  <span class="gallery-badge">{{ video.platform }}</span>
+                  <p>{{ video.label }}</p>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+
+      <section class="comments-section">
+        <div class="comments-header">
+          <div>
+            <p class="eyebrow">Comunidade</p>
+            <h2 class="comments-title">Comentarios</h2>
+          </div>
+          <p class="comments-subtitle">Os comentarios enviados passam por moderacao antes de aparecer aqui.</p>
+        </div>
+
+        <div class="comments-layout">
+          <form class="comment-form" (ngSubmit)="submitComment()">
+            <div class="form-copy">
+              <p class="form-kicker">Participe da conversa</p>
+              <h3 class="form-title">Deixe seu ponto de vista</h3>
             </div>
 
-            <h1 class="main-title">{{ news.title }}</h1>
+            <div class="form-row">
+              <input
+                type="text"
+                name="authorName"
+                [(ngModel)]="commentForm.authorName"
+                placeholder="Seu nome"
+              />
 
-            <p class="main-desc">{{ news.subtitle || 'Leia a matéria completa abaixo' }}</p>
+              <input
+                type="email"
+                name="authorEmail"
+                [(ngModel)]="commentForm.authorEmail"
+                placeholder="Seu email"
+              />
+            </div>
 
-            <p class="author-desc"><span>Autor:</span> {{ news.authorName }}</p>
+            <textarea
+              name="content"
+              [(ngModel)]="commentForm.content"
+              rows="6"
+              placeholder="Escreva seu comentario"
+            ></textarea>
 
-            <p class="publish-at">{{ news.publishedAt | date:'dd/MM/yyyy HH:mm' }}</p>
-        </div>
-
-        <div class="line-divider"></div>
-
-        <div class="news-content">
-            <p class="content">{{ news.content }}</p>
-        </div>
-
-        <!-- SEÇÃO DE COMENTÁRIOS -->
-        <div class="comments-section">
-            <h2 class="comments-title">Comentários ({{ comments.length }})</h2>
-
-            @if (commentsLoading) {
-                <div class="comments-loading">Carregando comentários...</div>
-            } @else {
-                @if (comments.length === 0) {
-                    <p class="no-comments">Nenhum comentário ainda. Seja o primeiro!</p>
-                } @else {
-                    <div class="comments-list">
-                        @for (comment of comments; track comment.id) {
-                            <div class="comment-card">
-                                <div class="comment-header">
-                                    <strong class="comment-author">{{ comment.authorName }}</strong>
-                                    <span class="comment-date">{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                                </div>
-                                <p class="comment-content">{{ comment.content }}</p>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- Paginação dos comentários -->
-                    @if (commentsTotalPages > 1) {
-                        <div class="comments-pagination">
-                            <button (click)="previousCommentsPage()" [disabled]="commentsPage === 0" class="page-btn">Anterior</button>
-                            <span>Página {{ commentsPage + 1 }} de {{ commentsTotalPages }}</span>
-                            <button (click)="nextCommentsPage()" [disabled]="commentsPage + 1 >= commentsTotalPages" class="page-btn">Próximo</button>
-                        </div>
-                    }
-                }
+            @if (commentError) {
+              <p class="comment-feedback error">{{ commentError }}</p>
             }
 
-            <!-- Formulário de novo comentário -->
-            <div class="new-comment-form">
-                <h3>Deixe seu comentário</h3>
-                @if (commentError) {
-                    <div class="alert error">{{ commentError }}</div>
-                }
-                @if (commentSuccess) {
-                    <div class="alert success">{{ commentSuccess }}</div>
-                }
-                <form (ngSubmit)="submitComment()">
-                    <div class="form-group">
-                        <label for="authorName">Nome *</label>
-                        <input type="text" id="authorName" [(ngModel)]="newComment.authorName" name="authorName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="authorEmail">E-mail *</label>
-                        <input type="email" id="authorEmail" [(ngModel)]="newComment.authorEmail" name="authorEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="content">Comentário *</label>
-                        <textarea id="content" rows="4" [(ngModel)]="newComment.content" name="content" required></textarea>
-                    </div>
-                    <button type="submit" class="submit-btn" [disabled]="submittingComment">
-                        {{ submittingComment ? 'Enviando...' : 'Enviar comentário' }}
-                    </button>
-                </form>
-            </div>
+            @if (commentSuccess) {
+              <p class="comment-feedback success">{{ commentSuccess }}</p>
+            }
+
+            <button type="submit" class="comment-submit" [disabled]="submittingComment">
+              {{ submittingComment ? 'Enviando...' : 'Enviar comentario' }}
+            </button>
+          </form>
+
+          <div class="comments-list">
+            @if (commentsLoading) {
+              <app-loading-indicator label="Carregando comentarios..." size="md" surface="plain" />
+            }
+
+            @else if (comments.length === 0) {
+              <p class="comments-empty">Ainda nao ha comentarios aprovados para esta noticia.</p>
+            }
+
+            @else {
+              @for (comment of comments; track comment.id) {
+                <article class="comment-card">
+                  <div class="comment-meta">
+                    <strong>{{ comment.author }}</strong>
+                    <span>{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+
+                  <p class="comment-content">{{ comment.content }}</p>
+                </article>
+              }
+            }
+          </div>
         </div>
-    }
+      </section>
+    </section>
+  }
+
+  @else {
+    <div class="no-news">
+      <h1 class="error-404">
+        <span class="green-number">4</span>
+        <span class="pink-number">0</span>
+        <span class="red-number">4</span>
+      </h1>
+
+      <p>{{ pageError || 'Essa pagina de noticias nao existe...' }}</p>
+    </div>
+  }
 </div>
 
 <app-footer />
+

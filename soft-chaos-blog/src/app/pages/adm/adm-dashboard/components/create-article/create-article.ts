@@ -97,10 +97,15 @@ export class CreateArticle implements OnInit {
     this.error = '';
 
     try {
+      const scheduledFor = this.article.status === 'SCHEDULED'
+        ? this.publishAtString
+        : undefined;
+
       // POST /api/articles (SEM imagem)
       const articlePayload: CreateArticleRequest = { // Pega tudo do form
         ...this.article,
-        summary: this.article.summary || this.article.title.substring(0, 150) // Auto summary
+        summary: this.article.summary || this.article.title.substring(0, 150), // Auto summary
+        scheduledFor
       };
 
       console.log('📤 POST /api/articles:', articlePayload);
@@ -119,7 +124,12 @@ export class CreateArticle implements OnInit {
         formData.append('articleId', articleId.toString()); // ← ASSOCIA DIRETO!
 
         console.log('📤 POST /api/media/upload com articleId:', articleId);
-        await firstValueFrom(this.http.post('/api/media/upload', formData));
+        const mediaRes: any = await firstValueFrom(this.http.post('/api/media/upload', formData));
+        const coverImageUrl = mediaRes.data?.url;
+
+        if (coverImageUrl) {
+          await firstValueFrom(this.http.put(`/api/articles/${articleId}`, { coverImageUrl }));
+        }
         console.log('✅ Imagem upload + associada!');
       }
 
@@ -140,6 +150,9 @@ export class CreateArticle implements OnInit {
     }
     if (!this.article.categoryId) {
       this.error = 'Categoria obrigatória'; return false;
+    }
+    if (this.article.status === 'SCHEDULED' && !this.publishAtString) {
+      this.error = 'Data de publicacao obrigatoria'; return false;
     }
     if (!this.article.content.trim()) {
       this.error = 'Conteúdo obrigatório'; return false;

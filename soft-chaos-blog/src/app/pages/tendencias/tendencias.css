@@ -21,6 +21,12 @@
     width: 70%;
 }
 
+.tendencias .main-content > app-loading-indicator,
+.tendencias .main-content > .no-news {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
 .tendencias .main-content a {
     width: 100%;
     margin: auto;

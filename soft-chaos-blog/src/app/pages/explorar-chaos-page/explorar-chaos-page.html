@@ -5,57 +5,43 @@
 
     <p class="main-desc">Aqui você pode explorar todas as notícias que já foram publicadas no blog Soft Chaos. Divirta-se!</p>
 
-    @if (loading) {
-        <div class="loading-spinner">
-            <p>Carregando notícias...</p>
-        </div>
-    } @else {
-        @if (existentNews.length > 0) {
-            <div class="card-container">
-                @for (news of existentNews; track news.id) {
-                    <a [routerLink]="['/noticia/', news.slug]">
-                        <div class="card">
-                            <div class="img-box">
-                                <img [src]="news.imageUrl" [alt]="news.title">
-                            </div>
+    <div class="card-container">
+        @if (loading) {
+            <app-loading-indicator label="Carregando noticias publicadas..." size="lg" />
+        }
 
-                            <div class="text-box">
-                                <h1 class="card-title">{{ news.title }}</h1>
-                                <p class="card-desc">{{ news.subtitle || 'Clique para ler a matéria completa' }}</p>
-                            </div>
+        @else if (error) {
+            <app-loading-indicator [label]="error" size="md" surface="plain" />
+        }
+
+        @else if (existentNews && existentNews.length > 0) {
+            @for (news of existentNews; track news.id) {
+                <a [routerLink]="['/noticia', news.slug]">
+                    <div class="card">
+                        <div class="img-box">
+                            <app-progressive-image
+                              [src]="news.imageURL"
+                              [alt]="news.title"
+                              fallback="https://placehold.co/800x600?text=Soft+Chaos"
+                            />
                         </div>
-                    </a>
-                }
-            </div>
+                        
+                        <div class="text-box">
+                            <h1 class="card-title">{{ news.title }}</h1>
 
-            <!-- Controles de Paginação -->
-            @if (totalPages > 1) {
-                <div class="pagination">
-                    <button class="page-btn" (click)="prevPage()" [disabled]="currentPage === 0">
-                        &laquo; Anterior
-                    </button>
-
-                    <div class="page-numbers">
-                        @for (page of getPagesArray(); track page) {
-                            <button class="page-number"
-                                    [class.active]="page === currentPage"
-                                    (click)="goToPage(page)">
-                                {{ page + 1 }}
-                            </button>
-                        }
+                            <p class="card-desc">{{ news.description }}</p>
+                        </div>
                     </div>
-
-                    <button class="page-btn" (click)="nextPage()" [disabled]="currentPage + 1 >= totalPages">
-                        Próximo &raquo;
-                    </button>
-                </div>
+                </a>
             }
-        } @else {
+        }
+
+        @else {
             <div class="no-news">
                 <p>Nenhuma notícia disponível no momento...</p>
             </div>
         }
-    }
+    </div>
 </div>
 
 <app-footer />

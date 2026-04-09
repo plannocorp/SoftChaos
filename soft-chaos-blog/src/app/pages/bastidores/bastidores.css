@@ -21,6 +21,12 @@
     width: 70%;
 }
 
+.bastidores .main-content > app-loading-indicator,
+.bastidores .main-content > .no-news {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
 .bastidores .main-content a {
     width: 100%;
     margin: auto;

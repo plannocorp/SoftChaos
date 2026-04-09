@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.loading-indicator {
+  width: min(100%, 440px);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  border-radius: 24px;
+  margin-inline: auto;
+}
+
+.loading-indicator.centered {
+  min-height: 220px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+}
+
+.loading-indicator.surface-soft {
+  background:
+    linear-gradient(135deg, rgba(232, 137, 186, 0.09), rgba(137, 182, 30, 0.08)),
+    #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.06);
+}
+
+.loading-indicator.surface-plain {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.spinner {
+  position: relative;
+  width: 58px;
+  height: 58px;
+}
+
+.spinner.sm {
+  width: 40px;
+  height: 40px;
+}
+
+.spinner.lg {
+  width: 72px;
+  height: 72px;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 3px solid transparent;
+  animation: spin 1.25s linear infinite;
+}
+
+.spinner.sm .ring {
+  border-width: 2px;
+}
+
+.spinner.lg .ring {
+  border-width: 4px;
+}
+
+.ring-green {
+  border-top-color: var(--green);
+}
+
+.ring-pink {
+  inset: 6px;
+  border-right-color: var(--pink);
+  animation-direction: reverse;
+  animation-duration: 1.6s;
+}
+
+.ring-red {
+  inset: 12px;
+  border-bottom-color: var(--red);
+  animation-duration: 1.05s;
+}
+
+.spinner.sm .ring-pink {
+  inset: 4px;
+}
+
+.spinner.sm .ring-red {
+  inset: 8px;
+}
+
+.spinner.lg .ring-pink {
+  inset: 8px;
+}
+
+.spinner.lg .ring-red {
+  inset: 16px;
+}
+
+.label {
+  color: var(--darkgray);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  margin: 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

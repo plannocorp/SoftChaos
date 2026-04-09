@@ -1,22 +1,30 @@
+﻿export type BackendCommentStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'DELETED';
+export type CommentStatus = 'PENDENTE' | 'APROVADO' | 'REJEITADO' | 'APAGADO';
+export type CommentFilterStatus = 'ALL' | BackendCommentStatus;
+
 export interface BackendCommentResponse {
   id: number;
   authorName: string;
+  authorEmail: string;
   content: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: BackendCommentStatus;
   createdAt: string;
-  articleTitle: string;  // ← NOVO: direto!
-  // authorEmail?: string;  // ← REMOVIDO (não vem mais)
+  articleTitle: string;
+  articleSlug?: string;
+  articleCoverImageUrl?: string;
 }
 
 export interface Comment {
   id: number;
   articleTitle: string;
-  articleSlug: string;  // ← Mantenha (pode ser '')
+  articleSlug: string;
+  articleCoverImageUrl?: string;
   author: string;
-  email: string;        // ← Mantenha (pode ser vazio)
+  email: string;
   content: string;
   createdAt: Date;
-  status: 'PENDENTE' | 'APROVADO' | 'REJEITADO';
+  status: CommentStatus;
+  rawStatus: BackendCommentStatus;
 }
 
 export interface PagedResponse<T> {
@@ -27,3 +35,10 @@ export interface PagedResponse<T> {
   totalPages: number;
   last: boolean;
 }
+
+export interface CreateCommentRequest {
+  authorName: string;
+  authorEmail: string;
+  content: string;
+}
+

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -14,6 +15,8 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
      * Busca mídias de um artigo
      */
     List<Media> findByArticleId(Long articleId);
+
+    List<Media> findByArticleIdOrderByUploadedAtAsc(Long articleId);
 
     /**
      * Busca mídias por tipo
@@ -29,6 +32,8 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
      * Conta quantas mídias um artigo tem
      */
     Long countByArticleId(Long articleId);
+
+    Long countByArticleIdAndTypeIn(Long articleId, Collection<Media.MediaType> types);
 
     /**
      * Busca mídias órfãs (sem artigo associado)

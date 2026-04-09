@@ -9,11 +9,12 @@ import { Dicas } from './pages/dicas/dicas';
 import { Bastidores } from './pages/bastidores/bastidores';
 import { Opiniao } from './pages/opiniao/opiniao';
 import { SearchPages } from './pages/search-pages/search-pages';
-import { Auth } from './pages/adm/auth/auth';
-import { AdmDashboard } from './pages/adm/adm-dashboard/adm-dashboard';
-import { CreateArticle } from './pages/adm/adm-dashboard/components/create-article/create-article';
-import { Overview } from './pages/adm/adm-dashboard/components/overview/overview';
-import { Comments } from './pages/adm/adm-dashboard/components/comments/comments';
+import { AuthModern } from './pages/adm/auth/auth-modern';
+import { AdmDashboardModern } from './pages/adm/adm-dashboard/adm-dashboard-modern';
+import { CreateArticleStudio } from './pages/adm/adm-dashboard/components/create-article/create-article-studio';
+import { OverviewModern } from './pages/adm/adm-dashboard/components/overview/overview-modern';
+import { CommentsModern } from './pages/adm/adm-dashboard/components/comments/comments-modern';
+import { ArticleStatusBoard } from './pages/adm/adm-dashboard/components/article-status-board/article-status-board';
 import { adminGuard } from './guards/admin-guard';
 
 export const routes: Routes = [
@@ -73,19 +74,47 @@ export const routes: Routes = [
 
     {
         path: 'security/adimin-auth',
-        component: Auth,
+        component: AuthModern,
         title: 'Soft Chaos | Admimin Auth'
     },
 
     {
         path: 'security/adimin-dashboard',
-        component: AdmDashboard,
+        component: AdmDashboardModern,
         canActivate: [adminGuard],
         children: [
             { path: '', redirectTo: 'overview', pathMatch: 'full' },
-            { path: 'overview', component: Overview },  // Dashboard atual
-            { path: 'create-article', component: CreateArticle },
-            { path: 'comments', component: Comments },
+            { path: 'overview', component: OverviewModern },
+            { path: 'create-article', component: CreateArticleStudio },
+            {
+                path: 'drafts',
+                component: ArticleStatusBoard,
+                data: {
+                    status: 'DRAFT',
+                    title: 'Rascunhos',
+                    subtitle: 'Materias ainda em construcao, prontas para revisao e ajustes finais.'
+                }
+            },
+            {
+                path: 'scheduled',
+                component: ArticleStatusBoard,
+                data: {
+                    status: 'SCHEDULED',
+                    title: 'Agendados',
+                    subtitle: 'Conteudos com data programada, com opcao de publicar manualmente quando precisar.'
+                }
+            },
+            {
+                path: 'published',
+                component: ArticleStatusBoard,
+                data: {
+                    status: 'PUBLISHED',
+                    title: 'Publicados',
+                    subtitle: 'Artigos no ar com acoes de edicao, arquivamento e exclusao.'
+                }
+            },
+            { path: 'articles/:id/edit', component: CreateArticleStudio },
+            { path: 'comments', component: CommentsModern },
         ]
     },
 

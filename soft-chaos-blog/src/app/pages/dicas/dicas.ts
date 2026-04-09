@@ -1,41 +1,43 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
+import { News } from '../../models/news';
 import { RouterLink } from "@angular/router";
-import { NewsService } from '../../services/news-service';
-import { ArticleSummary } from '../../models/article-summary';
+import { PublicArticleService } from '../../services/public-article-service';
+import { LoadingIndicator } from '../../components/shared/loading-indicator/loading-indicator';
+import { ProgressiveImage } from '../../components/shared/progressive-image/progressive-image';
 
 @Component({
   selector: 'app-dicas',
-  imports: [Header, Footer, RouterLink],
+  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage],
   templateUrl: './dicas.html',
   styleUrl: './dicas.css',
 })
 export class Dicas implements OnInit {
-  public newsDicas: ArticleSummary[] = [];
+  public newsDicas: News[] | undefined;
+  public loading = true;
+  public error = '';
 
-  constructor(
-    private newsService: NewsService,
-    private cd: ChangeDetectorRef
-  ) {}
+  constructor(private publicArticleService: PublicArticleService) {}
 
   ngOnInit(): void {
     this.loadDicasNews();
   }
 
   public loadDicasNews(): void {
-    this.newsService.getAll().subscribe({
-      next: (allArticles) => {
-        this.newsDicas = allArticles.filter(
-          article => article.categoryName?.toLowerCase() === 'dicas'
-        );
-        console.log(`Dicas : ${this.newsDicas.length} artigos encontrados`);
-        this.cd.detectChanges();
+    this.loading = true;
+    this.error = '';
+
+    this.publicArticleService.getArticlesByCategorySlug('dicas').subscribe({
+      next: (articles) => {
+        this.newsDicas = articles;
+        this.loading = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar notícias de Bastidores', err);
+        console.error('Erro ao carregar noticias de dicas:', err);
         this.newsDicas = [];
-        this.cd.detectChanges();
+        this.error = 'Nao foi possivel carregar as noticias de dicas agora.';
+        this.loading = false;
       }
     });
   }

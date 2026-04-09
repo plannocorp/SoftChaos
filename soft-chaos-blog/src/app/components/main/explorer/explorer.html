@@ -1,47 +1,75 @@
 <div class="explorer">
   <div class="presentation">
     <h1 class="main-title">EXPLORAR <span>CHAOS</span></h1>
+
     <div class="line-divider"></div>
+
     <a class="main-btn" [routerLink]="['/explorar']">VER TUDO</a>
   </div>
 
-  @if (firstCardNews || secCardNews || thirdCardNews) {
+  @if (loading) {
+    <div class="no-news">
+        <app-loading-indicator label="Carregando noticias..." size="lg" />
+    </div>
+  }
+
+  @else if (error) {
+    <div class="no-news">
+        <p>{{ error }}</p>
+    </div>
+  }
+
+  @else if (firstCardNews || secCardNews || thirdCardNews) {
     <div class="cards-container">
-      <a [routerLink]="['/noticia/', firstCardNews?.slug]">
+      <a  [routerLink]="['/noticia', firstCardNews?.slug]">
         <div class="card">
           <div class="img-box">
-            <!-- imageURL -> imageUrl -->
-            <img [src]="firstCardNews?.imageUrl" alt="" class="img" />
+            <app-progressive-image
+              [src]="firstCardNews?.imageURL"
+              [alt]="firstCardNews?.title || 'Noticia Soft Chaos'"
+              fallback="https://placehold.co/800x600?text=Soft+Chaos"
+            />
           </div>
+
           <h1 class="card-title">{{ firstCardNews?.title }}</h1>
-          <!-- description -> subtitle (fallback para conteúdo resumido) -->
-          <p class="card-desc">{{ firstCardNews?.subtitle || 'Clique para ler a matéria completa' }}</p>
+          
+          <p class="card-desc">{{ firstCardNews?.description }}</p>
         </div>
       </a>
 
-      <a [routerLink]="['/noticia/', secCardNews?.slug]">
+      <a  [routerLink]="['/noticia', secCardNews?.slug]">
         <div class="card">
           <div class="img-box">
-            <img [src]="secCardNews?.imageUrl" alt="" class="img" />
+            <app-progressive-image
+              [src]="secCardNews?.imageURL"
+              [alt]="secCardNews?.title || 'Noticia Soft Chaos'"
+              fallback="https://placehold.co/800x600?text=Soft+Chaos"
+            />
           </div>
           <h1 class="card-title">{{ secCardNews?.title }}</h1>
-          <p class="card-desc">{{ secCardNews?.subtitle || 'Clique para ler a matéria completa' }}</p>
+          <p class="card-desc">{{ secCardNews?.description }}</p>
         </div>
       </a>
 
-      <a [routerLink]="['/noticia/', thirdCardNews?.slug]">
+      <a  [routerLink]="['/noticia', thirdCardNews?.slug]">
         <div id="third-card" class="card">
           <div class="img-box">
-            <img [src]="thirdCardNews?.imageUrl" alt="" class="img" />
+            <app-progressive-image
+              [src]="thirdCardNews?.imageURL"
+              [alt]="thirdCardNews?.title || 'Noticia Soft Chaos'"
+              fallback="https://placehold.co/800x600?text=Soft+Chaos"
+            />
           </div>
           <h1 class="card-title">{{ thirdCardNews?.title }}</h1>
-          <p class="card-desc">{{ thirdCardNews?.subtitle || 'Clique para ler a matéria completa' }}</p>
+          <p class="card-desc">{{ thirdCardNews?.description }}</p>
         </div>
       </a>
     </div>
-  } @else {
+  }
+
+  @else {
     <div class="no-news">
-      <p>Nenhuma notícia disponível no momento.</p>
+        <p>Nenhuma notícia disponível no momento.</p>
     </div>
   }
 </div>

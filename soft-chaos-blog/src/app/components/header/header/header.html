@@ -1,4 +1,4 @@
-<header>
+﻿<header>
     <div class="logo-container">
         <a [routerLink]="['']"><img src="/images/Logo.png" alt="HeaderLogo"></a>
 
@@ -7,10 +7,10 @@
         <nav>
             <li>
                 <a [routerLink]="['/novidades']">NOVIDADES</a>
-                <a [routerLink]="['/tendencias']">TENDÊNCIAS</a>
+                <a [routerLink]="['/tendencias']">TENDENCIAS</a>
                 <a [routerLink]="['/dicas']">DICAS</a>
                 <a [routerLink]="['/bastidores']">BASTIDORES</a>
-                <a [routerLink]="['/opiniao']">OPINIÃO</a>
+                <a [routerLink]="['/opiniao']">OPINIAO</a>
             </li>
         </nav>
     </div>
@@ -34,6 +34,7 @@
             >
         </div>
 
-        <button>ASSINAR</button>
+        <button type="button" (click)="onSubscribe()">ASSINAR</button>
     </div>
 </header>
+
