@@ -10,13 +10,13 @@ import {
   PagedResponse,
 } from '../models/news';
 import { Category } from '../models/category';
+import { buildApiUrl, buildAssetUrl } from '../config/app-environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PublicArticleService {
-  private readonly apiBaseUrl = 'http://localhost:8080';
-  private readonly articlesUrl = `${this.apiBaseUrl}/api/articles`;
+  private readonly articlesUrl = buildApiUrl('/api/articles');
   private readonly retryStrategy = {
     count: 2,
     delay: (_error: unknown, retryCount: number) => {
@@ -106,7 +106,7 @@ export class PublicArticleService {
 
   getArticlesByCategorySlug(slug: string, page: number = 0, size: number = 30): Observable<News[]> {
     return this.http
-      .get<ApiEnvelope<Category>>(`${this.apiBaseUrl}/api/categories/slug/${slug}`)
+      .get<ApiEnvelope<Category>>(buildApiUrl(`/api/categories/slug/${slug}`))
       .pipe(retry(this.retryStrategy))
       .pipe(
         switchMap((categoryResponse) =>
@@ -135,12 +135,12 @@ export class PublicArticleService {
           ? new Date(article.updatedAt)
           : undefined,
       author: article.author?.name || 'Redacao Soft Chaos',
-      imageURL: this.normalizeAssetUrl(article.coverImageUrl || this.extractFirstImage(article)),
+      imageURL: buildAssetUrl(article.coverImageUrl || this.extractFirstImage(article)),
       slug: article.slug,
       type: categoryName,
       description: summary,
       readTime: this.estimateReadTime(content),
-      firstImageUrl: this.normalizeAssetUrl(article.coverImageUrl),
+      firstImageUrl: buildAssetUrl(article.coverImageUrl),
       tag: categoryName,
       mediaItems,
       externalVideoLinks: article.externalVideoLinks?.filter(Boolean),
@@ -162,18 +162,6 @@ export class PublicArticleService {
     return Math.max(1, Math.ceil(words / 200));
   }
 
-  private normalizeAssetUrl(url?: string): string | undefined {
-    if (!url) {
-      return undefined;
-    }
-
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-
-    return `${this.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
-  }
-
   private normalizeMediaItems(mediaFiles?: MediaItem[]): MediaItem[] | undefined {
     if (!mediaFiles?.length) {
       return undefined;
@@ -181,7 +169,7 @@ export class PublicArticleService {
 
     return mediaFiles.map((item) => ({
       ...item,
-      url: this.normalizeAssetUrl(item.url) || item.url,
+      url: buildAssetUrl(item.url) || item.url,
     }));
   }
 }

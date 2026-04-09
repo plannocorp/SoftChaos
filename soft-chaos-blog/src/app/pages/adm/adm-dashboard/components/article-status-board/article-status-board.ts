@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiEnvelope, ArticleApi, ArticleSummaryApi, PagedResponse } from '../../../../../models/news';
+import { buildAssetUrl } from '../../../../../config/app-environment';
 
 type ArticleStatusFilter = 'DRAFT' | 'SCHEDULED' | 'PUBLISHED';
 
@@ -20,8 +21,6 @@ interface RouteBoardData {
   styleUrl: './article-status-board.css',
 })
 export class ArticleStatusBoard implements OnInit {
-  private readonly backendBaseUrl = 'http://localhost:8080';
-
   status: ArticleStatusFilter = 'DRAFT';
   title = 'Rascunhos';
   subtitle = '';
@@ -165,17 +164,7 @@ export class ArticleStatusBoard implements OnInit {
   }
 
   getArticleCover(article: ArticleSummaryApi | ArticleApi | undefined): string | null {
-    const coverImageUrl = article?.coverImageUrl;
-
-    if (!coverImageUrl) {
-      return null;
-    }
-
-    if (coverImageUrl.startsWith('http://') || coverImageUrl.startsWith('https://')) {
-      return coverImageUrl;
-    }
-
-    return `${this.backendBaseUrl}${coverImageUrl.startsWith('/') ? coverImageUrl : `/${coverImageUrl}`}`;
+    return buildAssetUrl(article?.coverImageUrl) ?? null;
   }
 }
 

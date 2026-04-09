@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Comment, CommentFilterStatus } from '../../../../../models/comment';
 import { CommentService } from '../../../../../services/comment-service';
+import { buildAssetUrl } from '../../../../../config/app-environment';
 
 interface CommentFilterChip {
   label: string;
@@ -17,8 +18,6 @@ interface CommentFilterChip {
   styleUrl: './comments-modern.css',
 })
 export class CommentsModern implements OnInit {
-  private readonly backendBaseUrl = 'http://localhost:8080';
-
   readonly filters: CommentFilterChip[] = [
     { label: 'Todos', status: 'ALL' },
     { label: 'Pendentes', status: 'PENDING' },
@@ -135,17 +134,7 @@ export class CommentsModern implements OnInit {
   }
 
   getArticleCover(comment: Comment): string | null {
-    const coverImageUrl = comment.articleCoverImageUrl;
-
-    if (!coverImageUrl) {
-      return null;
-    }
-
-    if (coverImageUrl.startsWith('http://') || coverImageUrl.startsWith('https://')) {
-      return coverImageUrl;
-    }
-
-    return `${this.backendBaseUrl}${coverImageUrl.startsWith('/') ? coverImageUrl : `/${coverImageUrl}`}`;
+    return buildAssetUrl(comment.articleCoverImageUrl) ?? null;
   }
 
   getPublicationLink(comment: Comment): string | null {
