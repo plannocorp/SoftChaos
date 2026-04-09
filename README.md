@@ -4,6 +4,7 @@ Repositorio do Blog Soft Chaos
 ## Deploy do backend no Render
 
 Configure o servico como `Web Service` com `Root Directory` apontando para `backend`.
+No Blueprint, o deploy usa Docker para o Spring Boot.
 
 Variaveis recomendadas:
 
@@ -18,11 +19,6 @@ Variaveis recomendadas:
 - `SUPABASE_URL=https://rgqsxoykuatzqjjurqeo.supabase.co`
 - `SUPABASE_SERVICE_ROLE_KEY=...`
 - `SUPABASE_STORAGE_BUCKET=softchaos-media`
-
-Comandos:
-
-- `Build Command`: `chmod +x ./mvnw && ./mvnw -DskipTests package`
-- `Start Command`: `java -Dserver.port=$PORT -jar target/backend-0.0.1-SNAPSHOT.jar`
 
 ## Deploy do frontend na Vercel
 
