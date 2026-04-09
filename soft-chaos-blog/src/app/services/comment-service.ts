@@ -2,7 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BackendCommentResponse, Comment, PagedResponse } from '../models/comment';
+import {
+  BackendCommentResponse,
+  Comment,
+  CreateCommentRequest,
+  PagedResponse
+} from '../models/comment';
 
 @Injectable({ providedIn: 'root' })
 export class CommentService {
@@ -39,6 +44,24 @@ export class CommentService {
 
   deleteComment(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getApprovedCommentsByArticle(articleId: number, page: number = 0, size: number = 20): Observable<Comment[]> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http
+      .get<{ data: PagedResponse<BackendCommentResponse> }>(`${this.apiUrl}/article/${articleId}`, { params })
+      .pipe(
+        map(response => response.data.content.map(comment => this.mapToFrontend(comment)))
+      );
+  }
+
+  createComment(articleId: number, payload: CreateCommentRequest): Observable<Comment> {
+    return this.http
+      .post<{ data: BackendCommentResponse }>(`${this.apiUrl}/article/${articleId}`, payload)
+      .pipe(map(response => this.mapToFrontend(response.data)));
   }
 
   // FUNÇÃO mapToFrontend CORRIGIDA (move mapStatus pra dentro)

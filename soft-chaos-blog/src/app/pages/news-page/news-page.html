@@ -21,6 +21,75 @@
         <div class="news-content">
             <p class="content">{{ news.content }}</p>
         </div>
+
+        <div class="line-divider"></div>
+
+        <section class="comments-section">
+            <div class="comments-header">
+                <h2 class="comments-title">Comentarios</h2>
+                <p class="comments-subtitle">Os comentarios enviados passam por moderacao antes de aparecer aqui.</p>
+            </div>
+
+            <form class="comment-form" (ngSubmit)="submitComment()">
+                <div class="form-row">
+                    <input
+                        type="text"
+                        name="authorName"
+                        [(ngModel)]="commentForm.authorName"
+                        placeholder="Seu nome"
+                    />
+
+                    <input
+                        type="email"
+                        name="authorEmail"
+                        [(ngModel)]="commentForm.authorEmail"
+                        placeholder="Seu email"
+                    />
+                </div>
+
+                <textarea
+                    name="content"
+                    [(ngModel)]="commentForm.content"
+                    rows="5"
+                    placeholder="Escreva seu comentario"
+                ></textarea>
+
+                @if (commentError) {
+                    <p class="comment-feedback error">{{ commentError }}</p>
+                }
+
+                @if (commentSuccess) {
+                    <p class="comment-feedback success">{{ commentSuccess }}</p>
+                }
+
+                <button type="submit" class="comment-submit" [disabled]="submittingComment">
+                    {{ submittingComment ? 'Enviando...' : 'Enviar comentario' }}
+                </button>
+            </form>
+
+            <div class="comments-list">
+                @if (commentsLoading) {
+                    <p class="comments-empty">Carregando comentarios...</p>
+                }
+
+                @else if (comments.length === 0) {
+                    <p class="comments-empty">Ainda nao ha comentarios aprovados para esta noticia.</p>
+                }
+
+                @else {
+                    @for (comment of comments; track comment.id) {
+                        <article class="comment-card">
+                            <div class="comment-meta">
+                                <strong>{{ comment.author }}</strong>
+                                <span>{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                            </div>
+
+                            <p class="comment-content">{{ comment.content }}</p>
+                        </article>
+                    }
+                }
+            </div>
+        </section>
     }
 
     @else {

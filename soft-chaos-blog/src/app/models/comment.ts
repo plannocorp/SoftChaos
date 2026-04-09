@@ -27,3 +27,9 @@ export interface PagedResponse<T> {
   totalPages: number;
   last: boolean;
 }
+
+export interface CreateCommentRequest {
+  authorName: string;
+  authorEmail: string;
+  content: string;
+}
