@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { News } from '../../models/news';
-import { NewsService } from '../../services/news-service';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
 import { RouterLink } from "@angular/router";
+import { PublicArticleService } from '../../services/public-article-service';
 
 @Component({
   selector: 'app-explorar-chaos-page',
@@ -14,13 +14,21 @@ import { RouterLink } from "@angular/router";
 export class ExplorarChaosPage implements OnInit {
   public existentNews: News[] | undefined;
 
-  constructor(private newsService: NewsService) {}
+  constructor(private publicArticleService: PublicArticleService) {}
 
   ngOnInit(): void {
     this.loadAllNews();
   }
 
   public loadAllNews(): void {
-    this.existentNews = this.newsService.getAll();
+    this.publicArticleService.getPublishedArticles().subscribe({
+      next: (articles) => {
+        this.existentNews = articles;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar noticias da exploracao:', err);
+        this.existentNews = [];
+      }
+    });
   }
 }

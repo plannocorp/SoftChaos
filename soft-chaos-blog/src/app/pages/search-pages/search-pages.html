@@ -30,7 +30,7 @@
       @for (noticia of resultados; track noticia.id) {
         <article class="news-card">
           <div class="img-box">
-            <img [src]="noticia.imageURL" [alt]="noticia.title" class="card-img">
+            <img [src]="noticia.imageURL || 'https://placehold.co/800x600?text=Soft+Chaos'" [alt]="noticia.title" class="card-img">
           </div>
           
           <div class="card-content">

@@ -9,7 +9,7 @@
                 <a [routerLink]="['/noticia/', news.slug]">
                     <div class="card">
                         <div class="img-box">
-                            <img [src]="news.imageURL" [alt]="news.title">
+                            <img [src]="news.imageURL || 'https://placehold.co/800x600?text=Soft+Chaos'" [alt]="news.title">
                         </div>
                         
                         <div class="text-box">

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
 import { News } from '../../models/news';
-import { NewsService } from '../../services/news-service';
 import { RouterLink } from "@angular/router";
+import { PublicArticleService } from '../../services/public-article-service';
 
 @Component({
   selector: 'app-opiniao',
@@ -14,13 +14,21 @@ import { RouterLink } from "@angular/router";
 export class Opiniao implements OnInit {
   public newsOpiniao: News[] | undefined;
 
-  constructor(private newsService: NewsService) {}
+  constructor(private publicArticleService: PublicArticleService) {}
 
   ngOnInit(): void {
     this.loadOpiniaoNews();
   }
 
   public loadOpiniaoNews(): void {
-    this.newsOpiniao = this.newsService.getByType('OPINIÃO');
+    this.publicArticleService.getArticlesByCategorySlug('opiniao').subscribe({
+      next: (articles) => {
+        this.newsOpiniao = articles;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar noticias de opiniao:', err);
+        this.newsOpiniao = [];
+      }
+    });
   }
 }

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
 import { News } from '../../models/news';
-import { NewsService } from '../../services/news-service';
 import { RouterLink } from "@angular/router";
+import { PublicArticleService } from '../../services/public-article-service';
 
 @Component({
   selector: 'app-dicas',
@@ -14,13 +14,21 @@ import { RouterLink } from "@angular/router";
 export class Dicas implements OnInit {
   public newsDicas: News[] | undefined;
 
-  constructor(private newsService: NewsService) {}
+  constructor(private publicArticleService: PublicArticleService) {}
 
   ngOnInit(): void {
     this.loadDicasNews();
   }
 
   public loadDicasNews(): void {
-    this.newsDicas = this.newsService.getByType('DICAS');
+    this.publicArticleService.getArticlesByCategorySlug('dicas').subscribe({
+      next: (articles) => {
+        this.newsDicas = articles;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar noticias de dicas:', err);
+        this.newsDicas = [];
+      }
+    });
   }
 }

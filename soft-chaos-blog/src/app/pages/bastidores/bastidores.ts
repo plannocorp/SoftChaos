@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
 import { News } from '../../models/news';
-import { NewsService } from '../../services/news-service';
 import { RouterLink } from "@angular/router";
+import { PublicArticleService } from '../../services/public-article-service';
 
 @Component({
   selector: 'app-bastidores',
@@ -14,13 +14,21 @@ import { RouterLink } from "@angular/router";
 export class Bastidores implements OnInit {
   public newsBastidores: News[] | undefined;
 
-  constructor(private newsService: NewsService) {}
+  constructor(private publicArticleService: PublicArticleService) {}
 
   ngOnInit(): void {
     this.loadBastidoresNews();
   }
 
   public loadBastidoresNews(): void {
-    this.newsBastidores = this.newsService.getByType('BASTIDORES');
+    this.publicArticleService.getArticlesByCategorySlug('bastidores').subscribe({
+      next: (articles) => {
+        this.newsBastidores = articles;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar noticias de bastidores:', err);
+        this.newsBastidores = [];
+      }
+    });
   }
 }

@@ -4,7 +4,7 @@
     @if (news) {
         <div class="news-header">
             <div class="img-box">
-                <img [src]="news.imageURL" [alt]="news.title" class="main-img">
+                <img [src]="news.imageURL || 'https://placehold.co/1200x800?text=Soft+Chaos'" [alt]="news.title" class="main-img">
             </div>
 
             <h1 class="main-title">{{ news.title }}</h1>
@@ -13,7 +13,7 @@
 
             <p class="author-desc"><span>Autor:</span> {{ news.author }}</p>
 
-            <p class="publish-at">{{ news.publishAt }}</p>
+            <p class="publish-at">{{ news.publishAt | date:'dd/MM/yyyy HH:mm' }}</p>
         </div>
 
         <div class="line-divider"></div>

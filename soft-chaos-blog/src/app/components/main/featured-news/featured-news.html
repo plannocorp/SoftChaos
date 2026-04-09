@@ -2,7 +2,7 @@
   @if (mainNews) {
     <div class="main-card-container">
       <div class="img-container">
-        <img [src]="mainNews.imageURL" [alt]="mainNews.title" />
+        <img [src]="mainNews.imageURL || 'https://placehold.co/1200x800?text=Soft+Chaos'" [alt]="mainNews.title" />
       </div>
 
       <div class="card-container">

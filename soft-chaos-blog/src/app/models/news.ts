@@ -26,4 +26,68 @@ export interface CreateArticleRequest {
   status: 'DRAFT' | 'PUBLISHED' | 'SCHEDULED';
   featured?: boolean;
   pinned?: boolean;
+  scheduledFor?: string;
+  coverImageUrl?: string;
+}
+
+export interface ArticleAuthor {
+  id?: number;
+  name: string;
+  email?: string;
+}
+
+export interface ArticleCategory {
+  id: number;
+  name: string;
+  slug?: string;
+}
+
+export interface MediaItem {
+  id: number;
+  url: string;
+  filename: string;
+  type: 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+  altText?: string;
+  fileSize?: number;
+  uploadedAt?: string;
+}
+
+export interface ArticleSummaryApi {
+  id: number;
+  title: string;
+  slug: string;
+  summary?: string;
+  coverImageUrl?: string;
+  author?: ArticleAuthor;
+  category?: ArticleCategory;
+  status?: 'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'ARCHIVED';
+  featured?: boolean;
+  pinned?: boolean;
+  viewCount?: number;
+  commentsCount?: number;
+  publishedAt?: string;
+}
+
+export interface ArticleApi extends ArticleSummaryApi {
+  content: string;
+  mediaFiles?: MediaItem[];
+  createdAt?: string;
+  updatedAt?: string;
+  scheduledFor?: string;
+}
+
+export interface ApiEnvelope<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+  timestamp?: string;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
 }

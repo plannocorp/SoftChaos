@@ -12,7 +12,7 @@
       <a  [routerLink]="['/noticia/', firstCardNews?.slug]">
         <div class="card">
           <div class="img-box">
-            <img [src]="firstCardNews?.imageURL" alt="" class="img" />
+            <img [src]="firstCardNews?.imageURL || 'https://placehold.co/800x600?text=Soft+Chaos'" alt="" class="img" />
           </div>
 
           <h1 class="card-title">{{ firstCardNews?.title }}</h1>
@@ -24,7 +24,7 @@
       <a  [routerLink]="['/noticia/', secCardNews?.slug]">
         <div class="card">
           <div class="img-box">
-            <img [src]="secCardNews?.imageURL" alt="" class="img" />
+            <img [src]="secCardNews?.imageURL || 'https://placehold.co/800x600?text=Soft+Chaos'" alt="" class="img" />
           </div>
           <h1 class="card-title">{{ secCardNews?.title }}</h1>
           <p class="card-desc">{{ secCardNews?.description }}</p>
@@ -34,7 +34,7 @@
       <a  [routerLink]="['/noticia/', thirdCardNews?.slug]">
         <div id="third-card" class="card">
           <div class="img-box">
-            <img [src]="thirdCardNews?.imageURL" alt="" class="img" />
+            <img [src]="thirdCardNews?.imageURL || 'https://placehold.co/800x600?text=Soft+Chaos'" alt="" class="img" />
           </div>
           <h1 class="card-title">{{ thirdCardNews?.title }}</h1>
           <p class="card-desc">{{ thirdCardNews?.description }}</p>

@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { News } from '../../models/news';  // ← SEU MODEL
-import { NewsService } from '../../services/news-service';
+import { News } from '../../models/news';
 import { Header } from "../../components/header/header/header";
-import { Footer } from "../../components/footer/footer/footer";  // ← SEU SERVIÇO
+import { Footer } from "../../components/footer/footer/footer";
+import { PublicArticleService } from '../../services/public-article-service';
 
 @Component({
   selector: 'app-search-pages',
@@ -20,48 +20,34 @@ export class SearchPages implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private newsService: NewsService
+    private publicArticleService: PublicArticleService
   ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      console.log('PARAMS:', params);  // ← DEBUG
       this.searchTerm = params['q'] || '';
-      console.log('SEARCH TERM:', this.searchTerm);  // ← DEBUG
-      
+
       if (this.searchTerm.trim()) {
         this.buscarNoticias();
       } else {
-        this.resultados = [];  // Limpa se busca vazia
+        this.resultados = [];
       }
     });
   }
 
   private buscarNoticias(): void {
     this.loading = true;
-  
-    const todasNoticias = this.newsService.getAll();
-  
-    const termo = this.normalizeString(this.searchTerm.toLowerCase().trim());
-  
-    this.resultados = todasNoticias.filter(noticia => {
-      const titleMatch = this.normalizeString(noticia.title.toLowerCase()).includes(termo);
-      const descMatch = this.normalizeString(noticia.description.toLowerCase()).includes  (termo);
-      const typeMatch = this.normalizeString(noticia.type.toLowerCase()).includes(termo);
-    
-      console.log(`❓ ${noticia.title}: title=${titleMatch}`);
-    
-      return titleMatch || descMatch || typeMatch;
-    });
-  
-    console.log('✅ RESULTADOS:', this.resultados.length);
-    this.loading = false;
-  }
 
-  private normalizeString(str: string): string {
-    return str
-      .normalize('NFD')           // Decompõe acentos (á → a + ´)
-      .replace(/[\u0300-\u036f]/g, '')  // Remove os acentos
-      .replace(/[^a-z0-9\s]/g, '');     // Remove caracteres especiais
+    this.publicArticleService.searchArticles(this.searchTerm).subscribe({
+      next: (articles) => {
+        this.resultados = articles;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Erro ao buscar noticias:', err);
+        this.resultados = [];
+        this.loading = false;
+      }
+    });
   }
 }

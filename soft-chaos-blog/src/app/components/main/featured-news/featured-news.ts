@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { News } from '../../../models/news';
-import { NewsService } from '../../../services/news-service';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from "@angular/router";
+import { PublicArticleService } from '../../../services/public-article-service';
 
 @Component({
   selector: 'app-featured-news',
@@ -15,22 +15,22 @@ export class FeaturedNews implements OnInit {
   public firstSecondNews?: News;
   public secSecondNews?: News;
 
-  constructor(private newsService: NewsService) {} // Injeção de dependencia do Service
+  constructor(private publicArticleService: PublicArticleService) {}
 
   ngOnInit(): void {
     this.loadFeaturedNews();
   }
 
   loadFeaturedNews(): void {
-    this.mainNews = this.newsService.getLatestNews();
-
-    const secondaryNews = this.newsService.getSecondaryNews();
-
-    this.firstSecondNews = secondaryNews[0];
-    this.secSecondNews = secondaryNews[1];
-
-    // Log para Debug
-    console.log('Main News:', this.mainNews);
-    console.log('Secondary News:', secondaryNews)
+    this.publicArticleService.getLatestArticles(3).subscribe({
+      next: (articles) => {
+        this.mainNews = articles[0];
+        this.firstSecondNews = articles[1];
+        this.secSecondNews = articles[2];
+      },
+      error: (err) => {
+        console.error('Erro ao carregar noticias em destaque:', err);
+      }
+    });
   }
 }

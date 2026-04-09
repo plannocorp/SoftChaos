@@ -2,9 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { News } from '../../models/news';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NewsService } from '../../services/news-service';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
+import { PublicArticleService } from '../../services/public-article-service';
 
 @Component({
   selector: 'app-news-page',
@@ -20,7 +20,7 @@ export class NewsPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private newsService: NewsService
+    private publicArticleService: PublicArticleService
   ) {}
 
   ngOnInit(): void {
@@ -28,8 +28,6 @@ export class NewsPage implements OnInit {
   }
 
   private loadNews(): void {
-    // Pegar Slug da URL
-
     const slug = this.route.snapshot.paramMap.get('slug');
 
     if (!slug) {
@@ -38,23 +36,19 @@ export class NewsPage implements OnInit {
       return;
     }
 
-    // Buscar a notícia pelo slug
-
-    this.news = this.newsService.getBySlug(slug);
-
-    // Verifica se encontrou
-
-    if(!this.news) {
-      this.notFound = true;
-    }
-
-    this.loading = false;
-
-    console.log('Slug:', slug);
-    console.log('Notícia encontrada:', this.news);
+    this.publicArticleService.getArticleBySlug(slug).subscribe({
+      next: (news) => {
+        this.news = news;
+        this.notFound = false;
+        this.loading = false;
+      },
+      error: () => {
+        this.news = undefined;
+        this.notFound = true;
+        this.loading = false;
+      }
+    });
   }
-
-  // Método para voltar a home
 
   public goBack(): void {
     this.router.navigate(['/']);
