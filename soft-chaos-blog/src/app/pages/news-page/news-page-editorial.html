@@ -56,7 +56,11 @@
             <span class="gallery-hint">{{ getGalleryMedia().length }} {{ getGalleryMedia().length === 1 ? 'item' : 'itens' }} · clique para ampliar</span>
           </div>
 
-          <div class="gallery-strip">
+          <div
+            class="gallery-strip"
+            [class.is-single]="getGalleryMedia().length === 1"
+            [class.is-pair]="getGalleryMedia().length === 2"
+          >
             @for (media of getGalleryMedia(); track media.id) {
               <article
                 class="gallery-thumb"
@@ -91,7 +95,11 @@
             </div>
           </div>
 
-          <div class="external-list">
+          <div
+            class="external-list"
+            [class.is-single]="getExternalVideoLinks().length === 1"
+            [class.is-pair]="getExternalVideoLinks().length === 2"
+          >
             @for (video of getExternalVideoLinks(); track video.url) {
               <article class="external-card">
                 <div class="ext-preview">
