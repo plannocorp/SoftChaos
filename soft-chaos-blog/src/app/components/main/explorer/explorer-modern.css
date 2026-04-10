@@ -75,6 +75,8 @@
     box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
     overflow: hidden;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .card:hover {
@@ -101,6 +103,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    flex: 1;
 }
 
 .card-tag {
@@ -120,12 +123,21 @@
     font-size: 1.55rem;
     line-height: 1.08;
     color: #101010;
+    min-height: 3.4em;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .card-desc {
     color: #64748b;
     line-height: 1.65;
     font-size: 0.95rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .no-news {

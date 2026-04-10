@@ -18,7 +18,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:noreply@softchaos.local}")
     private String fromEmail;
 
     @Value("${app.frontend.url:http://localhost:4200}")

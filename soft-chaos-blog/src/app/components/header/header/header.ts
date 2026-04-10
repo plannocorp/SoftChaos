@@ -25,7 +25,7 @@ export class Header {
   }
 
   onSubscribe(): void {
-    document.getElementById('newsletter-signup')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    this.router.navigate(['/newsletter']);
   }
 }
 

@@ -1,0 +1,79 @@
+<app-header />
+
+<main class="newsletter-page">
+  <section class="newsletter-hero">
+    <div class="newsletter-copy">
+      <p class="eyebrow">Newsletter Soft Chaos</p>
+      <h1>Receba a curadoria do portal com contexto, bastidores e novidades antes do ruido.</h1>
+      <p class="hero-text">
+        Ao se inscrever, voce passa a receber uma selecao editorial com as melhores materias, leituras recomendadas,
+        bastidores da redacao, tendencias comentadas e avisos importantes sobre novas series e especiais.
+      </p>
+
+      <div class="benefits-grid">
+        <article class="benefit-card">
+          <strong>Resumo editorial</strong>
+          <p>Uma leitura objetiva com o que realmente vale abrir do portal naquela semana.</p>
+        </article>
+        <article class="benefit-card">
+          <strong>Bastidores e extras</strong>
+          <p>Contexto de producao, referencias, indicacoes e observacoes que nem sempre entram na materia.</p>
+        </article>
+        <article class="benefit-card">
+          <strong>Lancamentos e alertas</strong>
+          <p>Novos especiais, coberturas e selecoes tematicas em primeira mao.</p>
+        </article>
+      </div>
+    </div>
+
+    <aside class="newsletter-panel">
+      <p class="panel-kicker">Inscricao</p>
+      <h2>Entre para a lista</h2>
+      <p class="panel-copy">Sem spam. So conteudo relevante, com cadencia editorial e opcao de sair quando quiser.</p>
+
+      <form class="newsletter-form" (ngSubmit)="subscribe()">
+        <input type="text" name="name" [(ngModel)]="name" placeholder="Seu nome" />
+        <input type="email" name="email" [(ngModel)]="email" placeholder="Seu melhor email" />
+
+        @if (error) {
+          <p class="feedback error">{{ error }}</p>
+        }
+
+        @if (message) {
+          <p class="feedback success">{{ message }}</p>
+        }
+
+        <button type="submit" [disabled]="loading">
+          {{ loading ? 'Enviando...' : 'Quero assinar' }}
+        </button>
+      </form>
+    </aside>
+  </section>
+
+  <section class="newsletter-flow">
+    <div class="flow-copy">
+      <p class="eyebrow">Como funciona</p>
+      <h2>O que acontece depois da inscricao</h2>
+    </div>
+
+    <div class="flow-grid">
+      <article class="flow-step">
+        <span>1</span>
+        <strong>Voce entra na base editorial</strong>
+        <p>Seu email passa a fazer parte da lista de envio da Soft Chaos para comunicados e selecoes de conteudo.</p>
+      </article>
+      <article class="flow-step">
+        <span>2</span>
+        <strong>Recebe as curadorias</strong>
+        <p>Voce recebe conteudo selecionado com foco em qualidade, leitura prazerosa e contexto.</p>
+      </article>
+      <article class="flow-step">
+        <span>3</span>
+        <strong>Fica por dentro antes</strong>
+        <p>Especiais, novas editorias e destaques importantes chegam primeiro para quem acompanha a newsletter.</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<app-footer />

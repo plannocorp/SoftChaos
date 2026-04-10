@@ -18,14 +18,15 @@ interface ExternalVideoLinkView {
   url: string;
   platform: 'YouTube' | 'Instagram' | 'Video';
   label: string;
-  embedUrl?: SafeResourceUrl;
+  previewImageUrl?: string;
+  modalEmbedUrl?: SafeResourceUrl;
 }
 
 @Component({
   selector: 'app-news-page',
   imports: [CommonModule, FormsModule, Header, Footer, LoadingIndicator, ProgressiveImage],
-  templateUrl: './news-page.html',
-  styleUrl: './news-page-modern.css',
+  templateUrl: './news-page-editorial.html',
+  styleUrl: './news-page-editorial.css',
 })
 export class NewsPage implements OnInit, OnDestroy {
   public news?: News;
@@ -37,6 +38,8 @@ export class NewsPage implements OnInit, OnDestroy {
   public commentSuccess: string = '';
   public submittingComment: boolean = false;
   public pageError: string = '';
+  public selectedGalleryMedia?: { url: string; alt: string; type: 'IMAGE' | 'VIDEO' };
+  public selectedExternalVideo?: ExternalVideoLinkView;
   public commentForm: CreateCommentRequest = {
     authorName: '',
     authorEmail: '',
@@ -122,6 +125,10 @@ export class NewsPage implements OnInit, OnDestroy {
     let skippedHeroImage = false;
 
     return mediaItems.filter((item) => {
+      if (item.type === 'DOCUMENT') {
+        return false;
+      }
+
       if (this.news?.imageURL && item.type === 'IMAGE' && item.url === this.news.imageURL && !skippedHeroImage) {
         skippedHeroImage = true;
         return false;
@@ -137,6 +144,31 @@ export class NewsPage implements OnInit, OnDestroy {
 
   public trackMedia(_index: number, media: MediaItem): number {
     return media.id;
+  }
+
+  public openGalleryItem(media: MediaItem): void {
+    this.selectedGalleryMedia = {
+      url: media.url,
+      alt: media.altText || this.news?.title || 'Midia do artigo',
+      type: media.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
+    };
+  }
+
+  public closeGalleryItem(): void {
+    this.selectedGalleryMedia = undefined;
+  }
+
+  public openExternalVideo(video: ExternalVideoLinkView): void {
+    if (video.modalEmbedUrl) {
+      this.selectedExternalVideo = video;
+      return;
+    }
+
+    window.open(video.url, '_blank', 'noopener,noreferrer');
+  }
+
+  public closeExternalVideo(): void {
+    this.selectedExternalVideo = undefined;
   }
 
   public getExternalVideoLinks(): ExternalVideoLinkView[] {
@@ -207,11 +239,13 @@ export class NewsPage implements OnInit, OnDestroy {
 
     const youtubeEmbedUrl = this.buildYoutubeEmbedUrl(normalizedLink);
     if (youtubeEmbedUrl) {
+      const youtubeThumbnail = this.buildYoutubeThumbnailUrl(youtubeEmbedUrl);
       return {
         url: normalizedLink,
         platform: 'YouTube',
         label: 'Assistir no YouTube',
-        embedUrl: this.sanitizer.bypassSecurityTrustResourceUrl(youtubeEmbedUrl),
+        previewImageUrl: youtubeThumbnail,
+        modalEmbedUrl: this.sanitizer.bypassSecurityTrustResourceUrl(`${youtubeEmbedUrl}?autoplay=1&rel=0`),
       };
     }
 
@@ -220,6 +254,7 @@ export class NewsPage implements OnInit, OnDestroy {
         url: normalizedLink,
         platform: 'Instagram',
         label: 'Abrir no Instagram',
+        previewImageUrl: 'https://placehold.co/1200x675/111111/ffffff?text=Instagram',
       };
     }
 
@@ -227,6 +262,7 @@ export class NewsPage implements OnInit, OnDestroy {
       url: normalizedLink,
       platform: 'Video',
       label: 'Abrir video',
+      previewImageUrl: 'https://placehold.co/1200x675/111111/ffffff?text=Video',
     };
   }
 
@@ -249,6 +285,11 @@ export class NewsPage implements OnInit, OnDestroy {
     } catch {
       return null;
     }
+  }
+
+  private buildYoutubeThumbnailUrl(embedUrl: string): string | undefined {
+    const videoId = embedUrl.split('/embed/')[1]?.split('?')[0]?.trim();
+    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : undefined;
   }
 
   private isInstagramUrl(link: string): boolean {

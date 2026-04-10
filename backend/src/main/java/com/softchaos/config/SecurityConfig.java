@@ -24,6 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -35,6 +36,12 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:http://localhost:4200}")
     private String allowedOrigins;
 
+    @Value("${app.security.expose-docs:false}")
+    private boolean exposeDocs;
+
+    @Value("${app.security.expose-h2-console:false}")
+    private boolean exposeH2Console;
+
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -45,39 +52,17 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/login",
-                                "/api/articles",
-                                "/api/articles/category/**",
-                                "/api/articles/author/**",
-                                "/api/articles/featured",
-                                "/api/articles/pinned",
-                                "/api/articles/most-viewed",
-                                "/api/articles/latest",
-                                "/api/articles/*/related",
-                                "/api/articles/search",
-                                "/api/articles/slug/**",
-                                "/api/categories",
-                                "/api/categories/slug/**",
-                                "/api/categories/with-articles",
-                                "/api/pages/**",
-                                "/api/comments/article/**",
-                                "/api/newsletter/**",
-                                "/uploads/**",
-                                "/static/**",
-                                "/h2-console/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/actuator/health",
-                                "/actuator/info"
-                        ).permitAll()
+                        .requestMatchers(buildPublicMatchers()).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+                .headers(headers -> {
+                    if (exposeH2Console) {
+                        headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
+                    }
+                });
 
         return http.build();
     }
@@ -121,5 +106,45 @@ public class SecurityConfig {
         }
 
         return origins.isEmpty() ? List.of("http://localhost:4200") : List.copyOf(origins);
+    }
+
+    private String[] buildPublicMatchers() {
+        List<String> matchers = new ArrayList<>();
+
+        Collections.addAll(matchers,
+                "/api/auth/login",
+                "/api/articles",
+                "/api/articles/category/**",
+                "/api/articles/author/**",
+                "/api/articles/featured",
+                "/api/articles/pinned",
+                "/api/articles/most-viewed",
+                "/api/articles/latest",
+                "/api/articles/*/related",
+                "/api/articles/search",
+                "/api/articles/slug/**",
+                "/api/categories",
+                "/api/categories/slug/**",
+                "/api/categories/with-articles",
+                "/api/pages/**",
+                "/api/comments/article/**",
+                "/api/newsletter/**",
+                "/uploads/**",
+                "/static/**",
+                "/actuator/health",
+                "/actuator/info"
+        );
+
+        if (exposeH2Console) {
+            matchers.add("/h2-console/**");
+        }
+
+        if (exposeDocs) {
+            matchers.add("/v3/api-docs/**");
+            matchers.add("/swagger-ui/**");
+            matchers.add("/swagger-ui.html");
+        }
+
+        return matchers.toArray(new String[0]);
     }
 }

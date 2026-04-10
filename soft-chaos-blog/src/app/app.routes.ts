@@ -8,6 +8,7 @@ import { Dicas } from './pages/dicas/dicas';
 import { Bastidores } from './pages/bastidores/bastidores';
 import { Opiniao } from './pages/opiniao/opiniao';
 import { SearchPages } from './pages/search-pages/search-pages';
+import { NewsletterPage } from './pages/newsletter-page/newsletter-page';
 import { AuthModern } from './pages/adm/auth/auth-modern';
 import { AdmDashboardModern } from './pages/adm/adm-dashboard/adm-dashboard-modern';
 import { CreateArticleStudio } from './pages/adm/adm-dashboard/components/create-article/create-article-studio';
@@ -69,6 +70,12 @@ export const routes: Routes = [
         path: 'busca',
         component: SearchPages,
         title: 'Soft Chaos | Busca'
+    },
+
+    {
+        path: 'newsletter',
+        component: NewsletterPage,
+        title: 'Soft Chaos | Newsletter'
     },
 
     {
