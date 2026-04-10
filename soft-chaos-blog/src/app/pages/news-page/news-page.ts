@@ -39,6 +39,7 @@ export class NewsPage implements OnInit, OnDestroy {
   public submittingComment: boolean = false;
   public pageError: string = '';
   public selectedGalleryMedia?: { url: string; alt: string; type: 'IMAGE' | 'VIDEO' };
+  public selectedGalleryIndex: number = -1;
   public selectedExternalVideo?: ExternalVideoLinkView;
   public commentForm: CreateCommentRequest = {
     authorName: '',
@@ -147,6 +148,33 @@ export class NewsPage implements OnInit, OnDestroy {
   }
 
   public openGalleryItem(media: MediaItem): void {
+    const galleryMedia = this.getGalleryMedia();
+    const mediaIndex = galleryMedia.findIndex((item) => item.id === media.id);
+    this.selectedGalleryIndex = mediaIndex >= 0 ? mediaIndex : 0;
+    this.setSelectedGalleryMedia(media);
+  }
+
+  public showPreviousGalleryItem(): void {
+    const galleryMedia = this.getGalleryMedia();
+    if (galleryMedia.length < 2) {
+      return;
+    }
+
+    this.selectedGalleryIndex = (this.selectedGalleryIndex - 1 + galleryMedia.length) % galleryMedia.length;
+    this.setSelectedGalleryMedia(galleryMedia[this.selectedGalleryIndex]);
+  }
+
+  public showNextGalleryItem(): void {
+    const galleryMedia = this.getGalleryMedia();
+    if (galleryMedia.length < 2) {
+      return;
+    }
+
+    this.selectedGalleryIndex = (this.selectedGalleryIndex + 1) % galleryMedia.length;
+    this.setSelectedGalleryMedia(galleryMedia[this.selectedGalleryIndex]);
+  }
+
+  private setSelectedGalleryMedia(media: MediaItem): void {
     this.selectedGalleryMedia = {
       url: media.url,
       alt: media.altText || this.news?.title || 'Midia do artigo',
@@ -156,6 +184,7 @@ export class NewsPage implements OnInit, OnDestroy {
 
   public closeGalleryItem(): void {
     this.selectedGalleryMedia = undefined;
+    this.selectedGalleryIndex = -1;
   }
 
   public openExternalVideo(video: ExternalVideoLinkView): void {
