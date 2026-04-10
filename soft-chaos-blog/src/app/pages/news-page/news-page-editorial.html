@@ -27,35 +27,16 @@
 
       <section class="hero-summary">
         <div class="hero-main">
-          <div class="hero-meta-row">
-            <span class="hero-category">{{ news.type }}</span>
-            <span class="hero-read-time">{{ news.readTime }} min de leitura</span>
-          </div>
-
+          <button type="button" class="article-back-button" (click)="goBack()">Voltar</button>
+          <span class="hero-category">{{ news.type }}</span>
           <h1 class="hero-title">{{ news.title }}</h1>
-        </div>
-
-        <div class="hero-side">
-          <div class="hero-byline">
-            <div class="hero-avatar">{{ news.author | slice:0:2 | uppercase }}</div>
-            <span>{{ news.author }}</span>
-            <span class="hero-sep"></span>
-            <span>{{ news.publishAt | date:'dd/MM/yyyy, HH:mm' }}</span>
+          <p class="hero-description">{{ news.description }}</p>
+          <div class="hero-inline-meta">
+            <span><strong>Autor:</strong> {{ news.author }}</span>
+            <span><strong>Publicado em:</strong> {{ news.publishAt | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
         </div>
       </section>
-
-      <div class="nav-bar">
-        <div class="breadcrumb">
-          <button type="button" class="back-link" (click)="goBack()">Home</button>
-          <span class="breadcrumb-sep">/</span>
-          <span class="breadcrumb-type">{{ news.type }}</span>
-          <span class="breadcrumb-sep">/</span>
-          <span class="breadcrumb-current">{{ news.title | slice:0:50 }}{{ news.title.length > 50 ? '...' : '' }}</span>
-        </div>
-
-        <button type="button" class="back-button" (click)="goBack()">Voltar</button>
-      </div>
 
       <div class="body-wrap">
         <div class="article-main">
@@ -63,27 +44,6 @@
           <p class="article-content">{{ news.content }}</p>
         </div>
 
-        <aside class="article-sidebar">
-          <div class="sidebar-card">
-            <p class="eyebrow">Escrito por</p>
-            <div class="author-row">
-              <div class="author-avatar">{{ news.author | slice:0:2 | uppercase }}</div>
-              <strong class="author-name">{{ news.author }}</strong>
-            </div>
-          </div>
-
-          <div class="sidebar-card">
-            <p class="eyebrow">Publicado em</p>
-            <strong class="date-value">{{ news.publishAt | date:'dd/MM/yyyy' }}</strong>
-            <span class="date-time">{{ news.publishAt | date:'HH:mm' }}</span>
-            <div class="read-pill">
-              <span class="read-icon">•</span>
-              {{ news.readTime }} min de leitura
-            </div>
-          </div>
-
-          <button type="button" class="back-button sidebar-back" (click)="goBack()">Voltar para home</button>
-        </aside>
       </div>
 
       @if (getGalleryMedia().length) {
@@ -116,9 +76,6 @@
                   />
                 }
 
-                @if (media.altText) {
-                  <div class="thumb-caption">{{ media.altText }}</div>
-                }
               </article>
             }
           </div>
@@ -162,7 +119,6 @@
       <section class="comments-section">
         <div class="comments-top">
           <div>
-            <p class="eyebrow">Comunidade</p>
             <h2 class="section-title">Comentarios</h2>
           </div>
           <p class="comments-note">Os comentarios enviados passam por moderacao antes de aparecer aqui.</p>
