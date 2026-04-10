@@ -11,5 +11,6 @@ jobs:
     steps:
       - name: Ping Render health endpoint
         run: |
-          curl --fail --silent --show-error --max-time 30 \
+          curl --fail --silent --show-error \
+            --retry 5 --retry-all-errors --retry-delay 15 --max-time 120 \
             https://softchaos-backend.onrender.com/actuator/health
