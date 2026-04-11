@@ -2,7 +2,7 @@ name: Render Keepalive
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "7,37 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -11,6 +11,13 @@ jobs:
     steps:
       - name: Ping Render health endpoint
         run: |
-          curl --fail --silent --show-error \
-            --retry 5 --retry-all-errors --retry-delay 15 --max-time 120 \
-            https://softchaos-backend.onrender.com/actuator/health
+          for attempt in 1 2 3 4; do
+            echo "Keepalive ping $attempt/4"
+            curl --fail --silent --show-error \
+              --retry 5 --retry-all-errors --retry-delay 15 --max-time 120 \
+              https://softchaos-backend.onrender.com/actuator/health
+
+            if [ "$attempt" -lt 4 ]; then
+              sleep 540
+            fi
+          done
