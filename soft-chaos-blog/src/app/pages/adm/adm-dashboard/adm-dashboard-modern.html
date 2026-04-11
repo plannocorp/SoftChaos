@@ -41,9 +41,21 @@
     <header class="dashboard-topbar">
       <div class="topbar-copy">
         <p class="eyebrow">Redacao</p>
-        <h2>Operacao editorial central</h2>
-        <p>Publique, edite, modere comentarios e acompanhe o fluxo das materias com uma interface mais compacta e elegante.</p>
+        <h2>Operacao editorial</h2>
+        <p>Controle publicacoes, rascunhos, agendamentos, comentarios e desempenho do blog em um painel unico.</p>
       </div>
+
+      <nav class="topbar-nav" [class.open]="mobileMenuOpen">
+        @for (item of navigationItems; track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            {{ item.label }}
+          </a>
+        }
+      </nav>
 
       <div class="topbar-actions">
         <a routerLink="/security/adimin-dashboard/create-article" class="primary-action">

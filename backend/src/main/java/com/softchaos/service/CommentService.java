@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,12 +85,27 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<CommentResponse> getAdminComments(CommentStatus status, Pageable pageable) {
-        log.info("Listando comentarios do painel com status: {}", status);
+    public PagedResponse<CommentResponse> getAdminComments(
+            CommentStatus status,
+            String articleQuery,
+            LocalDateTime createdFrom,
+            LocalDateTime createdUntil,
+            Pageable pageable
+    ) {
+        log.info("Listando comentarios do painel com status: {}, artigo: {}, de: {}, ate: {}",
+                status, articleQuery, createdFrom, createdUntil);
 
-        Page<Comment> commentsPage = status == null
-                ? commentRepository.findAllByOrderByCreatedAtDesc(pageable)
-                : commentRepository.findByStatusOrderByCreatedAtDesc(status, pageable);
+        String normalizedArticleQuery = articleQuery == null || articleQuery.isBlank()
+                ? null
+                : articleQuery.trim();
+
+        Page<Comment> commentsPage = commentRepository.findAdminComments(
+                status,
+                normalizedArticleQuery,
+                createdFrom,
+                createdUntil,
+                pageable
+        );
 
         return buildPagedResponse(commentsPage);
     }
@@ -100,6 +117,7 @@ public class CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Comentario", "id", id));
 
         comment.setStatus(CommentStatus.APPROVED);
+        comment.setStatusUpdatedAt(LocalDateTime.now());
         log.info("Comentario aprovado com sucesso. ID: {}", id);
 
         return commentMapper.toResponse(commentRepository.save(comment));
@@ -112,6 +130,7 @@ public class CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Comentario", "id", id));
 
         comment.setStatus(CommentStatus.REJECTED);
+        comment.setStatusUpdatedAt(LocalDateTime.now());
         log.info("Comentario reprovado com sucesso. ID: {}", id);
 
         return commentMapper.toResponse(commentRepository.save(comment));
@@ -124,8 +143,18 @@ public class CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Comentario", "id", id));
 
         comment.setStatus(CommentStatus.DELETED);
+        comment.setStatusUpdatedAt(LocalDateTime.now());
         commentRepository.save(comment);
         log.info("Comentario marcado como deletado com sucesso. ID: {}", id);
+    }
+
+    public int deleteRejectedAndDeletedOlderThan(int days) {
+        LocalDateTime threshold = LocalDateTime.now().minusDays(days);
+        List<CommentStatus> statusesToDelete = Arrays.asList(CommentStatus.REJECTED, CommentStatus.DELETED);
+        int deletedCount = commentRepository.deleteExpiredModeratedComments(statusesToDelete, threshold);
+
+        log.info("Comentarios rejeitados/apagados removidos apos {} dias: {}", days, deletedCount);
+        return deletedCount;
     }
 
     @Transactional(readOnly = true)

@@ -15,6 +15,54 @@
     <div class="state-card info">{{ actionMessage }}</div>
   }
 
+  @if (pendingDeleteArticle) {
+    <section class="confirm-panel">
+      <div>
+        <p class="eyebrow">Confirmar exclusao</p>
+        <h3>Excluir {{ pendingDeleteArticle.title }}</h3>
+        <p>Esta acao remove a materia do painel e da area publica de forma definitiva.</p>
+      </div>
+
+      <div class="confirm-actions">
+        <button type="button" class="preview-button" (click)="cancelDeleteArticle()">Cancelar</button>
+        <button
+          type="button"
+          class="delete-button"
+          [disabled]="deletingId === pendingDeleteArticle.id"
+          (click)="confirmDeleteArticle()"
+        >
+          {{ deletingId === pendingDeleteArticle.id ? 'Excluindo...' : 'Excluir materia' }}
+        </button>
+      </div>
+    </section>
+  }
+
+  @if (status === 'PUBLISHED') {
+    <section class="board-filters">
+      <label>
+        <span>Categoria</span>
+        <select name="category" [(ngModel)]="selectedCategoryId" (change)="applyPublishedFilters()">
+          <option value="">Todas</option>
+          @for (category of categories; track category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        <span>De</span>
+        <input type="date" name="startDate" [(ngModel)]="startDate" (change)="applyPublishedFilters()" />
+      </label>
+
+      <label>
+        <span>Ate</span>
+        <input type="date" name="endDate" [(ngModel)]="endDate" (change)="applyPublishedFilters()" />
+      </label>
+
+      <button type="button" (click)="clearPublishedFilters()">Limpar filtros</button>
+    </section>
+  }
+
   @if (loading) {
     <div class="state-card">Carregando artigos...</div>
   } @else if (error) {
@@ -24,7 +72,12 @@
   } @else {
     <section class="article-grid">
       @for (article of articles; track article.id) {
-        <article class="article-card">
+        <article
+          class="article-card"
+          tabindex="0"
+          role="button"
+          (click)="openArticleDetails(article)"
+        >
           <div class="card-top">
             <span class="status-chip">{{ getStatusLabel(article) }}</span>
 
@@ -49,42 +102,175 @@
             <p>{{ article.summary || 'Sem resumo cadastrado.' }}</p>
           </div>
 
+          <div class="card-details">
+            <div class="card-meta">
+              <span>{{ article.category?.name || 'Sem categoria' }}</span>
+              <span>{{ article.author?.name || 'Equipe Soft Chaos' }}</span>
+            </div>
+
+            <div class="publication-stats">
+              <div>
+                <strong>{{ article.viewCount || 0 }}</strong>
+                <span>visualizacoes</span>
+              </div>
+              <div>
+                <strong>{{ article.commentsCount || 0 }}</strong>
+                <span>comentarios</span>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="date-stack">
+                @if (status === 'SCHEDULED') {
+                  <strong>Agenda</strong>
+                  <small>{{ article.scheduledFor | date:'dd/MM/yyyy HH:mm' }}</small>
+                } @else if (status === 'PUBLISHED') {
+                  <strong>Publicado</strong>
+                  <small>{{ article.publishedAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                } @else {
+                  <strong>Atualizado</strong>
+                  <small>{{ article.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                }
+              </div>
+
+              <div class="action-stack">
+                <a
+                  class="edit-button"
+                  [routerLink]="['/security/adimin-dashboard/articles', article.id, 'edit']"
+                  (click)="$event.stopPropagation()"
+                >
+                  Editar
+                </a>
+
+                @if (status === 'SCHEDULED') {
+                  <button
+                    type="button"
+                    class="publish-button"
+                    [disabled]="publishingId === article.id"
+                    (click)="publishNow(article.id); $event.stopPropagation()"
+                  >
+                    {{ publishingId === article.id ? 'Publicando...' : 'Publicar agora' }}
+                  </button>
+                }
+
+                @if (status === 'PUBLISHED') {
+                  <button
+                    type="button"
+                    class="archive-button"
+                    [disabled]="archivingId === article.id"
+                    (click)="archiveArticle(article.id); $event.stopPropagation()"
+                  >
+                    {{ archivingId === article.id ? 'Arquivando...' : 'Arquivar' }}
+                  </button>
+                }
+
+                <button
+                  type="button"
+                  class="delete-button"
+                  [disabled]="deletingId === article.id"
+                  (click)="requestDeleteArticle(article); $event.stopPropagation()"
+                >
+                  {{ deletingId === article.id ? 'Excluindo...' : 'Excluir' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      }
+    </section>
+
+    @if (totalPages > 1) {
+      <nav class="pagination-bar" aria-label="Paginacao de artigos">
+        <span>{{ getPageLabel() }} · {{ totalElements }} artigos</span>
+        <div>
+          <button type="button" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">Anterior</button>
+          <button type="button" [disabled]="currentPage + 1 >= totalPages" (click)="goToPage(currentPage + 1)">Proxima</button>
+        </div>
+      </nav>
+    }
+  }
+
+  @if (selectedArticle) {
+    <section class="details-backdrop" (click)="closeArticleDetails()">
+      <article class="details-modal" (click)="$event.stopPropagation()">
+        <div class="modal-media">
+          @if (getSelectedArticleImages().length) {
+            <img
+              class="modal-cover"
+              [src]="getSelectedArticleImages()[selectedImageIndex]"
+              [alt]="selectedArticle.title"
+            />
+
+            @if (getSelectedArticleImages().length > 1) {
+              <div class="carousel-controls">
+                <button type="button" (click)="goToModalImage(-1)">Anterior</button>
+                <span>{{ selectedImageIndex + 1 }} / {{ getSelectedArticleImages().length }}</span>
+                <button type="button" (click)="goToModalImage(1)">Proxima</button>
+              </div>
+            }
+          }
+        </div>
+
+        <div class="modal-copy">
+          <div class="modal-toolbar">
+            <span class="status-chip">{{ getStatusLabel(selectedArticle) }}</span>
+            <button type="button" class="modal-close" (click)="closeArticleDetails()">Fechar</button>
+          </div>
+
+          <h3>{{ selectedArticle.title }}</h3>
+          <p>{{ selectedArticle.summary || 'Sem resumo cadastrado.' }}</p>
+
+          @if (modalLoading) {
+            <small class="modal-loading">Carregando galeria...</small>
+          }
+
           <div class="card-meta">
-            <span>{{ article.category?.name || 'Sem categoria' }}</span>
-            <span>{{ article.author?.name || 'Equipe Soft Chaos' }}</span>
+            <span>{{ selectedArticle.category?.name || 'Sem categoria' }}</span>
+            <span>{{ selectedArticle.author?.name || 'Equipe Soft Chaos' }}</span>
+          </div>
+
+          <div class="publication-stats">
+            <div>
+              <strong>{{ selectedArticle.viewCount || 0 }}</strong>
+              <span>visualizacoes</span>
+            </div>
+            <div>
+              <strong>{{ selectedArticle.commentsCount || 0 }}</strong>
+              <span>comentarios</span>
+            </div>
           </div>
 
           <div class="card-footer">
             <div class="date-stack">
               @if (status === 'SCHEDULED') {
                 <strong>Agenda</strong>
-                <small>{{ article.scheduledFor | date:'dd/MM/yyyy HH:mm' }}</small>
+                <small>{{ selectedArticle.scheduledFor | date:'dd/MM/yyyy HH:mm' }}</small>
               } @else if (status === 'PUBLISHED') {
                 <strong>Publicado</strong>
-                <small>{{ article.publishedAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                <small>{{ selectedArticle.publishedAt | date:'dd/MM/yyyy HH:mm' }}</small>
               } @else {
                 <strong>Atualizado</strong>
-                <small>{{ article.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                <small>{{ selectedArticle.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
               }
             </div>
 
             <div class="action-stack">
-              <a class="edit-button" [routerLink]="['/security/adimin-dashboard/articles', article.id, 'edit']">
+              <a
+                class="edit-button"
+                [routerLink]="['/security/adimin-dashboard/articles', selectedArticle.id, 'edit']"
+                (click)="closeArticleDetails()"
+              >
                 Editar
               </a>
-
-              <button type="button" class="preview-button" (click)="openPreview(article.id)">
-                Visualizar
-              </button>
 
               @if (status === 'SCHEDULED') {
                 <button
                   type="button"
                   class="publish-button"
-                  [disabled]="publishingId === article.id"
-                  (click)="publishNow(article.id)"
+                  [disabled]="publishingId === selectedArticle.id"
+                  (click)="publishNow(selectedArticle.id)"
                 >
-                  {{ publishingId === article.id ? 'Publicando...' : 'Publicar agora' }}
+                  {{ publishingId === selectedArticle.id ? 'Publicando...' : 'Publicar agora' }}
                 </button>
               }
 
@@ -92,69 +278,27 @@
                 <button
                   type="button"
                   class="archive-button"
-                  [disabled]="archivingId === article.id"
-                  (click)="archiveArticle(article.id)"
+                  [disabled]="archivingId === selectedArticle.id"
+                  (click)="archiveArticle(selectedArticle.id)"
                 >
-                  {{ archivingId === article.id ? 'Arquivando...' : 'Arquivar' }}
+                  {{ archivingId === selectedArticle.id ? 'Arquivando...' : 'Arquivar' }}
                 </button>
               }
 
               <button
                 type="button"
                 class="delete-button"
-                [disabled]="deletingId === article.id"
-                (click)="deleteArticle(article.id)"
+                [disabled]="deletingId === selectedArticle.id"
+                (click)="requestDeleteArticle(selectedArticle)"
               >
-                {{ deletingId === article.id ? 'Excluindo...' : 'Excluir' }}
+                {{ deletingId === selectedArticle.id ? 'Excluindo...' : 'Excluir' }}
               </button>
             </div>
           </div>
-        </article>
-      }
+        </div>
+      </article>
     </section>
   }
 
-  @if (previewLoading) {
-    <div class="preview-panel state-card info">Carregando visualizacao...</div>
-  } @else if (previewArticle) {
-    <section class="preview-panel">
-      <div class="preview-head">
-        <div>
-          <p class="eyebrow">Visualizacao simples</p>
-          <h3>{{ previewArticle.title }}</h3>
-          <p>{{ previewArticle.summary || 'Sem resumo cadastrado.' }}</p>
-        </div>
-
-        <button type="button" class="preview-close" (click)="closePreview()">Fechar</button>
-      </div>
-
-      <div class="preview-layout">
-        @if (getArticleCover(previewArticle)) {
-          <div class="preview-image-frame">
-            <img [src]="getArticleCover(previewArticle)!" [alt]="previewArticle.title" />
-          </div>
-        }
-
-        <div class="preview-copy">
-          <div class="preview-meta">
-            <span>{{ previewArticle.category?.name || 'Sem categoria' }}</span>
-            <span>{{ getStatusLabel(previewArticle) }}</span>
-            <span>{{ previewArticle.author?.name || 'Equipe Soft Chaos' }}</span>
-          </div>
-
-          <p>{{ previewArticle.content }}</p>
-
-          @if (previewArticle.externalVideoLinks?.length) {
-            <div class="preview-links">
-              <strong>Links externos</strong>
-              @for (link of previewArticle.externalVideoLinks; track link) {
-                <a [href]="link" target="_blank" rel="noopener noreferrer">{{ link }}</a>
-              }
-            </div>
-          }
-        </div>
-      </div>
-    </section>
-  }
 </section>
 

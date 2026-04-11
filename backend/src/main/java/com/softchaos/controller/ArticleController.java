@@ -17,12 +17,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -184,16 +187,24 @@ public class ArticleController {
             @RequestParam(defaultValue = "12") int size,
             @RequestParam(required = false) String sortBy,
             @RequestParam(defaultValue = "DESC") String direction,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @AuthenticationPrincipal UserPrincipal currentUser) {
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         String resolvedSortBy = resolveAdminSort(status, sortBy);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, resolvedSortBy));
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
         PagedResponse<ArticleSummaryResponse> articles = articleService.getAdminArticlesByStatus(
                 status,
                 currentUser.getId(),
                 currentUser.getRole(),
+                categoryId,
+                startDateTime,
+                endDateTime,
                 pageable
         );
         return ResponseEntity.ok(ApiResponse.success(articles));

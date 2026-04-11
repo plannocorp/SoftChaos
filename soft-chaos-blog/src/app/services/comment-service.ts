@@ -16,7 +16,27 @@ export class CommentService {
 
   constructor(private http: HttpClient) {}
 
-  getAdminComments(status: CommentFilterStatus = 'ALL', page = 0, size = 100): Observable<Comment[]> {
+  getAdminComments(
+    status: CommentFilterStatus = 'ALL',
+    page = 0,
+    size = 100,
+    articleQuery = '',
+    dateFrom = '',
+    dateTo = ''
+  ): Observable<Comment[]> {
+    return this.getAdminCommentsPage(status, page, size, articleQuery, dateFrom, dateTo).pipe(
+      map((response) => response.content)
+    );
+  }
+
+  getAdminCommentsPage(
+    status: CommentFilterStatus = 'ALL',
+    page = 0,
+    size = 12,
+    articleQuery = '',
+    dateFrom = '',
+    dateTo = ''
+  ): Observable<PagedResponse<Comment>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
@@ -25,8 +45,23 @@ export class CommentService {
       params = params.set('status', status);
     }
 
+    if (articleQuery.trim()) {
+      params = params.set('article', articleQuery.trim());
+    }
+
+    if (dateFrom) {
+      params = params.set('dateFrom', dateFrom);
+    }
+
+    if (dateTo) {
+      params = params.set('dateTo', dateTo);
+    }
+
     return this.http.get<{ data: PagedResponse<BackendCommentResponse> }>(`${this.apiUrl}/admin`, { params }).pipe(
-      map((response) => response.data.content.map((comment) => this.mapToFrontend(comment)))
+      map((response) => ({
+        ...response.data,
+        content: response.data.content.map((comment) => this.mapToFrontend(comment)),
+      }))
     );
   }
 

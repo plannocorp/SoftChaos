@@ -35,6 +35,12 @@ public class MediaService {
 
     private static final int MAX_IMAGE_MEDIA_PER_ARTICLE = 5;
     private static final Set<Media.MediaType> IMAGE_MEDIA_TYPES = Set.of(Media.MediaType.IMAGE);
+    private static final Set<String> ALLOWED_IMAGE_CONTENT_TYPES = Set.of(
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp"
+    );
 
     private final MediaRepository mediaRepository;
     private final ArticleRepository articleRepository;
@@ -60,7 +66,7 @@ public class MediaService {
         }
 
         if (request.getType() == Media.MediaType.VIDEO) {
-            throw new BadRequestException("Upload direto de videos foi desativado. Use links do YouTube ou Instagram no artigo.");
+            throw new BadRequestException("Upload direto de videos foi desativado. Use links externos no artigo.");
         }
 
         String contentType = file.getContentType();
@@ -80,7 +86,14 @@ public class MediaService {
             String originalFilename = file.getOriginalFilename() != null
                     ? file.getOriginalFilename()
                     : "arquivo";
-            String extension = FilenameUtils.getExtension(originalFilename);
+            String extension = request.getType() == Media.MediaType.IMAGE
+                    ? detectImageExtension(file.getBytes())
+                    : FilenameUtils.getExtension(originalFilename);
+
+            if (extension == null || extension.isBlank()) {
+                throw new BadRequestException("Imagem invalida. Envie um arquivo JPEG, PNG, GIF ou WEBP.");
+            }
+
             String uniqueFilename = extension == null || extension.isBlank()
                     ? UUID.randomUUID().toString()
                     : UUID.randomUUID() + "." + extension;
@@ -223,7 +236,7 @@ public class MediaService {
         }
 
         return switch (mediaType) {
-            case IMAGE -> contentType.startsWith("image/");
+            case IMAGE -> ALLOWED_IMAGE_CONTENT_TYPES.contains(contentType.toLowerCase());
             case VIDEO -> contentType.startsWith("video/");
             case DOCUMENT -> contentType.equals("application/pdf")
                     || contentType.equals("application/msword")
@@ -231,6 +244,33 @@ public class MediaService {
                     || contentType.equals("application/vnd.ms-excel")
                     || contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         };
+    }
+
+    private String detectImageExtension(byte[] bytes) {
+        if (bytes == null || bytes.length < 12) {
+            return null;
+        }
+
+        if (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xD8 && bytes[2] == (byte) 0xFF) {
+            return "jpg";
+        }
+
+        if (bytes[0] == (byte) 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47
+                && bytes[4] == 0x0D && bytes[5] == 0x0A && bytes[6] == 0x1A && bytes[7] == 0x0A) {
+            return "png";
+        }
+
+        if (bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46
+                && bytes[3] == 0x38 && (bytes[4] == 0x37 || bytes[4] == 0x39) && bytes[5] == 0x61) {
+            return "gif";
+        }
+
+        if (bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46
+                && bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50) {
+            return "webp";
+        }
+
+        return null;
     }
 
     private void validateImageLimit(Long articleId, Media.MediaType mediaType) {

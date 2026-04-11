@@ -241,13 +241,16 @@ public class ArticleService {
             Article.Status status,
             Long userId,
             User.Role role,
+            Long categoryId,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
             Pageable pageable
     ) {
         log.info("Listando artigos do painel. Status: {}, Usuario: {}, Role: {}", status, userId, role);
 
         Page<Article> articlesPage = role == User.Role.AUTHOR
-                ? articleRepository.findByAuthorIdAndStatus(userId, status, pageable)
-                : articleRepository.findByStatus(status, pageable);
+                ? articleRepository.findByAuthorIdAndStatusWithFilters(userId, status, categoryId, startDate, endDate, pageable)
+                : articleRepository.findByStatusWithFilters(status, categoryId, startDate, endDate, pageable);
 
         return buildPagedSummaryResponse(articlesPage);
     }
@@ -392,7 +395,7 @@ public class ArticleService {
                 ));
 
         if (sanitizedLinks.size() > 5) {
-            throw new BadRequestException("Voce pode adicionar no maximo 5 links externos de video");
+            throw new BadRequestException("Voce pode adicionar no maximo 5 links externos");
         }
 
         sanitizedLinks.forEach(this::validateExternalVideoLink);
@@ -402,21 +405,17 @@ public class ArticleService {
     private void validateExternalVideoLink(String link) {
         try {
             URI uri = new URI(link);
+            String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
             String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(Locale.ROOT);
 
-            boolean supportedHost = host.equals("youtube.com")
-                    || host.equals("www.youtube.com")
-                    || host.equals("m.youtube.com")
-                    || host.equals("youtu.be")
-                    || host.equals("www.youtu.be")
-                    || host.equals("instagram.com")
-                    || host.equals("www.instagram.com");
+            boolean supportedScheme = scheme.equals("http") || scheme.equals("https");
+            boolean safeUrl = supportedScheme && !host.isBlank() && uri.getUserInfo() == null;
 
-            if (!supportedHost) {
-                throw new BadRequestException("Use apenas links do YouTube ou Instagram");
+            if (!safeUrl) {
+                throw new BadRequestException("Use apenas links externos validos com http ou https");
             }
         } catch (URISyntaxException ex) {
-            throw new BadRequestException("Informe links externos validos para os videos");
+            throw new BadRequestException("Informe links externos validos");
         }
     }
 

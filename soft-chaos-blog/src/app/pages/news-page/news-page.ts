@@ -16,7 +16,7 @@ import { ProgressiveImage } from '../../components/shared/progressive-image/prog
 
 interface ExternalVideoLinkView {
   url: string;
-  platform: 'YouTube' | 'Instagram' | 'Video';
+  platform: 'YouTube' | 'Instagram' | 'Link';
   label: string;
   previewImageUrl?: string;
   modalEmbedUrl?: SafeResourceUrl;
@@ -289,10 +289,19 @@ export class NewsPage implements OnInit, OnDestroy {
 
     return {
       url: normalizedLink,
-      platform: 'Video',
-      label: 'Abrir video',
-      previewImageUrl: 'https://placehold.co/1200x675/111111/ffffff?text=Video',
+      platform: 'Link',
+      label: this.buildGenericExternalLinkLabel(normalizedLink),
+      previewImageUrl: 'https://placehold.co/1200x675/111111/ffffff?text=Link',
     };
+  }
+
+  private buildGenericExternalLinkLabel(link: string): string {
+    try {
+      const parsedUrl = new URL(link);
+      return `Abrir ${parsedUrl.hostname.replace(/^www\./, '')}`;
+    } catch {
+      return 'Abrir link';
+    }
   }
 
   private buildYoutubeEmbedUrl(link: string): string | null {

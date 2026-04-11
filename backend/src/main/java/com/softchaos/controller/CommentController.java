@@ -13,10 +13,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -69,11 +72,20 @@ public class CommentController {
     @Operation(summary = "Comentarios do painel", description = "Lista comentarios por status para moderacao")
     public ResponseEntity<ApiResponse<PagedResponse<CommentResponse>>> getAdminComments(
             @RequestParam(required = false) CommentStatus status,
+            @RequestParam(required = false) String article,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "100") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        PagedResponse<CommentResponse> comments = commentService.getAdminComments(status, pageable);
+        PagedResponse<CommentResponse> comments = commentService.getAdminComments(
+                status,
+                article,
+                dateFrom != null ? dateFrom.atStartOfDay() : null,
+                dateTo != null ? dateTo.plusDays(1).atStartOfDay() : null,
+                pageable
+        );
         return ResponseEntity.ok(ApiResponse.success(comments));
     }
 

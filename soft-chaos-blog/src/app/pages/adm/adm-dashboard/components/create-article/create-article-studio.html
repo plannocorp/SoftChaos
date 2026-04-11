@@ -36,7 +36,24 @@
 
   @if (loadingArticle) {
     <div class="progress-message">Carregando artigo para edicao...</div>
-  } @else {
+  }
+
+  @if (pendingExistingMediaRemoval) {
+    <section class="confirm-panel">
+      <div>
+        <p class="eyebrow">Confirmar remocao</p>
+        <h3>Remover imagem da galeria</h3>
+        <p>Esta imagem sera removida do artigo. A capa sera ajustada automaticamente se ela estiver em uso.</p>
+      </div>
+
+      <div class="confirm-actions">
+        <button type="button" class="btn-secondary" (click)="cancelRemoveExistingMedia()">Cancelar</button>
+        <button type="button" class="remove-button" (click)="confirmRemoveExistingMedia()">Remover imagem</button>
+      </div>
+    </section>
+  }
+
+  @if (!loadingArticle) {
     <form id="articleForm" class="article-form" (ngSubmit)="saveArticle()">
       <section class="editor-layout">
         <div class="editor-main">
@@ -142,7 +159,7 @@
                           {{ selectedExistingCoverUrl === media.url ? 'Capa selecionada' : 'Usar como capa' }}
                         </button>
 
-                        <button type="button" class="remove-button" (click)="removeExistingMedia(media.id)">
+                        <button type="button" class="remove-button" (click)="requestRemoveExistingMedia(media)">
                           Remover
                         </button>
                       </div>
@@ -226,28 +243,28 @@
 
           <article class="editor-card">
             <div class="card-heading">
-              <p class="eyebrow">Videos externos</p>
-              <h3>YouTube e Instagram</h3>
-              <p class="card-description">Links limpos e bem distribuídos para complementar a materia.</p>
+              <p class="eyebrow">Links externos</p>
+              <h3>Referencias e redes</h3>
+              <p class="card-description">Use links de outros sites, YouTube, Instagram ou qualquer referencia complementar da materia.</p>
             </div>
 
             <div class="link-stack">
               @for (link of externalVideoLinks; track $index; let index = $index) {
                 <div class="link-card">
                   <div class="form-group full">
-                    <label [for]="'externalVideoLink-' + index">Link do video {{ index + 1 }}</label>
+                    <label [for]="'externalVideoLink-' + index">Link externo {{ index + 1 }}</label>
                     <input
                       [id]="'externalVideoLink-' + index"
                       type="url"
                       [name]="'externalVideoLink-' + index"
                       [(ngModel)]="externalVideoLinks[index]"
                       (blur)="normalizeVideoLink(index)"
-                      placeholder="https://youtube.com/... ou https://instagram.com/..."
+                      placeholder="https://site.com/materia ou https://instagram.com/..."
                     />
                   </div>
 
                   <div class="link-actions">
-                    <span class="link-hint">Cole links da materia para abrir no YouTube ou Instagram.</span>
+                    <span class="link-hint">Cole qualquer link http/https que complemente a materia.</span>
 
                     <button
                       type="button"

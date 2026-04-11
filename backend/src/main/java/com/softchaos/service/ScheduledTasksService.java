@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class ScheduledTasksService {
 
     private final ArticleService articleService;
+    private final CommentService commentService;
 
     /**
      * Publica artigos agendados
@@ -36,6 +37,21 @@ public class ScheduledTasksService {
         log.info("Executando limpeza de tokens expirados");
 
         // TODO: Implementar limpeza de tokens com mais de 7 dias
+    }
+
+    /**
+     * Remove comentarios rejeitados e apagados apos 10 dias.
+     * Executa diariamente as 2h30.
+     */
+    @Scheduled(cron = "0 30 2 * * *")
+    public void purgeOldModeratedComments() {
+        log.info("Executando limpeza de comentarios rejeitados/apagados");
+
+        try {
+            commentService.deleteRejectedAndDeletedOlderThan(10);
+        } catch (Exception e) {
+            log.error("Erro ao limpar comentarios rejeitados/apagados", e);
+        }
     }
 
     /**

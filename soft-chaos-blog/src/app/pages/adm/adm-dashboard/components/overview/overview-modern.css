@@ -98,6 +98,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -178,5 +179,340 @@
   .metrics-grid,
   .insights-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+.command-center,
+.pipeline-card,
+.moderation-card,
+.team-card {
+  border-radius: 28px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.07);
+}
+
+.command-center {
+  padding: 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 24px;
+  align-items: end;
+  background:
+    linear-gradient(135deg, rgba(17, 24, 39, 0.97), rgba(154, 61, 104, 0.92)),
+    #111827;
+  color: #fff;
+}
+
+.command-center .eyebrow,
+.command-center p {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.command-copy h2 {
+  margin: 8px 0 12px;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 4vw, 4.2rem);
+  line-height: 0.95;
+  overflow-wrap: anywhere;
+}
+
+.command-copy p:last-child {
+  max-width: 720px;
+  line-height: 1.7;
+}
+
+.command-score {
+  padding: 22px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.command-score span,
+.command-score small,
+.metric-card small,
+.team-card span,
+.moderation-total span,
+.pipeline-row span {
+  display: block;
+  color: #64748b;
+}
+
+.command-score strong {
+  display: block;
+  margin: 8px 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 3.8rem;
+  line-height: 0.95;
+}
+
+.command-score span,
+.command-score small {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.metrics-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 150px;
+  padding: 22px;
+  border-radius: 24px;
+}
+
+.metric-card::after {
+  content: '';
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 54px;
+  height: 8px;
+  border-radius: 999px;
+  background: #111827;
+  opacity: 0.12;
+}
+
+.metric-card.primary::after { background: #111827; }
+.metric-card.success::after { background: #639922; }
+.metric-card.warning::after { background: #d8241d; }
+.metric-card.info::after { background: #9a3d68; }
+
+.metric-card span {
+  color: #475569;
+  font-weight: 700;
+}
+
+.metric-card strong {
+  display: block;
+  margin: 14px 0 8px;
+  font-size: clamp(2.6rem, 4vw, 4rem);
+  line-height: 0.9;
+}
+
+.operations-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 18px;
+}
+
+.pipeline-card,
+.moderation-card {
+  padding: 24px;
+}
+
+.panel-head strong {
+  color: #111827;
+}
+
+.pipeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pipeline-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.pipeline-row strong {
+  display: block;
+  color: #111827;
+}
+
+.pipeline-row b {
+  color: #111827;
+  font-size: 1.2rem;
+}
+
+.pipeline-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.pipeline-track span {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #111827, #9a3d68);
+}
+
+.moderation-total {
+  padding: 22px;
+  border-radius: 22px;
+  background: rgba(154, 61, 104, 0.08);
+}
+
+.moderation-total strong {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  line-height: 0.9;
+  color: #111827;
+}
+
+.moderation-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.moderation-split div {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.moderation-split strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.7rem;
+  color: #111827;
+}
+
+.moderation-note {
+  color: #475569;
+  line-height: 1.6;
+}
+
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ranking-item {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.rank-number {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #111827;
+  color: #fff;
+  font-weight: 800;
+}
+
+.ranking-item strong {
+  display: block;
+  color: #111827;
+  overflow-wrap: anywhere;
+}
+
+.ranking-item span:not(.rank-number) {
+  color: #64748b;
+  overflow-wrap: anywhere;
+}
+
+.ranking-item b {
+  color: #9a3d68;
+}
+
+.empty-list {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.04);
+  color: #64748b;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.team-card {
+  padding: 22px;
+}
+
+.team-card strong {
+  display: block;
+  margin: 10px 0 8px;
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  color: #111827;
+}
+
+@media screen and (max-width: 1100px) {
+  .command-center,
+  .metrics-grid,
+  .operations-grid,
+  .insights-grid,
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 680px) {
+  .command-center,
+  .pipeline-card,
+  .moderation-card,
+  .panel-card,
+  .team-card {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .command-score strong,
+  .moderation-total strong {
+    font-size: 3rem;
+  }
+
+  .ranking-item {
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .ranking-item b {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .rank-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+
+  .panel-head {
+    align-items: flex-start;
+  }
+
+  .toggle-tabs {
+    width: 100%;
+  }
+
+  .toggle-tabs button {
+    flex: 1;
+    min-width: 0;
+    padding-inline: 10px;
+  }
+
+  .activity-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .activity-item aside {
+    text-align: left;
   }
 }

@@ -39,6 +39,38 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Page<Article> findByStatus(Article.Status status, Pageable pageable);
 
+    @Query("""
+            SELECT a FROM Article a
+            WHERE a.status = :status
+              AND (:categoryId IS NULL OR a.category.id = :categoryId)
+              AND (:startDate IS NULL OR a.publishedAt >= :startDate)
+              AND (:endDate IS NULL OR a.publishedAt < :endDate)
+            """)
+    Page<Article> findByStatusWithFilters(
+            @Param("status") Article.Status status,
+            @Param("categoryId") Long categoryId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable
+    );
+
+    @Query("""
+            SELECT a FROM Article a
+            WHERE a.author.id = :authorId
+              AND a.status = :status
+              AND (:categoryId IS NULL OR a.category.id = :categoryId)
+              AND (:startDate IS NULL OR a.publishedAt >= :startDate)
+              AND (:endDate IS NULL OR a.publishedAt < :endDate)
+            """)
+    Page<Article> findByAuthorIdAndStatusWithFilters(
+            @Param("authorId") Long authorId,
+            @Param("status") Article.Status status,
+            @Param("categoryId") Long categoryId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable
+    );
+
     /**
      * Buscar por status com ordenação por visualizações
      */

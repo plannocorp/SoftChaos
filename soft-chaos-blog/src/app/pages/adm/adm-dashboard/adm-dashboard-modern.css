@@ -1,25 +1,11 @@
 ﻿.dashboard-shell {
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 290px minmax(0, 1fr);
-  background:
-    radial-gradient(circle at top left, rgba(232, 137, 186, 0.18), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(137, 182, 30, 0.15), transparent 24%),
-    linear-gradient(180deg, #fff8fb 0%, #f8fafc 36%, #f3f7ed 100%);
+  display: block;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 48%, #f7faf3 100%);
 }
 
 .dashboard-sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  padding: 24px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  background: rgba(255, 255, 255, 0.96);
-  border-right: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 20px 0 60px rgba(15, 23, 42, 0.04);
-  z-index: 30;
+  display: none;
 }
 
 .sidebar-brand,
@@ -93,7 +79,7 @@
 
 .sidebar-nav a {
   padding: 14px 16px;
-  border-radius: 20px;
+  border-radius: 14px;
   border: 1px solid transparent;
   background: rgba(255, 255, 255, 0.88);
   color: #111827;
@@ -114,7 +100,13 @@
 .sidebar-nav a.active {
   transform: translateY(-2px);
   border-color: rgba(154, 61, 104, 0.22);
-  background: linear-gradient(135deg, rgba(255, 247, 251, 0.96), rgba(250, 252, 255, 0.96));
+  background: #111827;
+  color: #fff;
+}
+
+.sidebar-nav a:hover small,
+.sidebar-nav a.active small {
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .sidebar-logout,
@@ -142,18 +134,22 @@
 
 .dashboard-topbar,
 .dashboard-content {
-  border-radius: 28px;
+  border-radius: 18px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.06);
 }
 
 .dashboard-topbar {
-  padding: 22px 24px;
+  width: min(1420px, calc(100vw - 40px));
+  margin: 0 auto;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
+  border-radius: 40px;
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .topbar-copy h2 {
@@ -170,14 +166,52 @@
   font-size: 0.95rem;
 }
 
-.topbar-actions {
+.topbar-actions,
+.topbar-nav {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+.topbar-nav {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.topbar-nav a {
+  position: relative;
+  color: #334155;
+  font-family: 'Lora', serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.topbar-nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 0;
+  height: 2px;
+  background: #111827;
+  transition: width 0.2s ease;
+}
+
+.topbar-nav a:hover,
+.topbar-nav a.active {
+  color: #111827;
+}
+
+.topbar-nav a:hover::after,
+.topbar-nav a.active::after {
+  width: 100%;
+}
+
 .primary-action {
-  background: linear-gradient(135deg, #111827, #9a3d68);
+  background: #111827;
   color: #fff;
 }
 
@@ -188,6 +222,8 @@
 }
 
 .dashboard-content {
+  width: min(1420px, calc(100vw - 40px));
+  margin: 0 auto;
   flex: 1;
   padding: 18px;
 }
@@ -219,10 +255,27 @@
   .dashboard-topbar {
     flex-direction: column;
     align-items: stretch;
+    width: min(100%, calc(100vw - 28px));
+    border-radius: 28px;
   }
 
-  .topbar-actions {
+  .topbar-actions,
+  .topbar-nav {
     justify-content: space-between;
+  }
+
+  .topbar-nav {
+    display: none;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .topbar-nav.open {
+    display: flex;
+  }
+
+  .topbar-nav a {
+    padding: 10px 0;
   }
 
   .menu-button {
@@ -230,8 +283,12 @@
     justify-content: center;
   }
 
+  .dashboard-content {
+    width: min(100%, calc(100vw - 28px));
+  }
+
   .mobile-backdrop {
-    display: block;
+    display: none;
     position: fixed;
     inset: 0;
     background: rgba(15, 23, 42, 0.34);

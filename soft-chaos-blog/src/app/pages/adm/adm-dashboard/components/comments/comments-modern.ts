@@ -29,25 +29,54 @@ export class CommentsModern implements OnInit {
   comments: Comment[] = [];
   filteredComments: Comment[] = [];
   selectedComment?: Comment;
+  expandedCommentId: number | null = null;
   activeStatus: CommentFilterStatus = 'ALL';
   searchTerm = '';
+  articleFilter = '';
+  dateFrom = '';
+  dateTo = '';
   error = '';
+  actionMessage = '';
   loading = false;
   actionLoadingId: number | null = null;
+  pendingDeleteComment?: Comment;
+  currentPage = 0;
+  pageSize = 8;
+  totalPages = 0;
+  totalElements = 0;
+  filterCounts: Record<CommentFilterStatus, number> = {
+    ALL: 0,
+    PENDING: 0,
+    APPROVED: 0,
+    REJECTED: 0,
+    DELETED: 0,
+  };
 
   constructor(private commentService: CommentService) {}
 
   ngOnInit(): void {
     this.loadComments();
+    this.loadFilterCounts();
   }
 
   loadComments(): void {
     this.loading = true;
     this.error = '';
 
-    this.commentService.getAdminComments('ALL').subscribe({
-      next: (comments) => {
-        this.comments = comments;
+    this.commentService.getAdminCommentsPage(
+      this.activeStatus,
+      this.currentPage,
+      this.pageSize,
+      this.articleFilter,
+      this.dateFrom,
+      this.dateTo
+    ).subscribe({
+      next: (response) => {
+        this.comments = response.content;
+        this.currentPage = response.pageNumber;
+        this.pageSize = response.pageSize;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
         this.applyFilters();
         this.loading = false;
       },
@@ -60,15 +89,45 @@ export class CommentsModern implements OnInit {
 
   setStatusFilter(status: CommentFilterStatus): void {
     this.activeStatus = status;
-    this.applyFilters();
+    this.currentPage = 0;
+    this.loadComments();
   }
 
   filterComments(): void {
     this.applyFilters();
   }
 
+  applyDashboardFilters(): void {
+    this.currentPage = 0;
+    this.loadFilterCounts();
+    this.loadComments();
+  }
+
+  clearDashboardFilters(): void {
+    this.articleFilter = '';
+    this.dateFrom = '';
+    this.dateTo = '';
+    this.searchTerm = '';
+    this.currentPage = 0;
+    this.loadFilterCounts();
+    this.loadComments();
+  }
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= this.totalPages || page === this.currentPage) {
+      return;
+    }
+
+    this.currentPage = page;
+    this.loadComments();
+  }
+
   viewComment(comment: Comment): void {
     this.selectedComment = comment;
+  }
+
+  handleCommentCardClick(comment: Comment): void {
+    this.viewComment(comment);
   }
 
   closePreview(): void {
@@ -77,10 +136,12 @@ export class CommentsModern implements OnInit {
 
   approveComment(comment: Comment): void {
     this.actionLoadingId = comment.id;
+    this.actionMessage = '';
 
     this.commentService.approveComment(comment.id).subscribe({
       next: (updatedComment) => {
         this.replaceComment(updatedComment);
+        this.actionMessage = 'Comentario aprovado e liberado na materia.';
       },
       error: (err: any) => {
         this.error = 'Erro ao aprovar comentario: ' + (err.error?.message || err.message);
@@ -91,10 +152,12 @@ export class CommentsModern implements OnInit {
 
   rejectComment(comment: Comment): void {
     this.actionLoadingId = comment.id;
+    this.actionMessage = '';
 
     this.commentService.rejectComment(comment.id).subscribe({
       next: (updatedComment) => {
         this.replaceComment(updatedComment);
+        this.actionMessage = 'Comentario rejeitado. Ele sera removido definitivamente depois de 10 dias.';
       },
       error: (err: any) => {
         this.error = 'Erro ao rejeitar comentario: ' + (err.error?.message || err.message);
@@ -103,8 +166,19 @@ export class CommentsModern implements OnInit {
     });
   }
 
-  deleteComment(comment: Comment): void {
-    if (!window.confirm('Deseja marcar este comentario como apagado?')) {
+  requestDeleteComment(comment: Comment): void {
+    this.pendingDeleteComment = comment;
+    this.actionMessage = '';
+  }
+
+  cancelDeleteComment(): void {
+    this.pendingDeleteComment = undefined;
+  }
+
+  confirmDeleteComment(): void {
+    const comment = this.pendingDeleteComment;
+
+    if (!comment) {
       return;
     }
 
@@ -117,6 +191,8 @@ export class CommentsModern implements OnInit {
           status: 'APAGADO',
           rawStatus: 'DELETED'
         });
+        this.pendingDeleteComment = undefined;
+        this.actionMessage = 'Comentario marcado como apagado. Ele sera removido definitivamente depois de 10 dias.';
       },
       error: (err: any) => {
         this.error = 'Erro ao apagar comentario: ' + (err.error?.message || err.message);
@@ -126,11 +202,7 @@ export class CommentsModern implements OnInit {
   }
 
   getFilterCount(status: CommentFilterStatus): number {
-    if (status === 'ALL') {
-      return this.comments.length;
-    }
-
-    return this.comments.filter((comment) => comment.rawStatus === status).length;
+    return this.filterCounts[status] ?? 0;
   }
 
   getArticleCover(comment: Comment): string | null {
@@ -160,11 +232,32 @@ export class CommentsModern implements OnInit {
     }
   }
 
+  private loadFilterCounts(): void {
+    this.filters.forEach((filter) => {
+      this.commentService.getAdminCommentsPage(
+        filter.status,
+        0,
+        1,
+        this.articleFilter,
+        this.dateFrom,
+        this.dateTo
+      ).subscribe({
+        next: (response) => {
+          this.filterCounts[filter.status] = response.totalElements;
+        },
+        error: () => {
+          this.filterCounts[filter.status] = 0;
+        }
+      });
+    });
+  }
+
   private replaceComment(updatedComment: Comment): void {
     this.comments = this.comments.map((comment) => comment.id === updatedComment.id ? updatedComment : comment);
     this.actionLoadingId = null;
     this.applyFilters();
     this.selectedComment = updatedComment;
+    this.loadFilterCounts();
   }
 }
 

@@ -6,9 +6,11 @@
 
 .page-head,
 .filter-row,
+.advanced-filters,
 .preview-panel,
 .state-card,
-.comment-card {
+.comment-card,
+.confirm-panel {
   border-radius: 24px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: rgba(255, 255, 255, 0.96);
@@ -73,6 +75,51 @@
   gap: 12px;
 }
 
+.advanced-filters {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: minmax(280px, 1.6fr) minmax(160px, 0.7fr) minmax(160px, 0.7fr) auto;
+  align-items: end;
+  gap: 14px;
+}
+
+.advanced-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.advanced-filters span {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4a4a4a;
+}
+
+.advanced-filters input {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+}
+
+.advanced-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.advanced-actions button {
+  border-radius: 999px;
+  padding: 12px 14px;
+  background: rgba(15, 23, 42, 0.07);
+  color: #111827;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .filter-chip {
   min-width: 132px;
   padding: 14px 16px;
@@ -103,19 +150,25 @@
   background: linear-gradient(135deg, rgba(255, 246, 251, 0.98), rgba(250, 252, 255, 0.98));
 }
 
-.comments-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
-  gap: 18px;
-}
-
 .comment-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 16px;
 }
 
 .comment-card {
+  position: relative;
+  overflow: hidden;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 260px;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.comments-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -123,6 +176,17 @@
 
 .comment-card.selected {
   border-color: rgba(154, 61, 104, 0.24);
+}
+
+.comment-card:hover,
+.comment-card:focus-visible,
+.comment-card.details-open {
+  transform: translateY(-2px);
+  border-color: rgba(154, 61, 104, 0.24);
+}
+
+.comment-details {
+  display: none;
 }
 
 .comment-top,
@@ -147,6 +211,7 @@
 }
 
 .comment-top b,
+.comment-details > b,
 .preview-meta b {
   border-radius: 999px;
   padding: 8px 12px;
@@ -234,6 +299,7 @@
 }
 
 .comment-actions button,
+.comment-actions a,
 .preview-actions button,
 .preview-close {
   border-radius: 999px;
@@ -264,10 +330,18 @@
 }
 
 .preview-panel {
+  position: fixed;
+  top: 92px;
+  right: 24px;
+  z-index: 80;
+  width: min(620px, calc(100vw - 48px));
+  max-height: calc(100vh - 118px);
+  overflow: auto;
   padding: 22px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.22);
 }
 
 .preview-head {
@@ -275,6 +349,20 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
+}
+
+.preview-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.preview-head-actions b {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .preview-head h3 {
@@ -307,8 +395,119 @@
   color: #b91c1c;
 }
 
+.state-card.info {
+  border-color: rgba(154, 61, 104, 0.18);
+  background: linear-gradient(135deg, rgba(255, 246, 251, 0.98), rgba(248, 250, 252, 0.98));
+  color: #334155;
+  font-weight: 700;
+}
+
+.confirm-panel {
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-color: rgba(185, 28, 28, 0.18);
+  background:
+    linear-gradient(135deg, rgba(254, 242, 242, 0.98), rgba(255, 255, 255, 0.98));
+}
+
+.confirm-panel h3 {
+  margin: 8px 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  color: #111827;
+}
+
+.confirm-panel p:last-child {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.pagination-bar {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.05);
+}
+
+.pagination-bar span {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.pagination-bar div {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination-bar button {
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.07);
+  color: #111827;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pagination-bar button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.details-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.38);
+  backdrop-filter: blur(8px);
+}
+
+.details-modal {
+  width: min(660px, 100%);
+  max-height: min(720px, calc(100vh - 48px));
+  overflow: auto;
+  position: relative;
+  border-radius: 28px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 34px 90px rgba(15, 23, 42, 0.28);
+}
+
+.modal-close {
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.06);
+  color: #111827;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.modal-copy {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 @media screen and (max-width: 1100px) {
-  .comments-layout {
+  .comment-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -319,19 +518,69 @@
     align-items: stretch;
   }
 
+  .confirm-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .confirm-actions {
+    justify-content: stretch;
+  }
+
+  .confirm-actions button {
+    flex: 1;
+  }
+
   .search-box {
     min-width: 0;
   }
 
-  .publication-card,
-  .preview-publication {
+  .advanced-filters {
     grid-template-columns: 1fr;
+  }
+
+  .advanced-actions button {
+    flex: 1;
+  }
+
+  .publication-card,
+  .preview-publication,
+  .pagination-bar {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .publication-card img,
   .preview-publication img {
     width: 100%;
     height: 180px;
+  }
+
+  .preview-panel {
+    inset: auto 12px 12px;
+    width: auto;
+    max-height: 82vh;
+  }
+
+  .details-backdrop {
+    align-items: end;
+    padding: 12px;
+  }
+
+  .details-modal {
+    max-height: 86vh;
+    border-radius: 24px;
+  }
+
+  .modal-copy {
+    padding: 18px;
+  }
+
+  .preview-head,
+  .preview-head-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 

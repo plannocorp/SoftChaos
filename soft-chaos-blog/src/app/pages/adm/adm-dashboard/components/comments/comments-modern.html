@@ -32,141 +32,211 @@
     }
   </div>
 
+  <div class="advanced-filters" aria-label="Filtros de comentarios">
+    <label>
+      <span>Artigo</span>
+      <input
+        type="text"
+        name="articleFilter"
+        [(ngModel)]="articleFilter"
+        (keyup.enter)="applyDashboardFilters()"
+        placeholder="Titulo ou slug da materia"
+      />
+    </label>
+
+    <label>
+      <span>De</span>
+      <input type="date" name="dateFrom" [(ngModel)]="dateFrom" (change)="applyDashboardFilters()" />
+    </label>
+
+    <label>
+      <span>Ate</span>
+      <input type="date" name="dateTo" [(ngModel)]="dateTo" (change)="applyDashboardFilters()" />
+    </label>
+
+    <div class="advanced-actions">
+      <button type="button" class="preview" (click)="applyDashboardFilters()">Aplicar filtros</button>
+      <button type="button" (click)="clearDashboardFilters()">Limpar filtros</button>
+    </div>
+  </div>
+
   @if (error) {
     <div class="state-card error">{{ error }}</div>
   }
 
-  <div class="comments-layout">
-    <div class="comments-list">
-      @if (loading) {
-        <div class="state-card">Carregando comentarios...</div>
-      } @else if (!filteredComments.length) {
-        <div class="state-card">Nenhum comentario encontrado para este filtro.</div>
-      } @else {
-        <div class="comment-grid">
-          @for (comment of filteredComments; track comment.id) {
-            <article class="comment-card" [class.selected]="selectedComment?.id === comment.id">
+  @if (actionMessage) {
+    <div class="state-card info">{{ actionMessage }}</div>
+  }
+
+  @if (pendingDeleteComment) {
+    <section class="confirm-panel">
+      <div>
+        <p class="eyebrow">Confirmar exclusao</p>
+        <h3>Apagar comentario de {{ pendingDeleteComment.author }}</h3>
+        <p>Este comentario sera marcado como apagado agora e removido definitivamente depois de 10 dias.</p>
+      </div>
+
+      <div class="confirm-actions">
+        <button type="button" class="preview" (click)="cancelDeleteComment()">Cancelar</button>
+        <button
+          type="button"
+          class="delete"
+          [disabled]="actionLoadingId === pendingDeleteComment.id"
+          (click)="confirmDeleteComment()"
+        >
+          {{ actionLoadingId === pendingDeleteComment.id ? 'Apagando...' : 'Apagar comentario' }}
+        </button>
+      </div>
+    </section>
+  }
+
+  <div class="comments-list">
+    @if (loading) {
+      <div class="state-card">Carregando comentarios...</div>
+    } @else if (!filteredComments.length) {
+      <div class="state-card">Nenhum comentario encontrado para este filtro.</div>
+    } @else {
+      <div class="comment-grid">
+        @for (comment of filteredComments; track comment.id) {
+          <article
+            class="comment-card"
+            [class.selected]="selectedComment?.id === comment.id"
+            [class.details-open]="expandedCommentId === comment.id"
+            tabindex="0"
+            role="button"
+            (click)="handleCommentCardClick(comment)"
+          >
               <div class="comment-top">
                 <div>
                   <strong>{{ comment.author }}</strong>
                   <span>{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
-                <b [ngClass]="comment.rawStatus.toLowerCase()">{{ comment.status }}</b>
-              </div>
-
-              <div class="publication-card">
-                @if (getArticleCover(comment)) {
-                  <img [src]="getArticleCover(comment)!" [alt]="comment.articleTitle" />
-                }
-
-                <div class="publication-copy">
-                  <small>Artigo relacionado</small>
-                  <strong>{{ comment.articleTitle }}</strong>
-                  <span>{{ comment.email }}</span>
-                </div>
               </div>
 
               <p class="comment-text">{{ comment.content }}</p>
 
-              <div class="comment-actions">
-                <button type="button" class="preview" (click)="viewComment(comment)">Visualizar</button>
+              <div class="comment-details">
+                <b [ngClass]="comment.rawStatus.toLowerCase()">{{ comment.status }}</b>
 
-                @if (comment.rawStatus !== 'APPROVED') {
-                  <button
-                    type="button"
-                    class="approve"
-                    [disabled]="actionLoadingId === comment.id"
-                    (click)="approveComment(comment)"
-                  >
-                    Aprovar
-                  </button>
-                }
+                <div class="publication-card">
+                  @if (getArticleCover(comment)) {
+                    <img [src]="getArticleCover(comment)!" [alt]="comment.articleTitle" />
+                  }
 
-                @if (comment.rawStatus !== 'REJECTED') {
-                  <button
-                    type="button"
-                    class="reject"
-                    [disabled]="actionLoadingId === comment.id"
-                    (click)="rejectComment(comment)"
-                  >
-                    Rejeitar
-                  </button>
-                }
+                  <div class="publication-copy">
+                    <small>Artigo relacionado</small>
+                    <strong>{{ comment.articleTitle }}</strong>
+                    <span>{{ comment.email }}</span>
+                  </div>
+                </div>
 
-                @if (comment.rawStatus !== 'DELETED') {
-                  <button
-                    type="button"
-                    class="delete"
-                    [disabled]="actionLoadingId === comment.id"
-                    (click)="deleteComment(comment)"
-                  >
-                    Apagar
-                  </button>
-                }
+                <div class="comment-actions">
+                  @if (getPublicationLink(comment)) {
+                    <a class="preview" [href]="getPublicationLink(comment)!" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">
+                      Abrir materia
+                    </a>
+                  }
+
+                  @if (comment.rawStatus !== 'APPROVED') {
+                    <button
+                      type="button"
+                      class="approve"
+                      [disabled]="actionLoadingId === comment.id"
+                      (click)="approveComment(comment); $event.stopPropagation()"
+                    >
+                      Aprovar
+                    </button>
+                  }
+
+                  @if (comment.rawStatus !== 'REJECTED') {
+                    <button
+                      type="button"
+                      class="reject"
+                      [disabled]="actionLoadingId === comment.id"
+                      (click)="rejectComment(comment); $event.stopPropagation()"
+                    >
+                      Rejeitar
+                    </button>
+                  }
+
+                  @if (comment.rawStatus !== 'DELETED') {
+                    <button
+                      type="button"
+                      class="delete"
+                      [disabled]="actionLoadingId === comment.id"
+                      (click)="requestDeleteComment(comment); $event.stopPropagation()"
+                    >
+                      Apagar
+                    </button>
+                  }
+                </div>
               </div>
-            </article>
-          }
-        </div>
-      }
-    </div>
+          </article>
+        }
+      </div>
 
-    <aside class="preview-panel">
-      @if (!selectedComment) {
-        <div class="preview-empty">
-          <p class="eyebrow">Visualizacao</p>
-          <h3>Selecione um comentario</h3>
-          <p>Ao clicar em visualizar, voce ve o comentario inteiro e o artigo relacionado ao lado.</p>
-        </div>
-      } @else {
-        <div class="preview-head">
+      @if (totalPages > 1) {
+        <nav class="pagination-bar" aria-label="Paginacao de comentarios">
+          <span>Pagina {{ currentPage + 1 }} de {{ totalPages }} · {{ totalElements }} comentarios</span>
           <div>
-            <p class="eyebrow">Comentario selecionado</p>
-            <h3>{{ selectedComment.author }}</h3>
-            <span>{{ selectedComment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            <button type="button" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">Anterior</button>
+            <button type="button" [disabled]="currentPage + 1 >= totalPages" (click)="goToPage(currentPage + 1)">Proxima</button>
+          </div>
+        </nav>
+      }
+    }
+  </div>
+
+  @if (selectedComment) {
+    <section class="details-backdrop" (click)="closePreview()">
+      <article class="details-modal" (click)="$event.stopPropagation()">
+        <div class="modal-copy">
+          <div class="preview-head">
+            <div>
+              <p class="eyebrow">Comentario selecionado</p>
+              <h3>{{ selectedComment.author }}</h3>
+              <span>{{ selectedComment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+
+            <div class="preview-head-actions">
+              <b [ngClass]="selectedComment.rawStatus.toLowerCase()">{{ selectedComment.status }}</b>
+              <button type="button" class="modal-close" (click)="closePreview()">Fechar</button>
+            </div>
           </div>
 
-          <button type="button" class="preview-close" (click)="closePreview()">Fechar</button>
-        </div>
+          <div class="publication-card">
+            @if (getArticleCover(selectedComment)) {
+              <img [src]="getArticleCover(selectedComment)!" [alt]="selectedComment.articleTitle" />
+            }
 
-        <div class="preview-publication">
-          @if (getArticleCover(selectedComment)) {
-            <img [src]="getArticleCover(selectedComment)!" [alt]="selectedComment.articleTitle" />
-          }
+            <div class="publication-copy">
+              <small>Artigo relacionado</small>
+              <strong>{{ selectedComment.articleTitle }}</strong>
+              <span>{{ selectedComment.email }}</span>
+            </div>
+          </div>
 
-          <div>
-            <small>Publicado em</small>
-            <strong>{{ selectedComment.articleTitle }}</strong>
+          <p class="comment-text">{{ selectedComment.content }}</p>
 
+          <div class="comment-actions">
             @if (getPublicationLink(selectedComment)) {
-              <a [href]="getPublicationLink(selectedComment)!" target="_blank" rel="noopener noreferrer">
+              <a class="preview" [href]="getPublicationLink(selectedComment)!" target="_blank" rel="noopener noreferrer">
                 Abrir materia
               </a>
             }
+
+            @if (selectedComment.rawStatus !== 'APPROVED') {
+              <button type="button" class="approve" (click)="approveComment(selectedComment)">Aprovar</button>
+            }
+            @if (selectedComment.rawStatus !== 'REJECTED') {
+              <button type="button" class="reject" (click)="rejectComment(selectedComment)">Rejeitar</button>
+            }
+            @if (selectedComment.rawStatus !== 'DELETED') {
+              <button type="button" class="delete" (click)="requestDeleteComment(selectedComment)">Apagar</button>
+            }
           </div>
         </div>
-
-        <div class="preview-content">
-          <div class="preview-meta">
-            <span>{{ selectedComment.email }}</span>
-            <b [ngClass]="selectedComment.rawStatus.toLowerCase()">{{ selectedComment.status }}</b>
-          </div>
-
-          <p>{{ selectedComment.content }}</p>
-        </div>
-
-        <div class="preview-actions">
-          @if (selectedComment.rawStatus !== 'APPROVED') {
-            <button type="button" class="approve" (click)="approveComment(selectedComment)">Aprovar</button>
-          }
-          @if (selectedComment.rawStatus !== 'REJECTED') {
-            <button type="button" class="reject" (click)="rejectComment(selectedComment)">Rejeitar</button>
-          }
-          @if (selectedComment.rawStatus !== 'DELETED') {
-            <button type="button" class="delete" (click)="deleteComment(selectedComment)">Apagar</button>
-          }
-        </div>
-      }
-    </aside>
-  </div>
+      </article>
+    </section>
+  }
 </section>
-

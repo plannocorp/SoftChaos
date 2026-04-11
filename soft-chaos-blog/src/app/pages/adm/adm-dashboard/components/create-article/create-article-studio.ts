@@ -62,6 +62,7 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
   loadingArticle = false;
   currentArticleId: number | null = null;
   selectedExistingCoverUrl: string | null = null;
+  pendingExistingMediaRemoval: MediaItem | null = null;
   error = '';
   warningMessage = '';
   progressMessage = '';
@@ -232,14 +233,25 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
     this.ensureCoverSelection();
   }
 
-  async removeExistingMedia(mediaId: number): Promise<void> {
-    if (!window.confirm('Deseja remover esta imagem do artigo?')) {
+  requestRemoveExistingMedia(media: MediaItem): void {
+    this.pendingExistingMediaRemoval = media;
+  }
+
+  cancelRemoveExistingMedia(): void {
+    this.pendingExistingMediaRemoval = null;
+  }
+
+  async confirmRemoveExistingMedia(): Promise<void> {
+    const media = this.pendingExistingMediaRemoval;
+
+    if (!media) {
       return;
     }
 
     try {
-      await firstValueFrom(this.http.delete(`/api/media/${mediaId}`));
-      this.existingMedia = this.existingMedia.filter((media) => media.id !== mediaId);
+      await firstValueFrom(this.http.delete(`/api/media/${media.id}`));
+      this.existingMedia = this.existingMedia.filter((existingMedia) => existingMedia.id !== media.id);
+      this.pendingExistingMediaRemoval = null;
 
       if (this.selectedExistingCoverUrl && !this.existingMedia.find((media) => media.url === this.selectedExistingCoverUrl)) {
         this.selectedExistingCoverUrl = this.existingMedia[0]?.url || null;
@@ -352,9 +364,9 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
       return false;
     }
 
-    const invalidLink = normalizedLinks.find((link) => !this.isSupportedVideoLink(link));
+    const invalidLink = normalizedLinks.find((link) => !this.isSupportedExternalLink(link));
     if (invalidLink) {
-      this.error = 'Use apenas links validos do YouTube ou Instagram.';
+      this.error = 'Use apenas links externos validos com http ou https.';
       return false;
     }
 
@@ -520,18 +532,13 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
     return `https://${trimmedValue}`;
   }
 
-  private isSupportedVideoLink(link: string): boolean {
+  private isSupportedExternalLink(link: string): boolean {
     try {
       const parsedUrl = new URL(link);
-      const host = parsedUrl.hostname.toLowerCase();
-
-      return host === 'youtube.com'
-        || host === 'www.youtube.com'
-        || host === 'm.youtube.com'
-        || host === 'youtu.be'
-        || host === 'www.youtu.be'
-        || host === 'instagram.com'
-        || host === 'www.instagram.com';
+      return ['http:', 'https:'].includes(parsedUrl.protocol)
+        && Boolean(parsedUrl.hostname)
+        && !parsedUrl.username
+        && !parsedUrl.password;
     } catch {
       return false;
     }

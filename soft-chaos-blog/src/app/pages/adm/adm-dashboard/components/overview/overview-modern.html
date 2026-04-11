@@ -1,66 +1,143 @@
 <section class="overview-modern">
   @if (loading) {
-    <div class="state-card">Carregando estatisticas do painel...</div>
+    <div class="state-card">Carregando indicadores editoriais...</div>
   } @else if (error) {
     <div class="state-card error">{{ error }}</div>
   } @else if (stats) {
-    <section class="hero-grid">
-      <article class="hero-card highlight">
-        <p class="eyebrow">Publicacao</p>
-        <h2>{{ stats.totalArticles }}</h2>
-        <p>Total de artigos cadastrados no portal.</p>
-      </article>
+    <section class="command-center">
+      <div class="command-copy">
+        <p class="eyebrow">Central de controle</p>
+        <h2>Panorama editorial</h2>
+        <p>Visao objetiva da producao, publicacoes no ar, fila de agendamento e moderacao de comentarios.</p>
+      </div>
 
-      <article class="hero-card">
-        <p class="eyebrow">Comentarios</p>
-        <h2>{{ stats.totalComments }}</h2>
-        <p>{{ stats.pendingComments }} aguardando moderacao.</p>
-      </article>
-
-      <article class="hero-card">
-        <p class="eyebrow">Usuarios</p>
-        <h2>{{ stats.totalUsers }}</h2>
-        <p>{{ stats.activeUsers }} perfis ativos na operacao.</p>
-      </article>
+      <div class="command-score">
+        <span>Publicacao ativa</span>
+        <strong>{{ getPublicationRate() }}%</strong>
+        <small>{{ stats.publishedArticles }} de {{ stats.totalArticles }} artigos no ar</small>
+      </div>
     </section>
 
     <section class="metrics-grid">
-      <article class="metric-card">
-        <span>Publicados</span>
+      <article class="metric-card primary">
+        <span>Total de publicacoes</span>
+        <strong>{{ stats.totalArticles }}</strong>
+        <small>{{ stats.totalCategories }} categorias editoriais</small>
+      </article>
+      <article class="metric-card success">
+        <span>No ar</span>
         <strong>{{ stats.publishedArticles }}</strong>
+        <small>{{ getPublicationRate() }}% do acervo publicado</small>
       </article>
-      <article class="metric-card">
-        <span>Rascunhos</span>
+      <article class="metric-card warning">
+        <span>Em producao</span>
         <strong>{{ stats.draftArticles }}</strong>
+        <small>{{ getDraftRate() }}% em rascunho</small>
       </article>
-      <article class="metric-card">
-        <span>Agendados</span>
+      <article class="metric-card info">
+        <span>Programados</span>
         <strong>{{ stats.scheduledArticles }}</strong>
+        <small>{{ getScheduledRate() }}% na fila</small>
       </article>
-      <article class="metric-card">
-        <span>Aprovados</span>
-        <strong>{{ stats.approvedComments }}</strong>
+    </section>
+
+    <section class="operations-grid">
+      <article class="pipeline-card">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Pipeline</p>
+            <h3>Status das publicacoes</h3>
+          </div>
+          <strong>{{ stats.totalArticles }} artigos</strong>
+        </div>
+
+        <div class="pipeline-list">
+          <div class="pipeline-row published">
+            <div>
+              <strong>Publicado</strong>
+              <span>{{ stats.publishedArticles }} artigos disponiveis no blog</span>
+            </div>
+            <b>{{ getPublicationRate() }}%</b>
+          </div>
+          <div class="pipeline-track">
+            <span [style.width.%]="getPublicationRate()"></span>
+          </div>
+
+          <div class="pipeline-row draft">
+            <div>
+              <strong>Rascunho</strong>
+              <span>{{ stats.draftArticles }} artigos aguardando fechamento</span>
+            </div>
+            <b>{{ getDraftRate() }}%</b>
+          </div>
+          <div class="pipeline-track">
+            <span [style.width.%]="getDraftRate()"></span>
+          </div>
+
+          <div class="pipeline-row scheduled">
+            <div>
+              <strong>Agendado</strong>
+              <span>{{ stats.scheduledArticles }} artigos na fila programada</span>
+            </div>
+            <b>{{ getScheduledRate() }}%</b>
+          </div>
+          <div class="pipeline-track">
+            <span [style.width.%]="getScheduledRate()"></span>
+          </div>
+        </div>
+      </article>
+
+      <article class="moderation-card">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Moderacao</p>
+            <h3>Comentarios</h3>
+          </div>
+          <strong>{{ getModerationRate() }}% aprovados</strong>
+        </div>
+
+        <div class="moderation-total">
+          <strong>{{ stats.totalComments }}</strong>
+          <span>comentarios recebidos</span>
+        </div>
+
+        <div class="moderation-split">
+          <div>
+            <span>Pendentes</span>
+            <strong>{{ stats.pendingComments }}</strong>
+          </div>
+          <div>
+            <span>Aprovados</span>
+            <strong>{{ stats.approvedComments }}</strong>
+          </div>
+        </div>
+
+        <p class="moderation-note">{{ getPendingCommentsLabel() }} para revisar agora.</p>
       </article>
     </section>
 
     <section class="insights-grid">
-      <article class="panel-card">
+      <article class="panel-card top-performance">
         <div class="panel-head">
           <div>
             <p class="eyebrow">Performance</p>
-            <h3>Top artigos</h3>
+            <h3>Publicacoes em destaque</h3>
           </div>
+          <strong>{{ getTotalTopViews() }} views</strong>
         </div>
 
-        <div class="top-list">
+        <div class="ranking-list">
           @for (article of stats.topArticles; track article.id) {
-            <article class="top-item">
+            <article class="ranking-item">
+              <span class="rank-number">{{ $index + 1 }}</span>
               <div>
                 <strong>{{ article.title }}</strong>
                 <span>{{ article.authorName }}</span>
               </div>
               <b>{{ article.views }} views</b>
             </article>
+          } @empty {
+            <div class="empty-list">Ainda nao ha dados de visualizacao suficientes.</div>
           }
         </div>
       </article>
@@ -69,7 +146,7 @@
         <div class="panel-head">
           <div>
             <p class="eyebrow">Atividade</p>
-            <h3>Recentes</h3>
+            <h3>Movimentacao recente</h3>
           </div>
 
           <div class="toggle-tabs">
@@ -87,10 +164,12 @@
                   <span>{{ article.authorName }}</span>
                 </div>
                 <aside>
-                  <em>{{ article.status }}</em>
+                  <em>{{ getStatusLabel(article.status) }}</em>
                   <small>{{ article.createdAt | date:'dd/MM HH:mm' }}</small>
                 </aside>
               </article>
+            } @empty {
+              <div class="empty-list">Nenhuma movimentacao recente em artigos.</div>
             }
           </div>
         } @else {
@@ -102,13 +181,29 @@
                   <span>{{ comment.articleTitle }}</span>
                 </div>
                 <aside>
-                  <em>{{ comment.status }}</em>
+                  <em>{{ getStatusLabel(comment.status) }}</em>
                   <small>{{ comment.createdAt | date:'dd/MM HH:mm' }}</small>
                 </aside>
               </article>
+            } @empty {
+              <div class="empty-list">Nenhum comentario recente.</div>
             }
           </div>
         }
+      </article>
+    </section>
+
+    <section class="team-grid">
+      <article class="team-card">
+        <p class="eyebrow">Equipe</p>
+        <strong>{{ stats.activeUsers }}</strong>
+        <span>usuarios ativos de {{ stats.totalUsers }} cadastrados</span>
+      </article>
+
+      <article class="team-card">
+        <p class="eyebrow">Atenção</p>
+        <strong>{{ stats.inactiveUsers }}</strong>
+        <span>usuarios inativos</span>
       </article>
     </section>
   }

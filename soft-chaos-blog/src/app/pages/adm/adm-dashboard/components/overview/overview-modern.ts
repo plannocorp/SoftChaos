@@ -41,4 +41,71 @@ export class OverviewModern implements OnInit {
   setTab(tab: 'articles' | 'comments'): void {
     this.activeTab = tab;
   }
+
+  getPublicationRate(): number {
+    if (!this.stats?.totalArticles) {
+      return 0;
+    }
+
+    return Math.round((this.stats.publishedArticles / this.stats.totalArticles) * 100);
+  }
+
+  getDraftRate(): number {
+    if (!this.stats?.totalArticles) {
+      return 0;
+    }
+
+    return Math.round((this.stats.draftArticles / this.stats.totalArticles) * 100);
+  }
+
+  getScheduledRate(): number {
+    if (!this.stats?.totalArticles) {
+      return 0;
+    }
+
+    return Math.round((this.stats.scheduledArticles / this.stats.totalArticles) * 100);
+  }
+
+  getModerationRate(): number {
+    if (!this.stats?.totalComments) {
+      return 0;
+    }
+
+    return Math.round((this.stats.approvedComments / this.stats.totalComments) * 100);
+  }
+
+  getTotalTopViews(): number {
+    return this.stats?.topArticles.reduce((total, article) => total + article.views, 0) ?? 0;
+  }
+
+  getPendingCommentsLabel(): string {
+    const total = this.stats?.pendingComments ?? 0;
+    return total === 1 ? '1 comentario pendente' : `${total} comentarios pendentes`;
+  }
+
+  getStatusLabel(status: string): string {
+    const normalizedStatus = status?.toUpperCase();
+
+    if (normalizedStatus === 'PUBLISHED') {
+      return 'Publicado';
+    }
+
+    if (normalizedStatus === 'SCHEDULED') {
+      return 'Agendado';
+    }
+
+    if (normalizedStatus === 'ARCHIVED') {
+      return 'Arquivado';
+    }
+
+    if (normalizedStatus === 'APPROVED') {
+      return 'Aprovado';
+    }
+
+    if (normalizedStatus === 'PENDING') {
+      return 'Pendente';
+    }
+
+    return 'Rascunho';
+  }
 }
