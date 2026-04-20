@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { Dicas } from './dicas';
 
@@ -8,7 +11,8 @@ describe('Dicas', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Dicas]
+      imports: [Dicas],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()]
     })
     .compileComponents();
 

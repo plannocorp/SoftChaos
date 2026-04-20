@@ -31,7 +31,7 @@ Soft Chaos e um portal editorial full stack para publicacao de noticias, artigos
 ```text
 SoftChaos/
 ├── backend/              # API Spring Boot
-├── soft-chaos-blog/      # Aplicacao Angular
+├── front/                # Aplicacao Angular
 ├── .github/workflows/    # Automacoes do GitHub Actions
 ├── render.yaml           # Blueprint do backend no Render
 └── README.md
@@ -39,12 +39,12 @@ SoftChaos/
 
 ## Frontend
 
-O frontend fica em `soft-chaos-blog` e contem as telas publicas, paginas de categoria, busca, newsletter, pagina de noticia e dashboard administrativo.
+O frontend fica em `front` e contem as telas publicas, paginas de categoria, busca, newsletter, pagina de noticia e dashboard administrativo.
 
 Comandos principais:
 
 ```bash
-cd soft-chaos-blog
+cd front
 npm install
 npm run start
 npm run build
@@ -53,10 +53,10 @@ npm run build
 Ambiente local:
 
 ```bash
-cp .env.example .env
+cp front/.env.example front/.env
 ```
 
-Configure a URL da API conforme o ambiente em uso.
+Configure `VITE_API_BASE_URL` conforme o ambiente em uso.
 
 ## Backend
 
@@ -105,6 +105,14 @@ EMAIL_FROM
 
 Nunca versionar arquivos `.env` com valores reais.
 
+Exemplo com Supabase Shared Pooler:
+
+```text
+DB_URL=jdbc:postgresql://aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require
+DB_USERNAME=postgres.twfkkfwajotkiupdpyym
+DB_PASSWORD=seu-password-do-banco
+```
+
 ## Rotas Principais
 
 ### Publicas
@@ -152,8 +160,8 @@ Variaveis recomendadas:
 ```text
 SPRING_PROFILES_ACTIVE=prod
 PORT=${{ PORT }}
-DB_URL=jdbc:postgresql://...
-DB_USERNAME=...
+DB_URL=jdbc:postgresql://aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require
+DB_USERNAME=postgres.twfkkfwajotkiupdpyym
 DB_PASSWORD=...
 JWT_SECRET=...
 FRONTEND_URL=https://seu-front.vercel.app
@@ -168,7 +176,7 @@ EMAIL_FROM=noreply@softchaos.com
 
 ### Frontend na Vercel
 
-Configure o projeto com `Root Directory` apontando para `soft-chaos-blog`.
+Configure o projeto com `Root Directory` apontando para `front`.
 
 Variavel recomendada:
 
@@ -181,7 +189,7 @@ VITE_API_BASE_URL=https://seu-backend.onrender.com
 Validacoes usadas durante o desenvolvimento:
 
 ```bash
-cd soft-chaos-blog
+cd front
 npm run build
 ```
 

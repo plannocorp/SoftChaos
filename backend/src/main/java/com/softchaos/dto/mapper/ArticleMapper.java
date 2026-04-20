@@ -8,6 +8,7 @@ import com.softchaos.model.Article;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,7 +30,7 @@ public class ArticleMapper {
                 .summary(article.getSummary())
                 .content(article.getContent())
                 .coverImageUrl(article.getCoverImageUrl())
-                .externalVideoLinks(article.getExternalVideoLinks() == null ? List.of() : List.copyOf(article.getExternalVideoLinks()))
+                .externalVideoLinks(article.getExternalVideoLinks() == null ? List.of() : new ArrayList<>(article.getExternalVideoLinks()))
                 .author(userMapper.toSummaryResponse(article.getAuthor()))
                 .category(categoryMapper.toResponse(article.getCategory(), null))
                 .mediaFiles(article.getMediaFiles().stream()
@@ -58,7 +59,7 @@ public class ArticleMapper {
                 .slug(article.getSlug())
                 .summary(article.getSummary())
                 .coverImageUrl(article.getCoverImageUrl())
-                .externalVideoLinks(article.getExternalVideoLinks() == null ? List.of() : List.copyOf(article.getExternalVideoLinks()))
+                .externalVideoLinks(article.getExternalVideoLinks() == null ? List.of() : new ArrayList<>(article.getExternalVideoLinks()))
                 .author(userMapper.toSummaryResponse(article.getAuthor()))
                 .category(categoryMapper.toResponse(article.getCategory(), null))
                 .status(article.getStatus())
@@ -82,7 +83,7 @@ public class ArticleMapper {
         article.setFeatured(request.getFeatured());
         article.setPinned(request.getPinned());
         article.setScheduledFor(request.getScheduledFor());
-        article.setExternalVideoLinks(request.getExternalVideoLinks() == null ? List.of() : List.copyOf(request.getExternalVideoLinks()));
+        article.setExternalVideoLinks(request.getExternalVideoLinks() == null ? new ArrayList<>() : new ArrayList<>(request.getExternalVideoLinks()));
         return article;
     }
 
@@ -114,7 +115,7 @@ public class ArticleMapper {
             article.setScheduledFor(request.getScheduledFor());
         }
         if (request.getExternalVideoLinks() != null) {
-            article.setExternalVideoLinks(List.copyOf(request.getExternalVideoLinks()));
+            article.setExternalVideoLinks(new ArrayList<>(request.getExternalVideoLinks()));
         }
     }
 }

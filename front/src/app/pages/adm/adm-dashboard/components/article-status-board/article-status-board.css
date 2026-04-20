@@ -575,6 +575,15 @@
 }
 
 @media screen and (max-width: 768px) {
+  .board-filters {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .board-filters button {
+    width: 100%;
+  }
+
   .status-header,
   .board-filters,
   .card-top,
@@ -654,5 +663,55 @@
 
   .article-cover {
     height: 132px;
+  }
+
+  .pagination-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-bar div {
+    width: 100%;
+  }
+
+  .pagination-bar button {
+    flex: 1;
+  }
+}
+
+@media screen and (max-width: 520px) {
+  .status-header,
+  .state-card,
+  .article-card,
+  .board-filters,
+  .pagination-bar,
+  .confirm-panel {
+    border-radius: 22px;
+  }
+
+  .status-header {
+    padding: 16px;
+  }
+
+  .article-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .article-card {
+    padding: 14px;
+  }
+
+  .publication-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .action-stack {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .action-stack > * {
+    flex: 1 1 100%;
+    text-align: center;
   }
 }

@@ -48,6 +48,7 @@
 
 .search-box {
   min-width: 300px;
+  width: min(100%, 360px);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -518,6 +519,11 @@
     align-items: stretch;
   }
 
+  .filter-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .confirm-panel {
     flex-direction: column;
     align-items: stretch;
@@ -533,10 +539,15 @@
 
   .search-box {
     min-width: 0;
+    width: 100%;
   }
 
   .advanced-filters {
     grid-template-columns: 1fr;
+  }
+
+  .advanced-actions {
+    width: 100%;
   }
 
   .advanced-actions button {
@@ -584,3 +595,52 @@
   }
 }
 
+@media screen and (max-width: 560px) {
+  .page-head,
+  .filter-row,
+  .advanced-filters,
+  .preview-panel,
+  .state-card,
+  .comment-card,
+  .confirm-panel {
+    border-radius: 20px;
+  }
+
+  .page-head,
+  .comment-card,
+  .modal-copy,
+  .preview-panel {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-chip {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .comment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comment-card {
+    min-height: 0;
+  }
+
+  .publication-card,
+  .preview-publication {
+    padding: 12px;
+  }
+
+  .pagination-bar div {
+    width: 100%;
+  }
+
+  .pagination-bar button {
+    flex: 1;
+  }
+}

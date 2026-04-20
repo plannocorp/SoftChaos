@@ -2,6 +2,7 @@ package com.softchaos.repository;
 
 import com.softchaos.enums.CommentStatus;
 import com.softchaos.model.Comment;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,8 +17,10 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
+    @EntityGraph(attributePaths = "article")
     Page<Comment> findByArticleIdAndStatusOrderByCreatedAtDesc(Long articleId, CommentStatus status, Pageable pageable);
 
+    @EntityGraph(attributePaths = "article")
     Page<Comment> findByStatusOrderByCreatedAtDesc(CommentStatus status, Pageable pageable);
 
     Page<Comment> findByStatusInOrderByCreatedAtDesc(List<CommentStatus> statuses, Pageable pageable);
@@ -31,6 +34,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Page<Comment> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
+    @EntityGraph(attributePaths = "article")
     @Query("""
             SELECT c FROM Comment c
             JOIN c.article a

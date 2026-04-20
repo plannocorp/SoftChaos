@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -71,6 +72,7 @@ public class ArticleService {
 
         if (article.getStatus() == Article.Status.PUBLISHED) {
             article.setPublishedAt(LocalDateTime.now());
+            article.setScheduledFor(null);
         }
 
         databaseSequenceSynchronizer.synchronizeArticlesSequence();
@@ -311,6 +313,7 @@ public class ArticleService {
 
         article.setStatus(Article.Status.PUBLISHED);
         article.setPublishedAt(LocalDateTime.now());
+        article.setScheduledFor(null);
         articleRepository.save(article);
     }
 
@@ -323,6 +326,7 @@ public class ArticleService {
         for (Article article : scheduledArticles) {
             article.setStatus(Article.Status.PUBLISHED);
             article.setPublishedAt(LocalDateTime.now());
+            article.setScheduledFor(null);
             articleRepository.save(article);
         }
     }
@@ -391,7 +395,7 @@ public class ArticleService {
                 .map(String::trim)
                 .collect(Collectors.collectingAndThen(
                         Collectors.toCollection(LinkedHashSet::new),
-                        List::copyOf
+                        ArrayList::new
                 ));
 
         if (sanitizedLinks.size() > 5) {
