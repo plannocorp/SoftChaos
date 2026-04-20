@@ -137,4 +137,86 @@ class ArticleServiceTest {
         );
         verify(articleRepository, never()).findByStatus(eq(Article.Status.PUBLISHED), any(PageRequest.class));
     }
+
+    @Test
+    void getAdminArticlesByStatusShouldUseProvidedPublishedFiltersForAuthor() {
+        Article article = new Article();
+        article.setId(8L);
+
+        LocalDateTime startDate = LocalDate.of(2026, 4, 1).atStartOfDay();
+        LocalDateTime endDate = LocalDate.of(2026, 4, 30).atTime(23, 59);
+        Page<Article> articlesPage = new PageImpl<>(List.of(article), PageRequest.of(0, 9), 1);
+        ArticleSummaryResponse summary = ArticleSummaryResponse.builder()
+                .id(8L)
+                .title("Filtrado")
+                .build();
+
+        when(articleRepository.findByAuthorIdAndStatusWithFilters(
+                eq(3L),
+                eq(Article.Status.PUBLISHED),
+                eq(5L),
+                eq(startDate),
+                eq(endDate),
+                any(PageRequest.class)
+        )).thenReturn(articlesPage);
+        when(commentRepository.countByArticleIdAndStatus(eq(8L), any())).thenReturn(0L);
+        when(articleMapper.toSummaryResponse(article, 0L)).thenReturn(summary);
+
+        PagedResponse<ArticleSummaryResponse> response = articleService.getAdminArticlesByStatus(
+                Article.Status.PUBLISHED,
+                3L,
+                User.Role.AUTHOR,
+                5L,
+                startDate,
+                endDate,
+                PageRequest.of(0, 9)
+        );
+
+        assertEquals(1, response.getContent().size());
+        verify(articleRepository).findByAuthorIdAndStatusWithFilters(
+                eq(3L),
+                eq(Article.Status.PUBLISHED),
+                eq(5L),
+                eq(startDate),
+                eq(endDate),
+                any(PageRequest.class)
+        );
+        verify(articleRepository, never()).findByAuthorIdAndStatus(eq(3L), eq(Article.Status.PUBLISHED), any(PageRequest.class));
+    }
+
+    @Test
+    void getAdminArticlesByStatusShouldUseSimpleStatusQueryForNonPublishedAdmin() {
+        Article article = new Article();
+        article.setId(9L);
+
+        Page<Article> articlesPage = new PageImpl<>(List.of(article), PageRequest.of(0, 9), 1);
+        ArticleSummaryResponse summary = ArticleSummaryResponse.builder()
+                .id(9L)
+                .title("Rascunho")
+                .build();
+
+        when(articleRepository.findByStatus(eq(Article.Status.DRAFT), any(PageRequest.class))).thenReturn(articlesPage);
+        when(commentRepository.countByArticleIdAndStatus(eq(9L), any())).thenReturn(0L);
+        when(articleMapper.toSummaryResponse(article, 0L)).thenReturn(summary);
+
+        PagedResponse<ArticleSummaryResponse> response = articleService.getAdminArticlesByStatus(
+                Article.Status.DRAFT,
+                1L,
+                User.Role.ADMIN,
+                2L,
+                LocalDate.of(2026, 4, 1).atStartOfDay(),
+                LocalDate.of(2026, 4, 10).atStartOfDay(),
+                PageRequest.of(0, 9)
+        );
+
+        assertEquals(1, response.getContent().size());
+        verify(articleRepository).findByStatus(eq(Article.Status.DRAFT), any(PageRequest.class));
+        verify(articleRepository, never()).findByStatusWithFilters(
+                eq(Article.Status.DRAFT),
+                eq(2L),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                any(PageRequest.class)
+        );
+    }
 }
