@@ -18,10 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -46,9 +43,6 @@ public class MediaService {
     private final ArticleRepository articleRepository;
     private final MediaMapper mediaMapper;
     private final SupabaseStorageService supabaseStorageService;
-
-    @Value("${app.upload.dir:uploads}")
-    private String uploadDir;
 
     @Value("${app.upload.max-file-size:10485760}")
     private Long maxFileSize;
@@ -81,8 +75,11 @@ public class MediaService {
             validateImageLimit(request.getArticleId(), request.getType());
         }
 
-        Path filePath = null;
         try {
+            if (!supabaseStorageService.isEnabled()) {
+                throw new BadRequestException("Upload remoto indisponivel. Configure SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY e SUPABASE_STORAGE_BUCKET.");
+            }
+
             String originalFilename = file.getOriginalFilename() != null
                     ? file.getOriginalFilename()
                     : "arquivo";
@@ -97,18 +94,8 @@ public class MediaService {
             String uniqueFilename = extension == null || extension.isBlank()
                     ? UUID.randomUUID().toString()
                     : UUID.randomUUID() + "." + extension;
-            String storedFilename = uniqueFilename;
-            String storedUrl;
-
-            if (supabaseStorageService.isEnabled()) {
-                storedFilename = "articles/" + uniqueFilename;
-                storedUrl = supabaseStorageService.uploadImage(file, storedFilename);
-            } else {
-                Path uploadPath = resolveUploadPath();
-                filePath = uploadPath.resolve(uniqueFilename);
-                copyFileWithFallback(file, filePath, uniqueFilename);
-                storedUrl = "/uploads/" + uniqueFilename;
-            }
+            String storedFilename = "articles/" + uniqueFilename;
+            String storedUrl = supabaseStorageService.uploadImage(file, storedFilename);
 
             Media media = new Media();
             media.setFilename(storedFilename);
@@ -129,9 +116,6 @@ public class MediaService {
         } catch (IOException e) {
             log.error("Erro ao fazer upload do arquivo", e);
             throw new BadRequestException("Erro ao salvar arquivo: " + e.getMessage());
-        } catch (RuntimeException e) {
-            deletePhysicalFileIfExists(filePath);
-            throw e;
         }
     }
 
@@ -210,15 +194,10 @@ public class MediaService {
         Media media = mediaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Midia", "id", id));
 
-        try {
-            if (supabaseStorageService.isEnabled()) {
-                supabaseStorageService.deleteObject(media.getFilename());
-            } else {
-                Path filePath = resolveUploadPath().resolve(media.getFilename());
-                Files.deleteIfExists(filePath);
-            }
-        } catch (IOException e) {
-            log.error("Erro ao deletar arquivo fisico", e);
+        if (supabaseStorageService.isEnabled()) {
+            supabaseStorageService.deleteObject(media.getFilename());
+        } else {
+            log.warn("Midia {} removida do banco sem remocao remota porque o Supabase Storage nao esta configurado.", id);
         }
 
         mediaRepository.delete(media);
@@ -284,68 +263,4 @@ public class MediaService {
         }
     }
 
-    private void deletePhysicalFileIfExists(Path filePath) {
-        if (filePath == null) {
-            return;
-        }
-
-        try {
-            Files.deleteIfExists(filePath);
-        } catch (IOException ex) {
-            log.warn("Nao foi possivel remover o arquivo {} apos falha no upload", filePath, ex);
-        }
-    }
-
-    private Path resolveUploadPath() {
-        if (isUnixStylePathOnWindows(uploadDir)) {
-            Path fallbackPath = buildFallbackUploadPath();
-            createDirectoriesOrFail(fallbackPath);
-            log.warn("Diretorio de upload {} e incompatível com Windows. Usando fallback em {}", uploadDir, fallbackPath);
-            return fallbackPath;
-        }
-
-        Path preferredPath = Paths.get(uploadDir);
-
-        try {
-            Files.createDirectories(preferredPath);
-            return preferredPath;
-        } catch (IOException | RuntimeException ex) {
-            Path fallbackPath = buildFallbackUploadPath();
-            createDirectoriesOrFail(fallbackPath);
-            log.warn("Nao foi possivel usar o diretorio de upload configurado ({}). Usando fallback em {}",
-                    preferredPath, fallbackPath);
-            return fallbackPath;
-        }
-    }
-
-    private void copyFileWithFallback(MultipartFile file, Path preferredTarget, String uniqueFilename) throws IOException {
-        try {
-            Files.copy(file.getInputStream(), preferredTarget, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            Path fallbackPath = buildFallbackUploadPath();
-            createDirectoriesOrFail(fallbackPath);
-
-            Path fallbackTarget = fallbackPath.resolve(uniqueFilename);
-            Files.copy(file.getInputStream(), fallbackTarget, StandardCopyOption.REPLACE_EXISTING);
-            log.warn("Falha ao gravar em {}. Arquivo salvo no fallback {}", preferredTarget, fallbackTarget);
-        }
-    }
-
-    private void createDirectoriesOrFail(Path path) {
-        try {
-            Files.createDirectories(path);
-        } catch (IOException ex) {
-            throw new BadRequestException("Erro ao preparar diretorio de upload: " + ex.getMessage());
-        }
-    }
-
-    private Path buildFallbackUploadPath() {
-        return Paths.get(System.getProperty("user.home"), "softchaos-uploads", "runtime");
-    }
-
-    private boolean isUnixStylePathOnWindows(String pathValue) {
-        String osName = System.getProperty("os.name", "").toLowerCase();
-        return osName.contains("win") && (pathValue.startsWith("/") || pathValue.startsWith("\\"));
-    }
 }
-
