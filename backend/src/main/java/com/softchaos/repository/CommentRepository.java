@@ -39,8 +39,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             SELECT c FROM Comment c
             JOIN c.article a
             WHERE (:status IS NULL OR c.status = :status)
-            AND (:articleQuery IS NULL OR LOWER(a.title) LIKE LOWER(CONCAT('%', :articleQuery, '%'))
-                OR LOWER(a.slug) LIKE LOWER(CONCAT('%', :articleQuery, '%')))
+            AND (:articleQuery IS NULL OR LOWER(a.title) LIKE CONCAT('%', :articleQuery, '%')
+                OR LOWER(a.slug) LIKE CONCAT('%', :articleQuery, '%'))
             AND (:createdFrom IS NULL OR c.createdAt >= :createdFrom)
             AND (:createdUntil IS NULL OR c.createdAt < :createdUntil)
             ORDER BY c.createdAt DESC

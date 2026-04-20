@@ -97,7 +97,7 @@ public class CommentService {
 
         String normalizedArticleQuery = articleQuery == null || articleQuery.isBlank()
                 ? null
-                : articleQuery.trim();
+                : articleQuery.trim().toLowerCase();
 
         Page<Comment> commentsPage = commentRepository.findAdminComments(
                 status,
@@ -175,4 +175,3 @@ public class CommentService {
                 .build();
     }
 }
-

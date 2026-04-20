@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -250,9 +251,37 @@ public class ArticleService {
     ) {
         log.info("Listando artigos do painel. Status: {}, Usuario: {}, Role: {}", status, userId, role);
 
-        Page<Article> articlesPage = role == User.Role.AUTHOR
-                ? articleRepository.findByAuthorIdAndStatusWithFilters(userId, status, categoryId, startDate, endDate, pageable)
-                : articleRepository.findByStatusWithFilters(status, categoryId, startDate, endDate, pageable);
+        Page<Article> articlesPage;
+
+        if (status == Article.Status.PUBLISHED) {
+            LocalDateTime resolvedStartDate = startDate != null
+                    ? startDate
+                    : LocalDate.of(1970, 1, 1).atStartOfDay();
+            LocalDateTime resolvedEndDate = endDate != null
+                    ? endDate
+                    : LocalDate.of(3000, 1, 1).atStartOfDay();
+
+            articlesPage = role == User.Role.AUTHOR
+                    ? articleRepository.findByAuthorIdAndStatusWithFilters(
+                    userId,
+                    status,
+                    categoryId,
+                    resolvedStartDate,
+                    resolvedEndDate,
+                    pageable
+            )
+                    : articleRepository.findByStatusWithFilters(
+                    status,
+                    categoryId,
+                    resolvedStartDate,
+                    resolvedEndDate,
+                    pageable
+            );
+        } else {
+            articlesPage = role == User.Role.AUTHOR
+                    ? articleRepository.findByAuthorIdAndStatus(userId, status, pageable)
+                    : articleRepository.findByStatus(status, pageable);
+        }
 
         return buildPagedSummaryResponse(articlesPage);
     }

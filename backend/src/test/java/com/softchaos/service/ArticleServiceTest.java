@@ -2,17 +2,24 @@ package com.softchaos.service;
 
 import com.softchaos.config.DatabaseSequenceSynchronizer;
 import com.softchaos.dto.mapper.ArticleMapper;
+import com.softchaos.dto.response.ArticleSummaryResponse;
+import com.softchaos.dto.response.PagedResponse;
 import com.softchaos.model.Article;
+import com.softchaos.model.User;
 import com.softchaos.repository.ArticleRepository;
 import com.softchaos.repository.CategoryRepository;
 import com.softchaos.repository.CommentRepository;
 import com.softchaos.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +27,9 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -84,5 +94,47 @@ class ArticleServiceTest {
         assertNotNull(first.getPublishedAt());
         assertNotNull(second.getPublishedAt());
         verify(articleRepository, times(2)).save(org.mockito.ArgumentMatchers.any(Article.class));
+    }
+
+    @Test
+    void getAdminArticlesByStatusShouldResolveDefaultPublishedDateRangeForAdmin() {
+        Article article = new Article();
+        article.setId(7L);
+
+        Page<Article> articlesPage = new PageImpl<>(List.of(article), PageRequest.of(0, 9), 1);
+        ArticleSummaryResponse summary = ArticleSummaryResponse.builder()
+                .id(7L)
+                .title("Publicado")
+                .build();
+
+        when(articleRepository.findByStatusWithFilters(
+                eq(Article.Status.PUBLISHED),
+                eq(null),
+                eq(LocalDate.of(1970, 1, 1).atStartOfDay()),
+                eq(LocalDate.of(3000, 1, 1).atStartOfDay()),
+                any(PageRequest.class)
+        )).thenReturn(articlesPage);
+        when(commentRepository.countByArticleIdAndStatus(eq(7L), any())).thenReturn(0L);
+        when(articleMapper.toSummaryResponse(article, 0L)).thenReturn(summary);
+
+        PagedResponse<ArticleSummaryResponse> response = articleService.getAdminArticlesByStatus(
+                Article.Status.PUBLISHED,
+                1L,
+                User.Role.ADMIN,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 9)
+        );
+
+        assertEquals(1, response.getContent().size());
+        verify(articleRepository).findByStatusWithFilters(
+                eq(Article.Status.PUBLISHED),
+                eq(null),
+                eq(LocalDate.of(1970, 1, 1).atStartOfDay()),
+                eq(LocalDate.of(3000, 1, 1).atStartOfDay()),
+                any(PageRequest.class)
+        );
+        verify(articleRepository, never()).findByStatus(eq(Article.Status.PUBLISHED), any(PageRequest.class));
     }
 }
