@@ -20,7 +20,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,9 +47,9 @@ class CommentServiceTest {
 
         Page<Comment> commentsPage = new PageImpl<>(List.of(comment), PageRequest.of(0, 8), 1);
 
-        when(commentRepository.findAdminCommentsByArticleQuery(
+        when(commentRepository.findAdminComments(
                 eq(CommentStatus.PENDING),
-                eq("%soft chaos%"),
+                eq("soft chaos"),
                 eq(null),
                 eq(null),
                 eq(PageRequest.of(0, 8))
@@ -66,15 +65,9 @@ class CommentServiceTest {
         );
 
         assertEquals(1, response.getContent().size());
-        verify(commentRepository).findAdminCommentsByArticleQuery(
+        verify(commentRepository).findAdminComments(
                 eq(CommentStatus.PENDING),
-                eq("%soft chaos%"),
-                eq(null),
-                eq(null),
-                eq(PageRequest.of(0, 8))
-        );
-        verify(commentRepository, never()).findAdminComments(
-                eq(CommentStatus.PENDING),
+                eq("soft chaos"),
                 eq(null),
                 eq(null),
                 eq(PageRequest.of(0, 8))
@@ -82,7 +75,7 @@ class CommentServiceTest {
     }
 
     @Test
-    void getAdminCommentsShouldUseQueryWithoutArticleFilterWhenBlank() {
+    void getAdminCommentsShouldAllowBlankArticleFilter() {
         Comment comment = new Comment();
         comment.setId(2L);
 
@@ -93,6 +86,7 @@ class CommentServiceTest {
         Page<Comment> commentsPage = new PageImpl<>(List.of(comment), PageRequest.of(0, 8), 1);
 
         when(commentRepository.findAdminComments(
+                eq(null),
                 eq(null),
                 eq(null),
                 eq(null),
@@ -110,6 +104,7 @@ class CommentServiceTest {
 
         assertEquals(1, response.getContent().size());
         verify(commentRepository).findAdminComments(
+                eq(null),
                 eq(null),
                 eq(null),
                 eq(null),

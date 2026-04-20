@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryCustom {
 
     @EntityGraph(attributePaths = "article")
     Page<Comment> findByArticleIdAndStatusOrderByCreatedAtDesc(Long articleId, CommentStatus status, Pageable pageable);
@@ -33,40 +33,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByArticleIdOrderByCreatedAtDesc(Long articleId);
 
     Page<Comment> findAllByOrderByCreatedAtDesc(Pageable pageable);
-
-    @EntityGraph(attributePaths = "article")
-    @Query("""
-            SELECT c FROM Comment c
-            JOIN c.article a
-            WHERE (:status IS NULL OR c.status = :status)
-            AND (:createdFrom IS NULL OR c.createdAt >= :createdFrom)
-            AND (:createdUntil IS NULL OR c.createdAt < :createdUntil)
-            ORDER BY c.createdAt DESC
-            """)
-    Page<Comment> findAdminComments(
-            @Param("status") CommentStatus status,
-            @Param("createdFrom") LocalDateTime createdFrom,
-            @Param("createdUntil") LocalDateTime createdUntil,
-            Pageable pageable
-    );
-
-    @EntityGraph(attributePaths = "article")
-    @Query("""
-            SELECT c FROM Comment c
-            JOIN c.article a
-            WHERE (:status IS NULL OR c.status = :status)
-            AND (LOWER(a.title) LIKE :articlePattern OR LOWER(a.slug) LIKE :articlePattern)
-            AND (:createdFrom IS NULL OR c.createdAt >= :createdFrom)
-            AND (:createdUntil IS NULL OR c.createdAt < :createdUntil)
-            ORDER BY c.createdAt DESC
-            """)
-    Page<Comment> findAdminCommentsByArticleQuery(
-            @Param("status") CommentStatus status,
-            @Param("articlePattern") String articlePattern,
-            @Param("createdFrom") LocalDateTime createdFrom,
-            @Param("createdUntil") LocalDateTime createdUntil,
-            Pageable pageable
-    );
 
     @Modifying
     @Query("""

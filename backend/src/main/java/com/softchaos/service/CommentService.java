@@ -99,16 +99,9 @@ public class CommentService {
                 ? null
                 : articleQuery.trim().toLowerCase();
 
-        Page<Comment> commentsPage = normalizedArticleQuery == null
-                ? commentRepository.findAdminComments(
+        Page<Comment> commentsPage = commentRepository.findAdminComments(
                 status,
-                createdFrom,
-                createdUntil,
-                pageable
-        )
-                : commentRepository.findAdminCommentsByArticleQuery(
-                status,
-                "%" + normalizedArticleQuery + "%",
+                normalizedArticleQuery,
                 createdFrom,
                 createdUntil,
                 pageable
