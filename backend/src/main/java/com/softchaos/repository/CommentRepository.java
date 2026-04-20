@@ -39,15 +39,30 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             SELECT c FROM Comment c
             JOIN c.article a
             WHERE (:status IS NULL OR c.status = :status)
-            AND (:articleQuery IS NULL OR LOWER(a.title) LIKE CONCAT('%', :articleQuery, '%')
-                OR LOWER(a.slug) LIKE CONCAT('%', :articleQuery, '%'))
             AND (:createdFrom IS NULL OR c.createdAt >= :createdFrom)
             AND (:createdUntil IS NULL OR c.createdAt < :createdUntil)
             ORDER BY c.createdAt DESC
             """)
     Page<Comment> findAdminComments(
             @Param("status") CommentStatus status,
-            @Param("articleQuery") String articleQuery,
+            @Param("createdFrom") LocalDateTime createdFrom,
+            @Param("createdUntil") LocalDateTime createdUntil,
+            Pageable pageable
+    );
+
+    @EntityGraph(attributePaths = "article")
+    @Query("""
+            SELECT c FROM Comment c
+            JOIN c.article a
+            WHERE (:status IS NULL OR c.status = :status)
+            AND (LOWER(a.title) LIKE :articlePattern OR LOWER(a.slug) LIKE :articlePattern)
+            AND (:createdFrom IS NULL OR c.createdAt >= :createdFrom)
+            AND (:createdUntil IS NULL OR c.createdAt < :createdUntil)
+            ORDER BY c.createdAt DESC
+            """)
+    Page<Comment> findAdminCommentsByArticleQuery(
+            @Param("status") CommentStatus status,
+            @Param("articlePattern") String articlePattern,
             @Param("createdFrom") LocalDateTime createdFrom,
             @Param("createdUntil") LocalDateTime createdUntil,
             Pageable pageable

@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,9 +48,9 @@ class CommentServiceTest {
 
         Page<Comment> commentsPage = new PageImpl<>(List.of(comment), PageRequest.of(0, 8), 1);
 
-        when(commentRepository.findAdminComments(
+        when(commentRepository.findAdminCommentsByArticleQuery(
                 eq(CommentStatus.PENDING),
-                eq("soft chaos"),
+                eq("%soft chaos%"),
                 eq(null),
                 eq(null),
                 eq(PageRequest.of(0, 8))
@@ -65,9 +66,51 @@ class CommentServiceTest {
         );
 
         assertEquals(1, response.getContent().size());
-        verify(commentRepository).findAdminComments(
+        verify(commentRepository).findAdminCommentsByArticleQuery(
                 eq(CommentStatus.PENDING),
-                eq("soft chaos"),
+                eq("%soft chaos%"),
+                eq(null),
+                eq(null),
+                eq(PageRequest.of(0, 8))
+        );
+        verify(commentRepository, never()).findAdminComments(
+                eq(CommentStatus.PENDING),
+                eq(null),
+                eq(null),
+                eq(PageRequest.of(0, 8))
+        );
+    }
+
+    @Test
+    void getAdminCommentsShouldUseQueryWithoutArticleFilterWhenBlank() {
+        Comment comment = new Comment();
+        comment.setId(2L);
+
+        CommentResponse responseItem = CommentResponse.builder()
+                .id(2L)
+                .build();
+
+        Page<Comment> commentsPage = new PageImpl<>(List.of(comment), PageRequest.of(0, 8), 1);
+
+        when(commentRepository.findAdminComments(
+                eq(null),
+                eq(null),
+                eq(null),
+                eq(PageRequest.of(0, 8))
+        )).thenReturn(commentsPage);
+        when(commentMapper.toResponse(comment)).thenReturn(responseItem);
+
+        PagedResponse<CommentResponse> response = commentService.getAdminComments(
+                null,
+                "   ",
+                null,
+                null,
+                PageRequest.of(0, 8)
+        );
+
+        assertEquals(1, response.getContent().size());
+        verify(commentRepository).findAdminComments(
+                eq(null),
                 eq(null),
                 eq(null),
                 eq(PageRequest.of(0, 8))
