@@ -1,74 +1,79 @@
 header {
-    width: min(1320px, calc(100% - 32px));
-    min-height: 88px;
+    width: min(1560px, calc(100vw - 24px));
+    min-height: 92px;
     box-shadow: 0 14px 40px rgba(15, 23, 42, 0.12);
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 18px;
+    gap: 24px;
     border-radius: 999px;
     margin: 20px auto 20px;
-    padding: 14px 24px;
+    padding: 14px 22px;
     background-color: var(--white);
     box-sizing: border-box;
 }
 
-header .logo-container {
+header .brand-block {
     display: flex;
     align-items: center;
     gap: 14px;
-    flex: 1 1 auto;
-    min-width: 0;
+    color: var(--black);
 }
 
-header .logo-container img {
+header .brand-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+header .brand-mark img {
     height: 62px;
     width: 62px;
     object-fit: contain;
 }
 
-header .logo-container .brand-mark {
-    display: flex;
-    align-items: center;
+header .logo-title {
+    font-size: 31px;
+    font-family: 'Lora';
+    white-space: nowrap;
+    line-height: 1;
 }
 
-header .logo-container .logo-title {
-    font-size: 32px;
+header .main-nav {
+    min-width: 0;
+}
+
+header .main-nav ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(10px, 1vw, 18px);
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+header .main-nav li {
+    list-style: none;
+    flex-shrink: 0;
+}
+
+header .main-nav li a {
+    position: relative;
+    color: var(--darkgray);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    transition: all 0.4s ease;
     font-family: 'Lora';
     white-space: nowrap;
 }
 
-header .logo-container nav {
-    margin-left: 8px;
-}
-
-header .logo-container nav ul {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin: 0;
-    padding: 0;
-}
-
-header .logo-container nav li {
-    list-style: none;
-}
-
-header .logo-container nav li a {
-    position: relative;
-    color: var(--darkgray);
-    font-weight: 600;
-    font-size: 14px;
-    letter-spacing: 0.04em;
-    transition: all 0.4s ease;
-    font-family: 'Lora';
-}
-
-header .logo-container nav li a:hover {
+header .main-nav li a:hover {
     color: var(--black);
 }
 
-header .logo-container nav li a::after {
+header .main-nav li a::after {
     content: '';
     position: absolute;
     left: 0;
@@ -79,16 +84,15 @@ header .logo-container nav li a::after {
     transition: all 0.4s ease;
 }
 
-header .logo-container nav li a:hover::after {
+header .main-nav li a:hover::after {
     width: 100%;
 }
 
 header .search-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(220px, 290px) auto auto;
     align-items: center;
-    justify-content: flex-end;
     gap: 12px;
-    flex-shrink: 0;
 }
 
 header .search-input-container {
@@ -96,32 +100,33 @@ header .search-input-container {
     border-radius: 50px;
     display: flex;
     align-items: center;
-    height: 46px;
-    min-width: 280px;
-    padding-right: 16px;
+    height: 44px;
+    min-width: 0;
+    padding-right: 14px;
 }
 
 header .search-input-container .search-icon {
-    font-size: 18px;
-    padding: 3px 14px;
+    font-size: 16px;
+    padding: 3px 12px;
     color: var(--darkgray);
 }
 
 header .search-input-container .search-input {
     background-color: transparent;
-    font-size: 14px;
-    width: 240px;
+    font-size: 13px;
+    width: 100%;
     height: 100%;
+    min-width: 0;
 }
 
 header .search-input-container .search-input::placeholder {
     color: var(--darkgray);
-    font-size: 14px;
+    font-size: 13px;
     font-family: 'Montserrat';
 }
 
 header .search-container button {
-    height: 46px;
+    height: 44px;
     border-radius: 999px;
     letter-spacing: 0.12em;
     font-size: 12px;
@@ -134,66 +139,83 @@ header .search-container button {
 header .search-container .search-submit {
     background-color: rgba(15, 23, 42, 0.08);
     color: var(--black);
+    min-width: 126px;
 }
 
 header .search-container .subscribe-button {
     background-color: var(--red);
     color: var(--white);
-    min-width: 170px;
+    min-width: 172px;
 }
 
-@media screen and (max-width: 1600px) and (min-width: 1451px) {
-    header .logo-container .logo-title {
+@media screen and (max-width: 1450px) {
+    header {
+        width: calc(100vw - 20px);
+        gap: 18px;
+        padding: 14px 18px;
+    }
+
+    header .logo-title {
         font-size: 28px;
     }
 
-    header .logo-container nav li a {
-        font-size: 13px;
+    header .main-nav ul {
+        gap: 12px;
+    }
+
+    header .main-nav li a {
+        font-size: 12px;
+    }
+
+    header .search-container {
+        grid-template-columns: minmax(200px, 250px) auto auto;
+        gap: 10px;
+    }
+
+    header .search-container button {
+        padding: 0 18px;
     }
 }
 
-@media screen and (max-width: 1220px) {
+@media screen and (max-width: 1260px) {
     header {
-        width: 90vw;
-        max-width: 1200px;
-        padding: 12px 20px;
-        border-radius: 50px;
+        grid-template-columns: auto 1fr auto;
+        min-height: 84px;
     }
 
-    header .logo-container img {
+    header .brand-mark img {
         height: 54px;
         width: 54px;
     }
 
-    header .logo-container .logo-title {
+    header .logo-title {
         font-size: 24px;
     }
 
-    header .logo-container nav {
+    header .main-nav ul {
+        justify-content: flex-start;
+    }
+
+    header .search-container {
+        grid-template-columns: minmax(180px, 220px) auto auto;
+    }
+}
+
+@media screen and (max-width: 1120px) {
+    header {
+        grid-template-columns: auto 1fr;
+        gap: 14px;
+        width: calc(100vw - 18px);
+        min-height: 78px;
+    }
+
+    header .main-nav {
         display: none;
     }
 
     header .search-container {
-        gap: 10px;
-    }
-
-    header .search-input-container {
-        min-width: 240px;
-    }
-}
-
-@media screen and (max-width: 1024px) {
-    header {
-        width: calc(100% - 24px);
-        min-height: 78px;
-    }
-
-    header .search-input-container .search-input {
-        width: 150px;
-    }
-
-    header .search-input-container {
-        min-width: 210px;
+        grid-template-columns: minmax(190px, 1fr) auto auto;
+        justify-self: end;
     }
 
     header .search-container button {
@@ -203,31 +225,35 @@ header .search-container .subscribe-button {
 
 @media screen and (max-width: 768px) {
     header {
-        width: 90vw;
+        width: calc(100vw - 16px);
+        grid-template-columns: auto 1fr;
         padding: 8px 15px;
         border-radius: 30px;
         margin-top: 5px;
         min-height: 68px;
+        gap: 10px;
     }
 
-    header .logo-container img {
+    header .brand-mark img {
         height: 42px;
         width: 42px;
     }
 
-    header .logo-container .logo-title {
+    header .logo-title {
         font-size: 18px;
         font-weight: bold;
     }
 
     header .search-container {
-        gap: 8px;
+        grid-template-columns: 1fr;
+        gap: 0;
+        min-width: 0;
     }
 
     header .search-input-container {
         height: 38px;
         min-width: 0;
-        width: 146px;
+        width: 100%;
         padding: 0 5px;
     }
 
@@ -239,6 +265,10 @@ header .search-container .subscribe-button {
     header .search-input-container .search-input {
         width: 100px;
         font-size: 11px;
+    }
+
+    header .brand-block {
+        min-width: 0;
     }
 
     header .search-container .search-submit,

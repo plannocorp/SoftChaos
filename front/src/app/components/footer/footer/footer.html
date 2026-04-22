@@ -1,42 +1,42 @@
 ﻿<footer>
     <div class="footer-container">
         <div class="footer-top">
-            <div class="footer-newsletter-column">
-                <div class="footer-logo">
-                    <a [routerLink]="['/']"><img src="/images/Logo.png" alt="Logo Soft Chaos"></a>
-                </div>
-
-                <div class="footer-newsletter" id="newsletter-signup">
-                    <p class="newsletter-eyebrow">Newsletter</p>
-                    <h3>Receba as ultimas noticias e atualizacoes da Soft Chaos.</h3>
-                    <p>Entre para a lista e acompanhe destaques, novas materias e movimentos editoriais diretamente na sua caixa de entrada.</p>
-                    <div class="newsletter-form newsletter-form--stack">
-                        <input 
-                            type="text" 
-                            placeholder="Seu nome"
-                            class="newsletter-input"
-                            [(ngModel)]="name"
-                        >
-                        <input 
-                            type="email" 
-                            placeholder="Seu e-mail"
-                            class="newsletter-input"
-                            [(ngModel)]="email"
-                        >
-                        <button class="newsletter-btn" type="button" [disabled]="loading" (click)="subscribeNewsletter()">
-                            {{ loading ? 'ENVIANDO...' : 'ASSINAR' }}
-                        </button>
-                    </div>
-                    @if (message) {
-                        <small class="newsletter-feedback success">{{ message }}</small>
-                    }
-                    @if (error) {
-                        <small class="newsletter-feedback error">{{ error }}</small>
-                    }
-                </div>
-            </div>
-
             <div class="footer-links-container">
+                <div class="footer-newsletter-column">
+                    <div class="footer-logo">
+                        <a [routerLink]="['/']"><img src="/images/Logo.png" alt="Logo Soft Chaos"></a>
+                    </div>
+
+                    <div class="footer-newsletter" id="newsletter-signup">
+                        <p class="newsletter-eyebrow">Newsletter</p>
+                        <h3>Receba as ultimas noticias e atualizacoes da Soft Chaos.</h3>
+                        <p>Entre para a lista e acompanhe destaques, novas materias e movimentos editoriais diretamente na sua caixa de entrada.</p>
+                        <div class="newsletter-form newsletter-form--stack">
+                            <input 
+                                type="text" 
+                                placeholder="Seu nome"
+                                class="newsletter-input"
+                                [(ngModel)]="name"
+                            >
+                            <input 
+                                type="email" 
+                                placeholder="Seu e-mail"
+                                class="newsletter-input"
+                                [(ngModel)]="email"
+                            >
+                            <button class="newsletter-btn" type="button" [disabled]="loading" (click)="subscribeNewsletter()">
+                                {{ loading ? 'ENVIANDO...' : 'ASSINAR' }}
+                            </button>
+                        </div>
+                        @if (message) {
+                            <small class="newsletter-feedback success">{{ message }}</small>
+                        }
+                        @if (error) {
+                            <small class="newsletter-feedback error">{{ error }}</small>
+                        }
+                    </div>
+                </div>
+
                 <div class="footer-links-column">
                     <h3>Navegacao</h3>
 
