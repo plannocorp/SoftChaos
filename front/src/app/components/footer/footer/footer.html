@@ -3,67 +3,71 @@
         <div class="footer-top">
             <div class="footer-links-container">
                 <div class="footer-newsletter-column">
-                    <div class="footer-logo">
-                        <a [routerLink]="['/']"><img src="/images/Logo.png" alt="Logo Soft Chaos"></a>
+                    <div class="footer-newsletter-copy">
+                        <div class="footer-logo">
+                            <a [routerLink]="['/']"><img src="/images/Logo.png" alt="Logo Soft Chaos"></a>
+                        </div>
+
+                        <div class="footer-newsletter">
+                            <p class="newsletter-eyebrow">Newsletter</p>
+                            <h3>Receba as ultimas noticias e atualizacoes da Soft Chaos.</h3>
+                        </div>
                     </div>
 
-                    <div class="footer-newsletter">
-                        <p class="newsletter-eyebrow">Newsletter</p>
-                        <h3>Receba as ultimas noticias e atualizacoes da Soft Chaos.</h3>
+                    <div class="footer-newsletter-bar" id="newsletter-signup">
+                        <div class="newsletter-form newsletter-form--inline">
+                            <input 
+                                type="text" 
+                                placeholder="Seu nome"
+                                class="newsletter-input"
+                                [(ngModel)]="name"
+                            >
+                            <input 
+                                type="email" 
+                                placeholder="Seu e-mail"
+                                class="newsletter-input"
+                                [(ngModel)]="email"
+                            >
+                            <button class="newsletter-btn" type="button" [disabled]="loading" (click)="subscribeNewsletter()">
+                                {{ loading ? 'ENVIANDO...' : 'ASSINAR' }}
+                            </button>
+                        </div>
+
+                        @if (message) {
+                            <small class="newsletter-feedback success">{{ message }}</small>
+                        }
+                        @if (error) {
+                            <small class="newsletter-feedback error">{{ error }}</small>
+                        }
                     </div>
                 </div>
 
-                <div class="footer-links-column">
-                    <h3>Navegacao</h3>
+                <div class="footer-links-group">
+                    <div class="footer-links-column">
+                        <h3>Navegacao</h3>
 
-                    <a [routerLink]="['/novidades']">NOVIDADES</a>
-                    <a [routerLink]="['/tendencias']">TENDENCIAS</a>
-                    <a [routerLink]="['/dicas']">DICAS</a>
-                    <a [routerLink]="['/bastidores']">BASTIDORES</a>
-                    <a [routerLink]="['/opiniao']">OPINIAO</a>
+                        <a [routerLink]="['/novidades']">NOVIDADES</a>
+                        <a [routerLink]="['/tendencias']">TENDENCIAS</a>
+                        <a [routerLink]="['/dicas']">DICAS</a>
+                        <a [routerLink]="['/bastidores']">BASTIDORES</a>
+                        <a [routerLink]="['/opiniao']">OPINIAO</a>
+                    </div>
+                    
+                    <div class="footer-links-column">
+                        <h3>Quem Somos</h3>
+
+                        <a href="#">Nossa Equipe</a>
+                        <a href="#">Contato</a>
+                        <a href="#">Trabalhe Conosco</a>
+                    </div>
+                    
+                    <div class="footer-links-column">
+                        <h3>Termos de Uso</h3>
+
+                        <a target="_blank" href="http://planno.online/politicas-de-privacidade">Politica de Privacidade</a>
+                        <a href="#">Cookies</a>
+                    </div>
                 </div>
-                
-                <div class="footer-links-column">
-                    <h3>Quem Somos</h3>
-
-                    <a href="#">Nossa Equipe</a>
-                    <a href="#">Contato</a>
-                    <a href="#">Trabalhe Conosco</a>
-                </div>
-                
-                <div class="footer-links-column">
-                    <h3>Termos de Uso</h3>
-
-                    <a target="_blank" href="http://planno.online/politicas-de-privacidade">Politica de Privacidade</a>
-                    <a href="#">Cookies</a>
-                </div>
-            </div>
-
-            <div class="footer-newsletter-bar" id="newsletter-signup">
-                <div class="newsletter-form newsletter-form--inline">
-                    <input 
-                        type="text" 
-                        placeholder="Seu nome"
-                        class="newsletter-input"
-                        [(ngModel)]="name"
-                    >
-                    <input 
-                        type="email" 
-                        placeholder="Seu e-mail"
-                        class="newsletter-input"
-                        [(ngModel)]="email"
-                    >
-                    <button class="newsletter-btn" type="button" [disabled]="loading" (click)="subscribeNewsletter()">
-                        {{ loading ? 'ENVIANDO...' : 'ASSINAR' }}
-                    </button>
-                </div>
-
-                @if (message) {
-                    <small class="newsletter-feedback success">{{ message }}</small>
-                }
-                @if (error) {
-                    <small class="newsletter-feedback error">{{ error }}</small>
-                }
             </div>
         </div>
         
