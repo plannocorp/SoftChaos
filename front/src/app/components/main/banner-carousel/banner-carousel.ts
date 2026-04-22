@@ -81,7 +81,7 @@ export class BannerCarousel implements OnInit, OnDestroy {
 
     this.rotationTimer = setInterval(() => {
       this.currentIndex = (this.currentIndex + 1) % this.banners.length;
-    }, 6000);
+    }, 10000);
   }
 
   private stopAutoRotation(): void {
