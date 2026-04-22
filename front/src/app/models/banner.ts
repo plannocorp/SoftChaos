@@ -1,6 +1,6 @@
 export interface BannerItem {
   id: number;
-  title: string;
+  title?: string;
   subtitle?: string;
   buttonLabel?: string;
   targetUrl?: string;

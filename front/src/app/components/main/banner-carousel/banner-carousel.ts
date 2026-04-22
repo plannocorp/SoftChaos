@@ -23,6 +23,30 @@ export class BannerCarousel implements OnInit, OnDestroy {
     return this.banners[this.currentIndex] ?? null;
   }
 
+  get currentBannerHasVisibleContent(): boolean {
+    const banner = this.currentBanner;
+    if (!banner) {
+      return false;
+    }
+
+    return Boolean(
+      banner.title?.trim()
+      || banner.subtitle?.trim()
+      || (banner.targetUrl?.trim() && (banner.buttonLabel?.trim() || 'Saiba mais'))
+    );
+  }
+
+  get currentBannerAltText(): string {
+    const banner = this.currentBanner;
+    if (!banner) {
+      return 'Banner Soft Chaos';
+    }
+
+    return banner.imageAltText?.trim()
+      || banner.title?.trim()
+      || 'Banner Soft Chaos';
+  }
+
   ngOnInit(): void {
     this.loadBanners();
   }

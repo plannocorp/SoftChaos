@@ -113,6 +113,26 @@
   gap: 18px;
 }
 
+.builder-note {
+  padding: 18px 20px;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(154, 61, 104, 0.08), rgba(137, 182, 30, 0.08)),
+    #fff;
+  border: 1px solid rgba(154, 61, 104, 0.12);
+}
+
+.builder-note strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.builder-note p {
+  color: #475569;
+  line-height: 1.7;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -123,6 +143,11 @@
 .toggle-card strong {
   color: #111827;
   font-weight: 700;
+}
+
+.field-hint {
+  color: #64748b;
+  line-height: 1.5;
 }
 
 .form-group input,
@@ -190,6 +215,7 @@ input[type='file'] {
 }
 
 .preview-card {
+  position: relative;
   overflow: hidden;
   border-radius: 24px;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -201,6 +227,33 @@ input[type='file'] {
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+}
+
+.preview-copy {
+  padding: 16px 18px 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), #fff);
+}
+
+.preview-copy span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a3d68;
+}
+
+.preview-copy strong {
+  display: block;
+  color: #111827;
+  font-size: 1.05rem;
+}
+
+.preview-copy p {
+  margin-top: 6px;
+  color: #64748b;
+  line-height: 1.6;
 }
 
 .primary-button,
@@ -293,6 +346,7 @@ input[type='file'] {
 }
 
 .banner-body p {
+  margin: 0;
   color: #64748b;
   line-height: 1.65;
 }

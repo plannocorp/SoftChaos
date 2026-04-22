@@ -35,7 +35,7 @@ public class BannerMapper {
     }
 
     public void updateEntity(Banner banner, SaveBannerRequest request) {
-        banner.setTitle(request.getTitle() != null ? request.getTitle().trim() : null);
+        banner.setTitle(normalize(request.getTitle()));
         banner.setSubtitle(normalize(request.getSubtitle()));
         banner.setButtonLabel(normalize(request.getButtonLabel()));
         banner.setTargetUrl(normalize(request.getTargetUrl()));

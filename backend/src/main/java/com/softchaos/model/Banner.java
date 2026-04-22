@@ -20,7 +20,7 @@ public class Banner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 180)
+    @Column(length = 180)
     private String title;
 
     @Column(length = 320)

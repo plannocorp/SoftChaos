@@ -51,6 +51,14 @@ export class BannerManager implements OnInit, OnDestroy {
     return Array.from({ length: Math.max(limit, 1) }, (_, index) => index + 1);
   }
 
+  get hasManualContent(): boolean {
+    return Boolean(
+      this.form.title.trim()
+      || this.form.subtitle.trim()
+      || (this.form.targetUrl.trim() && (this.form.buttonLabel.trim() || 'Saiba mais'))
+    );
+  }
+
   ngOnInit(): void {
     this.loadBanners();
   }
@@ -97,7 +105,7 @@ export class BannerManager implements OnInit, OnDestroy {
     this.clearMessages();
     this.editingBannerId = banner.id;
     this.form = {
-      title: banner.title,
+      title: banner.title || '',
       subtitle: banner.subtitle || '',
       buttonLabel: banner.buttonLabel || '',
       targetUrl: banner.targetUrl || '',
@@ -116,11 +124,6 @@ export class BannerManager implements OnInit, OnDestroy {
 
   saveBanner(): void {
     this.clearMessages();
-
-    if (!this.form.title.trim()) {
-      this.error = 'Informe um titulo para o banner.';
-      return;
-    }
 
     if (!this.isEditing && !this.selectedImageFile) {
       this.error = 'Selecione uma imagem para cadastrar o banner.';
@@ -158,7 +161,7 @@ export class BannerManager implements OnInit, OnDestroy {
   deleteBanner(banner: BannerItem): void {
     this.clearMessages();
 
-    if (!window.confirm(`Remover o banner "${banner.title}"?`)) {
+    if (!window.confirm(`Remover o banner "${this.getBannerDisplayTitle(banner)}"?`)) {
       return;
     }
 
@@ -229,5 +232,15 @@ export class BannerManager implements OnInit, OnDestroy {
     return error?.error?.message
       || error?.error?.error
       || fallback;
+  }
+
+  getBannerDisplayTitle(banner: BannerItem): string {
+    return banner.title?.trim()
+      || (banner.subtitle?.trim() ? 'Banner com subtitulo' : 'Banner sem texto');
+  }
+
+  getBannerDisplaySummary(banner: BannerItem): string {
+    return banner.subtitle?.trim()
+      || (banner.title?.trim() ? 'Banner com imagem e chamada principal.' : 'Imagem limpa, sem texto sobreposto na home.');
   }
 }

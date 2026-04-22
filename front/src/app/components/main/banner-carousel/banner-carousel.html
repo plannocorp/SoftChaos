@@ -6,29 +6,32 @@
       <p>Assim que os banners forem carregados, o carousel aparece automaticamente neste espaco.</p>
     </div>
   } @else if (currentBanner) {
-    <article class="banner-stage">
+    <article class="banner-stage" [class.clean-image]="!currentBannerHasVisibleContent">
       <img
         class="banner-image"
         [src]="currentBanner.imageUrl"
-        [alt]="currentBanner.imageAltText || currentBanner.title"
+        [alt]="currentBannerAltText"
       />
 
-      <div class="banner-overlay"></div>
+      @if (currentBannerHasVisibleContent) {
+        <div class="banner-overlay"></div>
 
-      <div class="banner-content">
-        <span class="banner-pill">Banner {{ currentIndex + 1 }} de {{ banners.length }}</span>
-        <strong>{{ currentBanner.title }}</strong>
+        <div class="banner-content">
+          @if (currentBanner.title) {
+            <strong>{{ currentBanner.title }}</strong>
+          }
 
-        @if (currentBanner.subtitle) {
-          <p>{{ currentBanner.subtitle }}</p>
-        }
+          @if (currentBanner.subtitle) {
+            <p>{{ currentBanner.subtitle }}</p>
+          }
 
-        @if (currentBanner.targetUrl) {
-          <a class="banner-cta" [href]="currentBanner.targetUrl">
-            {{ currentBanner.buttonLabel || 'Saiba mais' }}
-          </a>
-        }
-      </div>
+          @if (currentBanner.targetUrl) {
+            <a class="banner-cta" [href]="currentBanner.targetUrl">
+              {{ currentBanner.buttonLabel || 'Saiba mais' }}
+            </a>
+          }
+        </div>
+      }
 
       @if (banners.length > 1) {
         <button type="button" class="carousel-arrow left" (click)="previousBanner()" aria-label="Banner anterior">

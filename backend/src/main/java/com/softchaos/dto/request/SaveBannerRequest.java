@@ -2,7 +2,6 @@ package com.softchaos.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SaveBannerRequest {
 
-    @NotBlank(message = "Titulo e obrigatorio")
     @Size(max = 180, message = "Titulo deve ter no maximo 180 caracteres")
     private String title;
 
