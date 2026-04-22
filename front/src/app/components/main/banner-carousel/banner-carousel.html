@@ -33,28 +33,7 @@
         </div>
       }
 
-      @if (banners.length > 1) {
-        <button type="button" class="carousel-arrow left" (click)="previousBanner()" aria-label="Banner anterior">
-          ‹
-        </button>
-        <button type="button" class="carousel-arrow right" (click)="nextBanner()" aria-label="Proximo banner">
-          ›
-        </button>
-      }
     </article>
-
-    @if (banners.length > 1) {
-      <div class="banner-dots">
-        @for (banner of banners; track banner.id; let index = $index) {
-          <button
-            type="button"
-            [class.active]="index === currentIndex"
-            [attr.aria-label]="'Ir para o banner ' + (index + 1)"
-            (click)="goToBanner(index)"
-          ></button>
-        }
-      </div>
-    }
   } @else {
     <div class="banner-fallback">
       <span>Curadoria viva</span>

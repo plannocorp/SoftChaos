@@ -90,7 +90,7 @@ header .main-nav li a:hover::after {
 
 header .search-container {
     display: grid;
-    grid-template-columns: minmax(220px, 290px) auto auto;
+    grid-template-columns: minmax(240px, 320px) auto;
     align-items: center;
     gap: 12px;
 }
@@ -136,12 +136,6 @@ header .search-container button {
     padding: 0 22px;
 }
 
-header .search-container .search-submit {
-    background-color: rgba(15, 23, 42, 0.08);
-    color: var(--black);
-    min-width: 126px;
-}
-
 header .search-container .subscribe-button {
     background-color: var(--red);
     color: var(--white);
@@ -168,7 +162,7 @@ header .search-container .subscribe-button {
     }
 
     header .search-container {
-        grid-template-columns: minmax(200px, 250px) auto auto;
+        grid-template-columns: minmax(210px, 270px) auto;
         gap: 10px;
     }
 
@@ -197,7 +191,7 @@ header .search-container .subscribe-button {
     }
 
     header .search-container {
-        grid-template-columns: minmax(180px, 220px) auto auto;
+        grid-template-columns: minmax(190px, 240px) auto;
     }
 }
 
@@ -214,7 +208,7 @@ header .search-container .subscribe-button {
     }
 
     header .search-container {
-        grid-template-columns: minmax(190px, 1fr) auto auto;
+        grid-template-columns: minmax(190px, 1fr) auto;
         justify-self: end;
     }
 
@@ -271,7 +265,6 @@ header .search-container .subscribe-button {
         min-width: 0;
     }
 
-    header .search-container .search-submit,
     header .search-container .subscribe-button {
         display: none;
     }
