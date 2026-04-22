@@ -46,6 +46,11 @@ export class AdmDashboardModern implements OnInit {
       description: 'Todos os status',
       route: '/security/adimin-dashboard/comments',
     },
+    {
+      label: 'Banners',
+      description: 'Carousel da home',
+      route: '/security/adimin-dashboard/banners',
+    },
   ];
 
   constructor(

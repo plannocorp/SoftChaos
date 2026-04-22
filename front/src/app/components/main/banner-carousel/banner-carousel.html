@@ -1,0 +1,62 @@
+<section class="banner-carousel">
+  @if (loading) {
+    <div class="banner-fallback">
+      <span>Carregando banners</span>
+      <strong>Preparando o destaque principal da home.</strong>
+      <p>Assim que os banners forem carregados, o carousel aparece automaticamente neste espaco.</p>
+    </div>
+  } @else if (currentBanner) {
+    <article class="banner-stage">
+      <img
+        class="banner-image"
+        [src]="currentBanner.imageUrl"
+        [alt]="currentBanner.imageAltText || currentBanner.title"
+      />
+
+      <div class="banner-overlay"></div>
+
+      <div class="banner-content">
+        <span class="banner-pill">Banner {{ currentIndex + 1 }} de {{ banners.length }}</span>
+        <strong>{{ currentBanner.title }}</strong>
+
+        @if (currentBanner.subtitle) {
+          <p>{{ currentBanner.subtitle }}</p>
+        }
+
+        @if (currentBanner.targetUrl) {
+          <a class="banner-cta" [href]="currentBanner.targetUrl">
+            {{ currentBanner.buttonLabel || 'Saiba mais' }}
+          </a>
+        }
+      </div>
+
+      @if (banners.length > 1) {
+        <button type="button" class="carousel-arrow left" (click)="previousBanner()" aria-label="Banner anterior">
+          ‹
+        </button>
+        <button type="button" class="carousel-arrow right" (click)="nextBanner()" aria-label="Proximo banner">
+          ›
+        </button>
+      }
+    </article>
+
+    @if (banners.length > 1) {
+      <div class="banner-dots">
+        @for (banner of banners; track banner.id; let index = $index) {
+          <button
+            type="button"
+            [class.active]="index === currentIndex"
+            [attr.aria-label]="'Ir para o banner ' + (index + 1)"
+            (click)="goToBanner(index)"
+          ></button>
+        }
+      </div>
+    }
+  } @else {
+    <div class="banner-fallback">
+      <span>Curadoria viva</span>
+      <strong>Cadastre ate 5 banners no admin para destacar campanhas, materias e colecoes.</strong>
+      <p>{{ error || 'Sem banners ativos no momento. Assim que voce cadastrar no painel, eles aparecem aqui.' }}</p>
+    </div>
+  }
+</section>

@@ -1,17 +1,19 @@
 ﻿<header>
     <div class="logo-container">
-        <a [routerLink]="['']"><img src="/images/Logo.png" alt="HeaderLogo"></a>
+        <a [routerLink]="['']" class="brand-mark">
+            <img src="/images/Logo.png" alt="HeaderLogo">
+        </a>
 
         <h1 class="logo-title">SOFT CHAOS</h1>
 
         <nav>
-            <li>
-                <a [routerLink]="['/novidades']">NOVIDADES</a>
-                <a [routerLink]="['/tendencias']">TENDENCIAS</a>
-                <a [routerLink]="['/dicas']">DICAS</a>
-                <a [routerLink]="['/bastidores']">BASTIDORES</a>
-                <a [routerLink]="['/opiniao']">OPINIAO</a>
-            </li>
+            <ul>
+                <li><a [routerLink]="['/novidades']">NOVIDADES</a></li>
+                <li><a [routerLink]="['/tendencias']">TENDENCIAS</a></li>
+                <li><a [routerLink]="['/dicas']">DICAS</a></li>
+                <li><a [routerLink]="['/bastidores']">BASTIDORES</a></li>
+                <li><a [routerLink]="['/opiniao']">OPINIAO</a></li>
+            </ul>
         </nav>
     </div>
 
@@ -34,7 +36,7 @@
             >
         </div>
 
-        <button type="button" (click)="onSubscribe()">ASSINAR</button>
+        <button type="button" class="search-submit" (click)="onSearch()">PESQUISAR</button>
+        <button type="button" class="subscribe-button" (click)="onSubscribe()">ASSINAR</button>
     </div>
 </header>
-

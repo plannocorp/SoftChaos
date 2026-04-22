@@ -1,0 +1,190 @@
+<section class="banner-manager">
+  <section class="manager-hero">
+    <div>
+      <p class="eyebrow">Home</p>
+      <h2>Gestao de banners</h2>
+      <p>Cadastre, ordene e ative ate 5 banners para o carousel principal da pagina inicial.</p>
+    </div>
+
+    <div class="hero-badge">
+      <span>Total configurado</span>
+      <strong>{{ banners.length }}/{{ maxBanners }}</strong>
+      <small>Os banners ativos aparecem na home em ordem crescente.</small>
+    </div>
+  </section>
+
+  @if (error) {
+    <div class="feedback error">{{ error }}</div>
+  }
+
+  @if (successMessage) {
+    <div class="feedback success">{{ successMessage }}</div>
+  }
+
+  <div class="manager-layout">
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Editor</p>
+          <h3>{{ isEditing ? 'Editar banner' : 'Novo banner' }}</h3>
+        </div>
+
+        @if (isEditing) {
+          <button type="button" class="secondary-button" (click)="cancelEdit()">Cancelar edicao</button>
+        }
+      </div>
+
+      @if (!canCreateMoreBanners && !isEditing) {
+        <div class="limit-state">
+          <strong>Limite de banners atingido.</strong>
+          <p>Remova ou edite um banner existente para liberar espaco no carousel.</p>
+        </div>
+      } @else {
+        <form class="banner-form" (ngSubmit)="saveBanner()">
+          <div class="form-group">
+            <label for="title">Titulo</label>
+            <input
+              id="title"
+              type="text"
+              name="title"
+              [(ngModel)]="form.title"
+              maxlength="180"
+              placeholder="Ex: Assine a nova edicao especial"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="subtitle">Subtitulo</label>
+            <textarea
+              id="subtitle"
+              name="subtitle"
+              [(ngModel)]="form.subtitle"
+              rows="4"
+              maxlength="320"
+              placeholder="Texto de apoio que aparece sobre a imagem do banner."
+            ></textarea>
+          </div>
+
+          <div class="grid two-columns">
+            <div class="form-group">
+              <label for="buttonLabel">Texto do botao</label>
+              <input
+                id="buttonLabel"
+                type="text"
+                name="buttonLabel"
+                [(ngModel)]="form.buttonLabel"
+                maxlength="60"
+                placeholder="Saiba mais"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="targetUrl">Link do banner</label>
+              <input
+                id="targetUrl"
+                type="text"
+                name="targetUrl"
+                [(ngModel)]="form.targetUrl"
+                maxlength="1000"
+                placeholder="/newsletter ou https://..."
+              />
+            </div>
+          </div>
+
+          <div class="grid two-columns">
+            <div class="form-group">
+              <label for="displayOrder">Ordem de exibicao</label>
+              <select id="displayOrder" name="displayOrder" [(ngModel)]="form.displayOrder">
+                @for (order of orderOptions; track order) {
+                  <option [ngValue]="order">{{ order }}</option>
+                }
+              </select>
+            </div>
+
+            <label class="toggle-card">
+              <input type="checkbox" name="active" [(ngModel)]="form.active" />
+              <span>
+                <strong>Banner ativo</strong>
+                <small>Somente banners ativos entram no carousel da home.</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="imageAltText">Texto alternativo da imagem</label>
+            <input
+              id="imageAltText"
+              type="text"
+              name="imageAltText"
+              [(ngModel)]="form.imageAltText"
+              maxlength="255"
+              placeholder="Descreva a imagem para acessibilidade"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="upload-box" for="bannerImage">
+              <span>{{ isEditing ? 'Trocar imagem do banner' : 'Selecionar imagem do banner' }}</span>
+              <small>JPG, PNG, GIF ou WEBP. Recomendado usar imagem horizontal.</small>
+            </label>
+            <input id="bannerImage" type="file" accept="image/*" (change)="onImageSelected($event)" />
+          </div>
+
+          @if (imagePreviewUrl) {
+            <div class="preview-card">
+              <img [src]="imagePreviewUrl" [alt]="form.imageAltText || form.title || 'Preview do banner'" />
+            </div>
+          }
+
+          <button type="submit" class="primary-button" [disabled]="saving">
+            {{ saving ? 'Salvando...' : (isEditing ? 'Salvar banner' : 'Cadastrar banner') }}
+          </button>
+        </form>
+      }
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Lista atual</p>
+          <h3>Banners configurados</h3>
+        </div>
+      </div>
+
+      @if (loading) {
+        <div class="empty-state">Carregando banners cadastrados...</div>
+      } @else if (!banners.length) {
+        <div class="empty-state">Nenhum banner cadastrado ainda.</div>
+      } @else {
+        <div class="banner-list">
+          @for (banner of banners; track banner.id) {
+            <article class="banner-card" [class.inactive]="!banner.active">
+              <div class="banner-thumb">
+                <img [src]="banner.imageUrl" [alt]="banner.imageAltText || banner.title" />
+              </div>
+
+              <div class="banner-body">
+                <div class="banner-meta">
+                  <span>Ordem {{ banner.displayOrder }}</span>
+                  <span>{{ banner.active ? 'Ativo' : 'Inativo' }}</span>
+                </div>
+
+                <strong>{{ banner.title }}</strong>
+
+                @if (banner.subtitle) {
+                  <p>{{ banner.subtitle }}</p>
+                }
+
+                <div class="banner-actions">
+                  <button type="button" class="secondary-button" (click)="editBanner(banner)">Editar</button>
+                  <button type="button" class="danger-button" (click)="deleteBanner(banner)">Remover</button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </article>
+  </div>
+</section>

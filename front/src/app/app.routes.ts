@@ -16,6 +16,7 @@ import { OverviewModern } from './pages/adm/adm-dashboard/components/overview/ov
 import { CommentsModern } from './pages/adm/adm-dashboard/components/comments/comments-modern';
 import { ArticleStatusBoard } from './pages/adm/adm-dashboard/components/article-status-board/article-status-board';
 import { adminGuard } from './guards/admin-guard';
+import { BannerManager } from './pages/adm/adm-dashboard/components/banner-manager/banner-manager';
 
 export const routes: Routes = [
     {
@@ -121,6 +122,7 @@ export const routes: Routes = [
             },
             { path: 'articles/:id/edit', component: CreateArticleStudio },
             { path: 'comments', component: CommentsModern },
+            { path: 'banners', component: BannerManager },
         ]
     },
 

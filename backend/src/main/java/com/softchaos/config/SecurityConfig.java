@@ -123,6 +123,7 @@ public class SecurityConfig {
                 "/api/articles/*/related",
                 "/api/articles/search",
                 "/api/articles/slug/**",
+                "/api/banners/active",
                 "/api/categories",
                 "/api/categories/slug/**",
                 "/api/categories/with-articles",

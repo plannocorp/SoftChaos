@@ -12,20 +12,24 @@
 }
 
 .home-hero-intro {
-    width: min(1180px, 100%);
+    width: min(1280px, 100%);
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 360px);
-    gap: 20px;
+    grid-template-columns: minmax(0, 1.04fr) minmax(340px, 0.96fr);
+    gap: 22px;
     align-items: stretch;
+}
+
+.home-shell app-banner-carousel {
+    display: block;
+    min-width: 0;
 }
 
 .home-shell app-featured-news,
 .home-shell app-explorer {
-    width: min(1180px, 100%);
+    width: min(1280px, 100%);
 }
 
-.intro-copy,
-.intro-panel {
+.intro-copy {
     border-radius: 32px;
     border: 1px solid rgba(15, 23, 42, 0.08);
     background: rgba(255, 255, 255, 0.9);
@@ -33,7 +37,11 @@
 }
 
 .intro-copy {
-    padding: 28px 30px;
+    min-height: 460px;
+    padding: 34px 34px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
 .eyebrow {
@@ -55,44 +63,46 @@
 
 .intro-copy p:last-child {
     max-width: 58ch;
-    font-size: 1rem;
+    font-size: 1.02rem;
     line-height: 1.7;
     color: #475569;
 }
 
-.intro-panel {
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 14px;
-    background:
-        radial-gradient(circle at top right, rgba(232, 137, 186, 0.16), transparent 34%),
-        linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(246, 250, 243, 0.96));
+@media screen and (max-width: 1366px) {
+    .home-shell {
+        padding: 30px 16px 84px;
+        gap: 48px;
+    }
+
+    .home-hero-intro,
+    .home-shell app-featured-news,
+    .home-shell app-explorer {
+        width: min(1180px, 100%);
+    }
+
+    .home-hero-intro {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+    }
+
+    .intro-copy {
+        min-height: 420px;
+        padding: 30px 30px 28px;
+    }
 }
 
-.intro-panel span {
-    width: fit-content;
-    padding: 8px 12px;
-    border-radius: 999px;
-    background: rgba(137, 182, 30, 0.12);
-    color: #587415;
-    font-size: 0.76rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
+@media screen and (max-width: 1100px) {
+    .home-shell {
+        gap: 42px;
+        padding: 24px 14px 72px;
+    }
 
-.intro-panel strong {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.7rem;
-    line-height: 1.08;
-    color: #101010;
-}
+    .home-hero-intro {
+        grid-template-columns: 1fr;
+    }
 
-.intro-panel p {
-    color: #5b6473;
-    line-height: 1.65;
+    .intro-copy {
+        min-height: 340px;
+    }
 }
 
 @media screen and (max-width: 900px) {
@@ -105,17 +115,13 @@
         grid-template-columns: 1fr;
     }
 
-    .intro-copy,
-    .intro-panel {
+    .intro-copy {
         border-radius: 24px;
     }
 
     .intro-copy {
         padding: 22px;
-    }
-
-    .intro-panel {
-        padding: 20px;
+        min-height: 320px;
     }
 }
     
