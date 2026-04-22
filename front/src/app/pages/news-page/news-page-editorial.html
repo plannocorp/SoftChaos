@@ -125,10 +125,16 @@
 
       <section class="comments-section">
         <div class="comments-top">
-          <div>
+          <div class="comments-intro">
+            <p class="eyebrow">Comunidade</p>
             <h2 class="section-title">Comentarios</h2>
+            <p class="comments-lead">Abra a conversa com contexto, leitura e opinioes que acrescentem de verdade a materia.</p>
           </div>
-          <p class="comments-note">Os comentarios enviados passam por moderacao antes de aparecer aqui.</p>
+          <div class="comments-status-card">
+            <strong>{{ comments.length }}</strong>
+            <span>{{ comments.length === 1 ? 'comentario aprovado' : 'comentarios aprovados' }}</span>
+            <small>Os comentarios enviados passam por moderacao antes de aparecer aqui.</small>
+          </div>
         </div>
 
         <div class="comments-layout">
@@ -136,6 +142,7 @@
             <div class="form-copy">
               <p class="form-kicker">Participe da conversa</p>
               <h3 class="form-title">Deixe seu ponto de vista</h3>
+              <p class="form-support">Seu comentario entra em analise antes de ser publicado. Escreva com clareza, contexto e respeito.</p>
             </div>
 
             <div class="form-row">
@@ -153,29 +160,40 @@
               <p class="feedback success">{{ commentSuccess }}</p>
             }
 
-            <button type="submit" class="submit-btn" [disabled]="submittingComment">
-              {{ submittingComment ? 'Enviando...' : 'Enviar comentario' }}
-            </button>
+            <div class="form-actions">
+              <button type="submit" class="submit-btn" [disabled]="submittingComment">
+                {{ submittingComment ? 'Enviando...' : 'Enviar comentario' }}
+              </button>
+              <small class="form-disclaimer">Ao enviar, voce concorda com a moderacao editorial dos comentarios.</small>
+            </div>
           </form>
 
-          <div class="comments-list">
+          <div class="comments-list-shell">
             @if (commentsLoading) {
-              <app-loading-indicator label="Carregando comentarios..." size="md" surface="plain" />
+              <div class="comments-state-card">
+                <app-loading-indicator label="Carregando comentarios..." size="md" surface="plain" />
+              </div>
             } @else if (comments.length === 0) {
-              <p class="comments-empty">Ainda nao ha comentarios aprovados para esta noticia.</p>
+              <div class="comments-state-card comments-empty-card">
+                <p class="comments-empty-kicker">Espaco em construcao</p>
+                <strong>Ainda nao ha comentarios aprovados para esta noticia.</strong>
+                <p class="comments-empty">Seja a primeira pessoa a contribuir com uma leitura, pergunta ou ponto de vista sobre esta pauta.</p>
+              </div>
             } @else {
-              @for (comment of comments; track comment.id) {
-                <article class="comment-card">
-                  <div class="comment-head">
-                    <div class="comment-avatar">{{ comment.author | slice:0:2 | uppercase }}</div>
-                    <div class="comment-meta">
-                      <strong>{{ comment.author }}</strong>
-                      <span>{{ comment.createdAt | date:'dd/MM/yyyy · HH:mm' }}</span>
+              <div class="comments-list">
+                @for (comment of comments; track comment.id) {
+                  <article class="comment-card">
+                    <div class="comment-head">
+                      <div class="comment-avatar">{{ comment.author | slice:0:2 | uppercase }}</div>
+                      <div class="comment-meta">
+                        <strong>{{ comment.author }}</strong>
+                        <span>{{ comment.createdAt | date:'dd/MM/yyyy · HH:mm' }}</span>
+                      </div>
                     </div>
-                  </div>
-                  <p class="comment-body">{{ comment.content }}</p>
-                </article>
-              }
+                    <p class="comment-body">{{ comment.content }}</p>
+                  </article>
+                }
+              </div>
             }
           </div>
         </div>
