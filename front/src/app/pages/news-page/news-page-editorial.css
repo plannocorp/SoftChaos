@@ -19,7 +19,7 @@
 
 .hero-banner {
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 3 / 2;
   min-height: 0;
   width: min(1180px, calc(100% - 48px));
   margin: 36px auto 0;
@@ -37,11 +37,6 @@
   inset: 0;
 }
 
-.hero-image-wrap {
-  --progressive-image-fit: contain;
-  --progressive-image-ready-transform: none;
-}
-
 .hero-image-wrap app-progressive-image,
 .hero-image-wrap :is(.image-shell, img),
 .hero-video-wrap video {
@@ -52,7 +47,7 @@
 }
 
 .hero-image-wrap :is(.image-shell, img) {
-  transform: none;
+  transform: scale(1.01);
 }
 
 .hero-placeholder {
