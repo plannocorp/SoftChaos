@@ -82,7 +82,7 @@ export const routes: Routes = [
     {
         path: 'security/adimin-auth',
         component: AuthModern,
-        title: 'Soft Chaos | Admimin Auth'
+        title: 'Soft Chaos | Acesso administrativo'
     },
 
     {
@@ -99,7 +99,7 @@ export const routes: Routes = [
                 data: {
                     status: 'DRAFT',
                     title: 'Rascunhos',
-                    subtitle: 'Materias ainda em construcao, prontas para revisao e ajustes finais.'
+                    subtitle: 'Matérias em edição, prontas para revisão e ajustes finais.'
                 }
             },
             {
@@ -108,7 +108,7 @@ export const routes: Routes = [
                 data: {
                     status: 'SCHEDULED',
                     title: 'Agendados',
-                    subtitle: 'Conteudos com data programada, com opcao de publicar manualmente quando precisar.'
+                    subtitle: 'Matérias com data de publicação programada. Se necessário, publique-as manualmente.'
                 }
             },
             {
@@ -117,7 +117,7 @@ export const routes: Routes = [
                 data: {
                     status: 'PUBLISHED',
                     title: 'Publicados',
-                    subtitle: 'Artigos no ar com acoes de edicao, arquivamento e exclusao.'
+                    subtitle: 'Matérias publicadas, com opções de edição, arquivamento e exclusão.'
                 }
             },
             { path: 'articles/:id/edit', component: CreateArticleStudio },

@@ -1,24 +1,24 @@
 <section class="banner-manager">
   <section class="manager-hero">
     <div>
-      <p class="eyebrow">Home</p>
-      <h2>Gestao de banners</h2>
-      <p>Monte ate 5 destaques para a home, com imagem limpa ou com texto sobreposto quando fizer sentido.</p>
+      <p class="eyebrow">Página inicial</p>
+      <h2>Gestão de banners</h2>
+      <p>Crie até 5 destaques para a página inicial. Você pode usar apenas a imagem ou adicionar uma chamada editorial.</p>
     </div>
 
     <div class="hero-badge">
-      <span>Total configurado</span>
+      <span>Banners cadastrados</span>
       <strong>{{ banners.length }}/{{ maxBanners }}</strong>
-      <small>Os banners ativos aparecem na home em ordem crescente.</small>
+      <small>Os banners ativos aparecem na página inicial, na ordem definida abaixo.</small>
     </div>
   </section>
 
   @if (error) {
-    <div class="feedback error">{{ error }}</div>
+    <div class="feedback error" role="alert">{{ error }}</div>
   }
 
   @if (successMessage) {
-    <div class="feedback success">{{ successMessage }}</div>
+    <div class="feedback success" role="status" aria-live="polite">{{ successMessage }}</div>
   }
 
   <div class="manager-layout">
@@ -30,79 +30,79 @@
         </div>
 
         @if (isEditing) {
-          <button type="button" class="secondary-button" (click)="cancelEdit()">Cancelar edicao</button>
+          <button type="button" class="secondary-button" (click)="cancelEdit()">Cancelar edição</button>
         }
       </div>
 
       @if (!canCreateMoreBanners && !isEditing) {
         <div class="limit-state">
           <strong>Limite de banners atingido.</strong>
-          <p>Remova ou edite um banner existente para liberar espaco no carousel.</p>
+          <p>Edite ou remova um banner existente para liberar espaço no carrossel.</p>
         </div>
       } @else {
         <form class="banner-form" (ngSubmit)="saveBanner()">
           <div class="builder-note">
-            <strong>Como esse banner aparece na home</strong>
-            <p>Se voce deixar titulo, subtitulo e botao vazios, a home mostra apenas a imagem. Preencha esses campos quando quiser uma chamada editorial sobre o banner.</p>
+            <strong>Como o banner será exibido</strong>
+            <p>O título, o subtítulo e o botão são opcionais. Se ficarem vazios, o site exibirá somente a imagem.</p>
           </div>
 
           <div class="form-group">
-            <label for="title">Titulo</label>
-            <small class="field-hint">Opcional. Use uma chamada curta e forte, com no maximo duas linhas no destaque.</small>
+            <label for="title">Título</label>
+            <small class="field-hint">Opcional. Prefira uma chamada curta, que caiba em até duas linhas.</small>
             <input
               id="title"
               type="text"
               name="title"
               [(ngModel)]="form.title"
               maxlength="180"
-              placeholder="Ex: Assine a nova edicao especial"
+              placeholder="Ex.: Uma nova edição para descobrir"
             />
           </div>
 
           <div class="form-group">
-            <label for="subtitle">Subtitulo</label>
-            <small class="field-hint">Opcional. Complemente a ideia do titulo com contexto curto ou beneficio.</small>
+            <label for="subtitle">Subtítulo</label>
+            <small class="field-hint">Opcional. Acrescente contexto ou explique o benefício da chamada.</small>
             <textarea
               id="subtitle"
               name="subtitle"
               [(ngModel)]="form.subtitle"
               rows="4"
               maxlength="320"
-              placeholder="Ex: Conteudo exclusivo, selecao mensal ou campanha editorial em destaque."
+              placeholder="Ex.: Uma seleção de histórias para ler com calma."
             ></textarea>
           </div>
 
           <div class="grid two-columns">
             <div class="form-group">
-              <label for="buttonLabel">Texto do botao</label>
-              <small class="field-hint">Opcional. So faz sentido quando voce tambem informar um link.</small>
+              <label for="buttonLabel">Texto do botão</label>
+              <small class="field-hint">Opcional. Será exibido quando o banner tiver um link.</small>
               <input
                 id="buttonLabel"
                 type="text"
                 name="buttonLabel"
                 [(ngModel)]="form.buttonLabel"
                 maxlength="60"
-                placeholder="Ex: Saiba mais"
+                placeholder="Ex.: Saiba mais"
               />
             </div>
 
             <div class="form-group">
               <label for="targetUrl">Link do banner</label>
-              <small class="field-hint">Opcional. Pode ser uma rota interna como /newsletter ou um link completo https://...</small>
+              <small class="field-hint">Opcional. Use uma página do site, como /newsletter, ou um endereço completo.</small>
               <input
                 id="targetUrl"
                 type="text"
                 name="targetUrl"
                 [(ngModel)]="form.targetUrl"
                 maxlength="1000"
-                placeholder="Ex: /newsletter ou https://softchaos.blog/especial"
+                placeholder="/newsletter ou https://softchaos.blog/especial"
               />
             </div>
           </div>
 
           <div class="grid two-columns">
             <div class="form-group">
-              <label for="displayOrder">Ordem de exibicao</label>
+              <label for="displayOrder">Ordem de exibição</label>
               <select id="displayOrder" name="displayOrder" [(ngModel)]="form.displayOrder">
                 @for (order of orderOptions; track order) {
                   <option [ngValue]="order">{{ order }}</option>
@@ -113,40 +113,40 @@
             <label class="toggle-card">
               <input type="checkbox" name="active" [(ngModel)]="form.active" />
               <span>
-                <strong>Banner ativo</strong>
-                <small>Somente banners ativos entram no carousel da home.</small>
+                <strong>Exibir banner</strong>
+                <small>Somente banners ativos aparecem no carrossel da página inicial.</small>
               </span>
             </label>
           </div>
 
           <div class="form-group">
             <label for="imageAltText">Texto alternativo da imagem</label>
-            <small class="field-hint">Recomendado para acessibilidade. Descreva a cena ou a arte exibida no banner.</small>
+            <small class="field-hint">Recomendado para acessibilidade. Descreva a imagem para quem usa leitor de tela.</small>
             <input
               id="imageAltText"
               type="text"
               name="imageAltText"
               [(ngModel)]="form.imageAltText"
               maxlength="255"
-              placeholder="Ex: Colagem colorida com notebook, formas geometricas e capas editoriais"
+              placeholder="Ex.: Colagem colorida com um notebook e capas editoriais."
             />
           </div>
 
           <div class="form-group">
             <label class="upload-box" for="bannerImage">
-              <span>{{ isEditing ? 'Trocar imagem do banner' : 'Selecionar imagem do banner' }}</span>
-              <small>JPG, PNG ou WEBP. Prefira arte horizontal em 1920x1080 px ou maior, com informacoes importantes no centro da imagem.</small>
+              <span>{{ isEditing ? 'Trocar imagem do banner' : 'Escolher imagem do banner' }}</span>
+              <small id="bannerImageHint">{{ isEditing ? 'Opcional. Selecione um arquivo para substituir a imagem atual.' : 'Obrigatória para um novo banner. JPG, PNG ou WEBP; prefira 1.920 × 1.080 px ou mais.' }}</small>
+              <input id="bannerImage" class="upload-input" type="file" accept="image/jpeg,image/png,image/webp" (change)="onImageSelected($event)" />
             </label>
-            <input id="bannerImage" type="file" accept="image/*" (change)="onImageSelected($event)" />
           </div>
 
           @if (imagePreviewUrl) {
             <div class="preview-card">
-              <img [src]="imagePreviewUrl" [alt]="form.imageAltText || form.title || 'Preview do banner'" />
+              <img [src]="imagePreviewUrl" [alt]="form.imageAltText || form.title || 'Prévia do banner'" />
               <div class="preview-copy">
-                <span>{{ hasManualContent ? 'Preview com texto na home' : 'Preview de imagem limpa na home' }}</span>
-                <strong>{{ form.title || 'Sem titulo sobreposto' }}</strong>
-                <p>{{ form.subtitle || 'Esse banner aparecera apenas com a imagem, sem bloco de texto por cima.' }}</p>
+                <span>{{ hasManualContent ? 'Prévia com texto na página inicial' : 'Prévia da imagem na página inicial' }}</span>
+                <strong>{{ form.title || 'Sem título sobreposto' }}</strong>
+                <p>{{ form.subtitle || 'Este banner será exibido somente com a imagem.' }}</p>
               </div>
             </div>
           }
@@ -161,8 +161,8 @@
     <article class="panel">
       <div class="panel-head">
         <div>
-          <p class="eyebrow">Lista atual</p>
-          <h3>Banners configurados</h3>
+          <p class="eyebrow">Banners</p>
+          <h3>Banners cadastrados</h3>
         </div>
       </div>
 

@@ -81,7 +81,7 @@ export class CommentsModern implements OnInit {
         this.loading = false;
       },
       error: (err: any) => {
-        this.error = 'Erro ao carregar comentarios: ' + (err.error?.message || err.message);
+        this.error = 'Erro ao carregar os comentários: ' + (err.error?.message || err.message);
         this.loading = false;
       }
     });
@@ -141,10 +141,10 @@ export class CommentsModern implements OnInit {
     this.commentService.approveComment(comment.id).subscribe({
       next: (updatedComment) => {
         this.replaceComment(updatedComment);
-        this.actionMessage = 'Comentario aprovado e liberado na materia.';
+        this.actionMessage = 'Comentário aprovado e publicado na matéria.';
       },
       error: (err: any) => {
-        this.error = 'Erro ao aprovar comentario: ' + (err.error?.message || err.message);
+        this.error = 'Erro ao aprovar o comentário: ' + (err.error?.message || err.message);
         this.actionLoadingId = null;
       }
     });
@@ -157,10 +157,10 @@ export class CommentsModern implements OnInit {
     this.commentService.rejectComment(comment.id).subscribe({
       next: (updatedComment) => {
         this.replaceComment(updatedComment);
-        this.actionMessage = 'Comentario rejeitado. Ele sera removido definitivamente depois de 10 dias.';
+        this.actionMessage = 'Comentário rejeitado. Ele será removido definitivamente após 10 dias.';
       },
       error: (err: any) => {
-        this.error = 'Erro ao rejeitar comentario: ' + (err.error?.message || err.message);
+        this.error = 'Erro ao rejeitar o comentário: ' + (err.error?.message || err.message);
         this.actionLoadingId = null;
       }
     });
@@ -192,10 +192,10 @@ export class CommentsModern implements OnInit {
           rawStatus: 'DELETED'
         });
         this.pendingDeleteComment = undefined;
-        this.actionMessage = 'Comentario marcado como apagado. Ele sera removido definitivamente depois de 10 dias.';
+        this.actionMessage = 'Comentário marcado como apagado. Ele será removido definitivamente após 10 dias.';
       },
       error: (err: any) => {
-        this.error = 'Erro ao apagar comentario: ' + (err.error?.message || err.message);
+        this.error = 'Erro ao apagar o comentário: ' + (err.error?.message || err.message);
         this.actionLoadingId = null;
       }
     });
@@ -260,4 +260,3 @@ export class CommentsModern implements OnInit {
     this.loadFilterCounts();
   }
 }
-

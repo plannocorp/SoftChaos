@@ -1,13 +1,13 @@
 ﻿<section class="status-board">
   <section class="status-header">
     <div>
-      <p class="eyebrow">Gestao editorial</p>
+      <p class="eyebrow">Gestão editorial</p>
       <h2>{{ title }}</h2>
       <p>{{ subtitle }}</p>
     </div>
 
     <a class="header-action" routerLink="/security/adimin-dashboard/create-article">
-      Nova materia
+      Nova matéria
     </a>
   </section>
 
@@ -18,9 +18,9 @@
   @if (pendingDeleteArticle) {
     <section class="confirm-panel">
       <div>
-        <p class="eyebrow">Confirmar exclusao</p>
-        <h3>Excluir {{ pendingDeleteArticle.title }}</h3>
-        <p>Esta acao remove a materia do painel e da area publica de forma definitiva.</p>
+        <p class="eyebrow">Confirmação necessária</p>
+        <h3>Excluir “{{ pendingDeleteArticle.title }}”?</h3>
+        <p>Esta ação removerá a matéria do painel e do site de forma definitiva.</p>
       </div>
 
       <div class="confirm-actions">
@@ -31,7 +31,7 @@
           [disabled]="deletingId === pendingDeleteArticle.id"
           (click)="confirmDeleteArticle()"
         >
-          {{ deletingId === pendingDeleteArticle.id ? 'Excluindo...' : 'Excluir materia' }}
+          {{ deletingId === pendingDeleteArticle.id ? 'Excluindo...' : 'Excluir matéria' }}
         </button>
       </div>
     </section>
@@ -55,7 +55,7 @@
       </label>
 
       <label>
-        <span>Ate</span>
+        <span>Até</span>
         <input type="date" name="endDate" [(ngModel)]="endDate" (change)="applyPublishedFilters()" />
       </label>
 
@@ -111,11 +111,11 @@
             <div class="publication-stats">
               <div>
                 <strong>{{ article.viewCount || 0 }}</strong>
-                <span>visualizacoes</span>
+                <span>visualizações</span>
               </div>
               <div>
                 <strong>{{ article.commentsCount || 0 }}</strong>
-                <span>comentarios</span>
+                <span>comentários</span>
               </div>
             </div>
 
@@ -180,11 +180,11 @@
     </section>
 
     @if (totalPages > 1) {
-      <nav class="pagination-bar" aria-label="Paginacao de artigos">
-        <span>{{ getPageLabel() }} · {{ totalElements }} artigos</span>
+        <nav class="pagination-bar" aria-label="Paginação de artigos">
+        <span>{{ getPageLabel() }} · {{ totalElements }} matérias</span>
         <div>
           <button type="button" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">Anterior</button>
-          <button type="button" [disabled]="currentPage + 1 >= totalPages" (click)="goToPage(currentPage + 1)">Proxima</button>
+          <button type="button" [disabled]="currentPage + 1 >= totalPages" (click)="goToPage(currentPage + 1)">Próxima</button>
         </div>
       </nav>
     }
@@ -205,7 +205,7 @@
               <div class="carousel-controls">
                 <button type="button" (click)="goToModalImage(-1)">Anterior</button>
                 <span>{{ selectedImageIndex + 1 }} / {{ getSelectedArticleImages().length }}</span>
-                <button type="button" (click)="goToModalImage(1)">Proxima</button>
+                <button type="button" (click)="goToModalImage(1)">Próxima</button>
               </div>
             }
           }
@@ -232,11 +232,11 @@
           <div class="publication-stats">
             <div>
               <strong>{{ selectedArticle.viewCount || 0 }}</strong>
-              <span>visualizacoes</span>
+              <span>visualizações</span>
             </div>
             <div>
               <strong>{{ selectedArticle.commentsCount || 0 }}</strong>
-              <span>comentarios</span>
+              <span>comentários</span>
             </div>
           </div>
 
@@ -301,4 +301,3 @@
   }
 
 </section>
-

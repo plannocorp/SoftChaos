@@ -32,7 +32,7 @@ export class OverviewModern implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.error = 'Nao foi possivel carregar os dados do dashboard.';
+        this.error = 'Não foi possível carregar os dados do painel.';
         this.loading = false;
       }
     });
@@ -80,7 +80,7 @@ export class OverviewModern implements OnInit {
 
   getPendingCommentsLabel(): string {
     const total = this.stats?.pendingComments ?? 0;
-    return total === 1 ? '1 comentario pendente' : `${total} comentarios pendentes`;
+    return total === 1 ? '1 comentário pendente' : `${total} comentários pendentes`;
   }
 
   getStatusLabel(status: string): string {

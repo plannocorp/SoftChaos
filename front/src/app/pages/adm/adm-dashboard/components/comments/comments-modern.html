@@ -1,19 +1,19 @@
 ﻿<section class="comments-modern">
   <div class="page-head">
     <div>
-      <p class="eyebrow">Moderacao completa</p>
-      <h2>Comentarios por status</h2>
-      <p>Visualize cada comentario com a materia relacionada, filtre por status e aprove, rejeite ou apague com clareza.</p>
+      <p class="eyebrow">Moderação</p>
+      <h2>Comentários por status</h2>
+      <p>Consulte cada comentário, veja a matéria relacionada e decida o que será publicado.</p>
     </div>
 
     <label class="search-box">
-      <span>Buscar</span>
+      <span>Buscar comentários</span>
       <input
         type="text"
         name="searchTerm"
         [(ngModel)]="searchTerm"
         (input)="filterComments()"
-        placeholder="Autor, email, comentario ou artigo"
+        placeholder="Nome, e-mail, comentário ou matéria"
       />
     </label>
   </div>
@@ -32,7 +32,7 @@
     }
   </div>
 
-  <div class="advanced-filters" aria-label="Filtros de comentarios">
+  <div class="advanced-filters" aria-label="Filtros de comentários">
     <label>
       <span>Artigo</span>
       <input
@@ -40,7 +40,7 @@
         name="articleFilter"
         [(ngModel)]="articleFilter"
         (keyup.enter)="applyDashboardFilters()"
-        placeholder="Titulo ou slug da materia"
+        placeholder="Título ou endereço da matéria"
       />
     </label>
 
@@ -50,7 +50,7 @@
     </label>
 
     <label>
-      <span>Ate</span>
+      <span>Até</span>
       <input type="date" name="dateTo" [(ngModel)]="dateTo" (change)="applyDashboardFilters()" />
     </label>
 
@@ -71,9 +71,9 @@
   @if (pendingDeleteComment) {
     <section class="confirm-panel">
       <div>
-        <p class="eyebrow">Confirmar exclusao</p>
-        <h3>Apagar comentario de {{ pendingDeleteComment.author }}</h3>
-        <p>Este comentario sera marcado como apagado agora e removido definitivamente depois de 10 dias.</p>
+        <p class="eyebrow">Confirmação necessária</p>
+        <h3>Apagar comentário de {{ pendingDeleteComment.author }}?</h3>
+        <p>O comentário será marcado como apagado e removido definitivamente após 10 dias.</p>
       </div>
 
       <div class="confirm-actions">
@@ -84,7 +84,7 @@
           [disabled]="actionLoadingId === pendingDeleteComment.id"
           (click)="confirmDeleteComment()"
         >
-          {{ actionLoadingId === pendingDeleteComment.id ? 'Apagando...' : 'Apagar comentario' }}
+          {{ actionLoadingId === pendingDeleteComment.id ? 'Apagando...' : 'Apagar comentário' }}
         </button>
       </div>
     </section>
@@ -92,9 +92,9 @@
 
   <div class="comments-list">
     @if (loading) {
-      <div class="state-card">Carregando comentarios...</div>
+      <div class="state-card">Carregando comentários...</div>
     } @else if (!filteredComments.length) {
-      <div class="state-card">Nenhum comentario encontrado para este filtro.</div>
+      <div class="state-card">Nenhum comentário encontrado com estes filtros.</div>
     } @else {
       <div class="comment-grid">
         @for (comment of filteredComments; track comment.id) {
@@ -133,7 +133,7 @@
                 <div class="comment-actions">
                   @if (getPublicationLink(comment)) {
                     <a class="preview" [href]="getPublicationLink(comment)!" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">
-                      Abrir materia
+                      Abrir matéria
                     </a>
                   }
 
@@ -176,11 +176,11 @@
       </div>
 
       @if (totalPages > 1) {
-        <nav class="pagination-bar" aria-label="Paginacao de comentarios">
-          <span>Pagina {{ currentPage + 1 }} de {{ totalPages }} · {{ totalElements }} comentarios</span>
+        <nav class="pagination-bar" aria-label="Paginação de comentários">
+          <span>Página {{ currentPage + 1 }} de {{ totalPages }} · {{ totalElements }} comentários</span>
           <div>
             <button type="button" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">Anterior</button>
-            <button type="button" [disabled]="currentPage + 1 >= totalPages" (click)="goToPage(currentPage + 1)">Proxima</button>
+            <button type="button" [disabled]="currentPage + 1 >= totalPages" (click)="goToPage(currentPage + 1)">Próxima</button>
           </div>
         </nav>
       }
@@ -193,7 +193,7 @@
         <div class="modal-copy">
           <div class="preview-head">
             <div>
-              <p class="eyebrow">Comentario selecionado</p>
+              <p class="eyebrow">Comentário selecionado</p>
               <h3>{{ selectedComment.author }}</h3>
               <span>{{ selectedComment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
             </div>
@@ -221,7 +221,7 @@
           <div class="comment-actions">
             @if (getPublicationLink(selectedComment)) {
               <a class="preview" [href]="getPublicationLink(selectedComment)!" target="_blank" rel="noopener noreferrer">
-                Abrir materia
+                Abrir matéria
               </a>
             }
 

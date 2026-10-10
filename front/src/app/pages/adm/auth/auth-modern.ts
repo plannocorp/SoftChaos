@@ -48,7 +48,7 @@ export class AuthModern {
     this.password = normalizedPassword;
 
     if (!normalizedEmail || !normalizedPassword) {
-      this.error = 'Preencha email e senha para continuar.';
+      this.error = 'Informe seu e-mail e sua senha para continuar.';
       this.loading = false;
       return;
     }
@@ -68,12 +68,12 @@ export class AuthModern {
           localStorage.setItem('token', response.data.token);
           this.router.navigate(['/security/adimin-dashboard']);
         } else {
-          this.error = 'Nao foi possivel iniciar a sessao.';
+          this.error = 'Não foi possível iniciar sua sessão.';
         }
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
-        this.error = err.error?.message || 'Email ou senha invalidos.';
+        this.error = err.error?.message || 'E-mail ou senha inválidos.';
       }
     });
   }

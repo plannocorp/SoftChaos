@@ -17,18 +17,18 @@ export class AdmDashboardModern implements OnInit {
   mobileMenuOpen = false;
   navigationItems = [
     {
-      label: 'Overview',
+      label: 'Visão geral',
       description: 'Panorama geral',
       route: '/security/adimin-dashboard/overview',
     },
     {
       label: 'Publicar',
-      description: 'Nova materia',
+      description: 'Nova matéria',
       route: '/security/adimin-dashboard/create-article',
     },
     {
       label: 'Rascunhos',
-      description: 'Materias em edicao',
+      description: 'Matérias em edição',
       route: '/security/adimin-dashboard/drafts',
     },
     {
@@ -38,17 +38,17 @@ export class AdmDashboardModern implements OnInit {
     },
     {
       label: 'Publicados',
-      description: 'Conteudo no ar',
+      description: 'Conteúdo no ar',
       route: '/security/adimin-dashboard/published',
     },
     {
-      label: 'Comentarios',
+      label: 'Comentários',
       description: 'Todos os status',
       route: '/security/adimin-dashboard/comments',
     },
     {
       label: 'Banners',
-      description: 'Carousel da home',
+      description: 'Carrossel da página inicial',
       route: '/security/adimin-dashboard/banners',
     },
   ];
@@ -69,7 +69,7 @@ export class AdmDashboardModern implements OnInit {
     }
 
     this.userName = user.name || 'Equipe SoftChaos';
-    this.userRole = user.role || 'ADMIN';
+    this.userRole = user.role || 'Administradora';
     this.userInitials = this.userName
       .split(' ')
       .filter(Boolean)

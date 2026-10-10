@@ -98,7 +98,7 @@ export class ArticleStatusBoard implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.error = 'Nao foi possivel carregar esta lista agora.';
+        this.error = 'Não foi possível carregar esta lista agora.';
         this.loading = false;
       }
     });
@@ -190,7 +190,7 @@ export class ArticleStatusBoard implements OnInit {
         this.loadArticles();
       },
       error: () => {
-        this.actionMessage = 'Nao foi possivel publicar o artigo agora.';
+        this.actionMessage = 'Não foi possível publicar a matéria agora.';
         this.publishingId = null;
       }
     });
@@ -207,7 +207,7 @@ export class ArticleStatusBoard implements OnInit {
         this.loadArticles();
       },
       error: () => {
-        this.actionMessage = 'Nao foi possivel arquivar o artigo agora.';
+        this.actionMessage = 'Não foi possível arquivar a matéria agora.';
         this.archivingId = null;
       }
     });
@@ -242,7 +242,7 @@ export class ArticleStatusBoard implements OnInit {
         this.deletingId = null;
       },
       error: () => {
-        this.actionMessage = 'Nao foi possivel excluir o artigo agora.';
+        this.actionMessage = 'Não foi possível excluir a matéria agora.';
         this.deletingId = null;
       }
     });
@@ -286,7 +286,7 @@ export class ArticleStatusBoard implements OnInit {
       return '0 artigos';
     }
 
-    return `Pagina ${this.currentPage + 1} de ${this.totalPages}`;
+    return `Página ${this.currentPage + 1} de ${this.totalPages}`;
   }
 
   private canUseHoverPreview(): boolean {
@@ -294,4 +294,3 @@ export class ArticleStatusBoard implements OnInit {
       && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   }
 }
-

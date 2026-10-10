@@ -80,7 +80,7 @@ export class BannerManager implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: () => {
-        this.error = 'Nao foi possivel carregar os banners do painel.';
+        this.error = 'Não foi possível carregar os banners do painel.';
         this.loading = false;
       }
     });
@@ -131,7 +131,7 @@ export class BannerManager implements OnInit, OnDestroy {
     }
 
     if (!this.canCreateMoreBanners) {
-      this.error = 'O limite de 5 banners ja foi atingido.';
+      this.error = 'O limite de 5 banners já foi atingido.';
       return;
     }
 
@@ -152,7 +152,7 @@ export class BannerManager implements OnInit, OnDestroy {
         this.loadBanners();
       },
       error: (error) => {
-        this.error = this.extractErrorMessage(error, 'Nao foi possivel salvar o banner.');
+        this.error = this.extractErrorMessage(error, 'Não foi possível salvar o banner.');
         this.saving = false;
       }
     });
@@ -161,7 +161,7 @@ export class BannerManager implements OnInit, OnDestroy {
   deleteBanner(banner: BannerItem): void {
     this.clearMessages();
 
-    if (!window.confirm(`Remover o banner "${this.getBannerDisplayTitle(banner)}"?`)) {
+    if (!window.confirm(`Remover o banner “${this.getBannerDisplayTitle(banner)}”?`)) {
       return;
     }
 
@@ -174,7 +174,7 @@ export class BannerManager implements OnInit, OnDestroy {
         this.loadBanners();
       },
       error: (error) => {
-        this.error = this.extractErrorMessage(error, 'Nao foi possivel remover o banner.');
+        this.error = this.extractErrorMessage(error, 'Não foi possível remover o banner.');
       }
     });
   }
@@ -236,11 +236,11 @@ export class BannerManager implements OnInit, OnDestroy {
 
   getBannerDisplayTitle(banner: BannerItem): string {
     return banner.title?.trim()
-      || (banner.subtitle?.trim() ? 'Banner com subtitulo' : 'Banner sem texto');
+      || (banner.subtitle?.trim() ? 'Banner com subtítulo' : 'Banner sem texto');
   }
 
   getBannerDisplaySummary(banner: BannerItem): string {
     return banner.subtitle?.trim()
-      || (banner.title?.trim() ? 'Banner com imagem e chamada principal.' : 'Imagem limpa, sem texto sobreposto na home.');
+      || (banner.title?.trim() ? 'Banner com imagem e chamada principal.' : 'Imagem limpa, sem texto sobreposto na página inicial.');
   }
 }
