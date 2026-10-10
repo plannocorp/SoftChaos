@@ -11,7 +11,7 @@ Soft Chaos e um portal editorial full stack para publicacao de noticias, artigos
 - Moderacao de comentarios com fluxo de aprovacao.
 - Painel de indicadores com totais de artigos, status de publicacao, comentarios, usuarios e top artigos.
 - API documentada com OpenAPI/Swagger.
-- Deploy separado para frontend e backend, com suporte a Render, Vercel e armazenamento via Supabase.
+- Deploy de produção com frontend no Cloudflare Pages, backend na VPS Hostinger e banco no Supabase.
 
 ## Stack
 
@@ -33,7 +33,7 @@ SoftChaos/
 ├── backend/              # API Spring Boot
 ├── front/                # Aplicacao Angular
 ├── .github/workflows/    # Automacoes do GitHub Actions
-├── render.yaml           # Blueprint do backend no Render
+├── compose.hostinger.yaml # Serviço de produção na VPS Hostinger
 └── README.md
 ```
 
@@ -155,7 +155,7 @@ O health check fica em:
 
 Configure o projeto com `front` como diretório raiz, `npm run build` como comando e `dist/soft-chaos-blog/browser` como diretório de saída. O arquivo `front/public/_redirects` mantém as rotas do Angular funcionando no Pages.
 
-Use `VITE_API_BASE_URL=https://api.softchaos.blog` no ambiente de produção. Para um domínio personalizado, associe `www.softchaos.blog` ao Pages e crie no DNS um CNAME para o subdomínio `*.pages.dev` informado pelo Cloudflare.
+Use `VITE_API_BASE_URL=https://api.softchaos.blog` no ambiente de produção. O domínio `www.softchaos.blog` deve estar associado ao projeto Pages com um registro CNAME `www` apontando para `softchaos.pages.dev`.
 
 ### Backend na VPS Hostinger
 
@@ -169,13 +169,13 @@ Na VPS, clone o repositório, copie `.env.hostinger.example` para `.env.hostinge
 docker compose -f compose.hostinger.yaml up -d --build
 ```
 
-O arquivo `.env.hostinger` não deve ser versionado. O exemplo versionado contém apenas valores fictícios.
+O arquivo `.env.hostinger` não deve ser versionado. O exemplo versionado contém apenas valores fictícios. A VPS deve executar somente o backend de produção do SoftChaos, conectado ao Supabase de produção.
 
 ### Banco de dados Supabase
 
 Use um projeto PostgreSQL próprio do SoftChaos. Configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` no `.env.hostinger` da VPS. O bucket de mídia esperado é `softchaos-media`.
 
-Os arquivos `render.yaml`, `front/vercel.json` e o workflow de keepalive foram mantidos para preservar o deploy anterior; o novo destino está descrito acima.
+O frontend é servido pelo Cloudflare Pages; o backend de produção roda na VPS Hostinger e usa o Supabase. Não há deploy de produção do SoftChaos na Vercel ou no Render.
 
 ## Qualidade
 
