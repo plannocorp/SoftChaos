@@ -24,7 +24,7 @@ Soft Chaos e um portal editorial full stack para publicacao de noticias, artigos
 | Midia | Upload local ou Supabase Storage |
 | Email | Spring Mail |
 | Observabilidade | Spring Actuator |
-| Deploy | Render para backend, Vercel para frontend |
+| Deploy | Cloudflare Pages para frontend, Hostinger VPS para backend |
 
 ## Estrutura
 
@@ -151,38 +151,31 @@ O health check fica em:
 
 ## Deploy
 
-### Backend no Render
+### Frontend no Cloudflare Pages
 
-Configure o servico como `Web Service` com `Root Directory` apontando para `backend`. O `render.yaml` do repositorio define o servico `softchaos-backend` usando Docker.
+Configure o projeto com `front` como diretório raiz, `npm run build` como comando e `dist/soft-chaos-blog/browser` como diretório de saída. O arquivo `front/public/_redirects` mantém as rotas do Angular funcionando no Pages.
 
-Variaveis recomendadas:
+Use `VITE_API_BASE_URL=https://api.softchaos.blog` no ambiente de produção. Para um domínio personalizado, associe `www.softchaos.blog` ao Pages e crie no DNS um CNAME para o subdomínio `*.pages.dev` informado pelo Cloudflare.
 
-```text
-SPRING_PROFILES_ACTIVE=prod
-PORT=${{ PORT }}
-DB_URL=jdbc:postgresql://aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require
-DB_USERNAME=postgres.twfkkfwajotkiupdpyym
-DB_PASSWORD=...
-JWT_SECRET=...
-FRONTEND_URL=https://seu-front.vercel.app
-MEDIA_STORAGE_PROVIDER=supabase
-SUPABASE_URL=https://...
-SUPABASE_SERVICE_ROLE_KEY=...
-SUPABASE_STORAGE_BUCKET=softchaos-media
-EMAIL_USERNAME=...
-EMAIL_PASSWORD=...
-EMAIL_FROM=noreply@softchaos.com
+### Backend na VPS Hostinger
+
+O backend usa Docker Compose e compartilha a rede Docker do projeto existente na VPS. A configuração Caddy em `Caddyfile.hostinger` encaminha `api.softchaos.blog` para o container `softchaos-backend`; aplique essa rota ao Caddy que já atende a VPS. Não inicie um segundo proxy nas portas 80 e 443.
+
+Aponte o registro A `api.softchaos.blog` para o IP da VPS. O Caddy existente deve emitir e manter o certificado TLS do subdomínio.
+
+Na VPS, clone o repositório, copie `.env.hostinger.example` para `.env.hostinger`, preencha as credenciais do projeto Supabase destinado ao SoftChaos e inicie o serviço:
+
+```bash
+docker compose -f compose.hostinger.yaml up -d --build
 ```
 
-### Frontend na Vercel
+O arquivo `.env.hostinger` não deve ser versionado. O exemplo versionado contém apenas valores fictícios.
 
-Configure o projeto com `Root Directory` apontando para `front`.
+### Banco de dados Supabase
 
-Variavel recomendada:
+Use um projeto PostgreSQL próprio do SoftChaos. Configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` no `.env.hostinger` da VPS. O bucket de mídia esperado é `softchaos-media`.
 
-```text
-VITE_API_BASE_URL=https://seu-backend.onrender.com
-```
+Os arquivos `render.yaml`, `front/vercel.json` e o workflow de keepalive foram mantidos para preservar o deploy anterior; o novo destino está descrito acima.
 
 ## Qualidade
 

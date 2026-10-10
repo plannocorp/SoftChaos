@@ -1,0 +1,16 @@
+services:
+  backend:
+    container_name: softchaos-backend
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - .env.hostinger
+    expose:
+      - "8080"
+    networks:
+      - vps_default
+
+networks:
+  vps_default:
+    external: true
