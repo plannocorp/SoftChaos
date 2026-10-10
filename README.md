@@ -56,7 +56,7 @@ Ambiente local:
 cp front/.env.example front/.env
 ```
 
-Configure `VITE_API_BASE_URL` conforme o ambiente em uso.
+Em produção, o frontend Angular usa `https://api.softchaos.blog` como API. No desenvolvimento local, o proxy do Angular encaminha as chamadas `/api` para o backend local.
 
 ## Backend
 
@@ -155,7 +155,7 @@ O health check fica em:
 
 Configure o projeto com `front` como diretório raiz, `npm run build` como comando e `dist/soft-chaos-blog/browser` como diretório de saída. O arquivo `front/public/_redirects` mantém as rotas do Angular funcionando no Pages.
 
-Use `VITE_API_BASE_URL=https://api.softchaos.blog` no ambiente de produção. O domínio `www.softchaos.blog` deve estar associado ao projeto Pages com um registro CNAME `www` apontando para `softchaos.pages.dev`.
+O frontend usa `https://api.softchaos.blog` em produção. O domínio `www.softchaos.blog` deve estar associado ao projeto Pages com um registro CNAME `www` apontando para `softchaos.pages.dev`.
 
 ### Backend na VPS Hostinger
 
@@ -190,6 +190,12 @@ npm run build
 cd backend
 ./mvnw test
 ```
+
+## Segurança da API
+
+O backend limita cada IP a 120 requisições por minuto; login tem limite de 10 por minuto e os formulários públicos de comentários e newsletter, 8 por minuto. Respostas limitadas usam HTTP 429 e `Retry-After`. A Caddy deve ser o único caminho público até o container da API para que o endereço encaminhado seja confiável.
+
+Listas paginadas aceitam no máximo 100 itens por página, uploads têm limite de 10 MB e a documentação OpenAPI fica desativada em produção. Configure um `JWT_SECRET` aleatório com pelo menos 32 bytes; a aplicação recusa valores curtos, placeholders conhecidos e expirações acima de 30 dias.
 
 ## Licenca
 

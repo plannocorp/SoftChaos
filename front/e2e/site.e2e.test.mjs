@@ -59,9 +59,19 @@ after(async () => {
   if (server && server.exitCode === null) server.kill('SIGTERM');
 });
 
-async function openSite(page) {
+async function openSite(page, { apiAvailable = true, onLatestRequest } = {}) {
   await page.route('**/api/articles/latest**', (route) =>
-    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [article, { ...article, id: 9002, title: 'Criatividade e cultura digital', slug: 'criatividade-cultura-digital' }, { ...article, id: 9003, title: 'Como encontrar boas referências', slug: 'boas-referencias' }] }) })
+    {
+      onLatestRequest?.(route.request());
+      return apiAvailable
+        ? route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [article, { ...article, id: 9002, title: 'Criatividade e cultura digital', slug: 'criatividade-cultura-digital' }, { ...article, id: 9003, title: 'Como encontrar boas referências', slug: 'boas-referencias' }] }) })
+        : route.abort();
+    }
+  );
+  await page.route('**/api/banners/active', (route) =>
+    apiAvailable
+      ? route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) })
+      : route.abort()
   );
   await page.route('**/api/articles/slug/tecnologia-independente-2026', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: apiArticle }) })
@@ -92,13 +102,36 @@ test('home mantém espaço lateral para as notícias em desktop e mobile', async
   await openSite(page);
   const desktopBounds = await page.locator('app-featured-news').boundingBox();
   assert.ok(desktopBounds);
-  assert.ok(desktopBounds.x >= 40, 'as notícias devem ter margem lateral em desktop');
+  assert.ok(desktopBounds.x >= 80, 'as notícias devem ter margem lateral em desktop');
   assert.ok(desktopBounds.width <= 1280, 'as notícias devem respeitar a largura máxima');
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobileBounds = await page.locator('app-featured-news').boundingBox();
   assert.ok(mobileBounds);
-  assert.ok(mobileBounds.x >= 16, 'as notícias devem ter margem lateral em mobile');
-  assert.ok(mobileBounds.x + mobileBounds.width <= 374, 'as notícias devem caber dentro da tela em mobile');
+  assert.ok(mobileBounds.x >= 28, 'as notícias devem ter margem lateral em mobile');
+  assert.ok(mobileBounds.x + mobileBounds.width <= 362, 'as notícias devem caber dentro da tela em mobile');
+  await page.close();
+});
+
+test('falha da API sai do estado de carregamento e mostra uma mensagem', async () => {
+  const page = await browser.newPage();
+  await openSite(page, { apiAvailable: false });
+  await page.getByText('Nao foi possivel carregar as noticias em destaque agora.').waitFor();
+  await page.getByText('Nao foi possivel carregar os banners da home.').waitFor();
+  assert.equal(await page.getByText('Carregando noticias em destaque...').count(), 0);
+  await page.close();
+});
+
+test('não envia token salvo do admin para endpoints públicos', async () => {
+  const page = await browser.newPage();
+  await page.addInitScript(() => localStorage.setItem('token', 'token-de-teste'));
+  let authorizationHeader;
+  await openSite(page, {
+    onLatestRequest: (request) => {
+      authorizationHeader = request.headers().authorization;
+    },
+  });
+  await page.getByRole('heading', { name: article.title }).first().waitFor();
+  assert.equal(authorizationHeader, undefined);
   await page.close();
 });

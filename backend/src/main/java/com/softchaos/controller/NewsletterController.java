@@ -1,6 +1,7 @@
 package com.softchaos.controller;
 
 import com.softchaos.dto.request.SubscribeNewsletterRequest;
+import com.softchaos.config.PageableSupport;
 import com.softchaos.dto.response.ApiResponse;
 import com.softchaos.dto.response.NewsletterResponse;
 import com.softchaos.dto.response.PagedResponse;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +52,7 @@ public class NewsletterController {
      * Cancela inscrição
      */
     @PostMapping("/unsubscribe")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Cancelar inscrição", description = "Remove email da newsletter")
     public ResponseEntity<ApiResponse<Void>> unsubscribe(@RequestParam String email) {
         newsletterService.unsubscribe(email);
@@ -69,7 +70,7 @@ public class NewsletterController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<NewsletterResponse> subscribers = newsletterService.getAllSubscribers(pageable);
         return ResponseEntity.ok(ApiResponse.success(subscribers));
     }
@@ -85,7 +86,7 @@ public class NewsletterController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<NewsletterResponse> subscribers = newsletterService.getActiveSubscribers(pageable);
         return ResponseEntity.ok(ApiResponse.success(subscribers));
     }

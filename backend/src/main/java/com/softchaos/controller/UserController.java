@@ -2,6 +2,7 @@ package com.softchaos.controller;
 
 import com.softchaos.dto.request.CreateUserRequest;
 import com.softchaos.dto.request.UpdateUserRequest;
+import com.softchaos.config.PageableSupport;
 import com.softchaos.dto.response.ApiResponse;
 import com.softchaos.dto.response.PagedResponse;
 import com.softchaos.dto.response.UserResponse;
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,7 +74,7 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<UserResponse> users = userService.getAllUsers(pageable);
         return ResponseEntity.ok(ApiResponse.success(users));
     }
@@ -88,7 +88,7 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<UserResponse> users = userService.getActiveUsers(pageable);
         return ResponseEntity.ok(ApiResponse.success(users));
     }
@@ -103,7 +103,7 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<UserResponse> users = userService.getUsersByRole(role, pageable);
         return ResponseEntity.ok(ApiResponse.success(users));
     }
@@ -118,7 +118,7 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<UserResponse> users = userService.searchUsersByName(q, pageable);
         return ResponseEntity.ok(ApiResponse.success(users));
     }

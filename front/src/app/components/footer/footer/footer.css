@@ -227,13 +227,13 @@ footer {
 
 @media (max-width: 1180px) {
     .footer-links-container {
-        width: calc(100vw - 18px);
+        width: calc(100vw - 40px);
         grid-template-columns: 1fr;
         gap: 28px;
     }
 
     .footer-bottom {
-        width: calc(100vw - 18px);
+        width: calc(100vw - 40px);
     }
 
     .footer-newsletter-column {
@@ -260,7 +260,7 @@ footer {
     }
 
     .footer-links-container {
-        width: calc(100vw - 16px);
+        width: calc(100vw - 40px);
         grid-template-columns: 1fr;
         gap: 24px;
     }

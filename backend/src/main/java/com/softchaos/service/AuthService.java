@@ -34,7 +34,7 @@ public class AuthService {
      * Autentica usuário e retorna token JWT
      */
     public AuthResponse login(LoginRequest request) {
-        log.info("Tentativa de login para email: {}", request.getEmail());
+        log.info("Tentativa de login recebida");
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -49,7 +49,7 @@ public class AuthService {
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-        log.info("Login bem-sucedido para usuário: {}", userPrincipal.getEmail());
+        log.info("Login bem-sucedido para usuário ID {}", userPrincipal.getId());
 
         return AuthResponse.builder()
                 .token(jwt)
@@ -65,7 +65,7 @@ public class AuthService {
      * Registra novo usuário
      */
     public AuthResponse register(CreateUserRequest request) {
-        log.info("Tentativa de registro para email: {}", request.getEmail());
+        log.info("Tentativa de registro recebida");
 
         // Verifica se email já existe
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -84,7 +84,7 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        log.info("Usuário registrado com sucesso: {}", savedUser.getEmail());
+        log.info("Usuário registrado com sucesso. ID: {}", savedUser.getId());
 
         // Gera token
         String jwt = tokenProvider.generateTokenFromUserId(savedUser.getId());

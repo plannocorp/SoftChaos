@@ -3,6 +3,7 @@ package com.softchaos.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,23 @@ public class JwtTokenProvider {
 
     @Value("${jwt.expiration}")
     private Long jwtExpirationInMs;
+
+    @PostConstruct
+    void validateConfiguration() {
+        String normalizedSecret = jwtSecret == null ? "" : jwtSecret.toLowerCase();
+        if (normalizedSecret.contains("change-me") || normalizedSecret.contains("replace-with")
+                || normalizedSecret.contains("your-secret") || normalizedSecret.contains("default")) {
+            throw new IllegalStateException("JWT_SECRET ainda contém um valor de exemplo; configure um segredo aleatório.");
+        }
+        try {
+            Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        } catch (RuntimeException ex) {
+            throw new IllegalStateException("JWT_SECRET precisa conter pelo menos 32 bytes aleatórios.", ex);
+        }
+        if (jwtExpirationInMs == null || jwtExpirationInMs <= 0 || jwtExpirationInMs > 2_592_000_000L) {
+            throw new IllegalStateException("JWT_EXPIRATION deve ser maior que zero e no máximo 30 dias.");
+        }
+    }
 
     /**
      * Gera token JWT a partir da autenticação

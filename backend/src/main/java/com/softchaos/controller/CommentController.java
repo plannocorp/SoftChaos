@@ -1,6 +1,7 @@
 package com.softchaos.controller;
 
 import com.softchaos.dto.request.CreateCommentRequest;
+import com.softchaos.config.PageableSupport;
 import com.softchaos.dto.response.ApiResponse;
 import com.softchaos.dto.response.CommentResponse;
 import com.softchaos.dto.response.PagedResponse;
@@ -11,7 +12,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -48,7 +48,7 @@ public class CommentController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<CommentResponse> comments = commentService.getApprovedCommentsByArticle(articleId, pageable);
         return ResponseEntity.ok(ApiResponse.success(comments));
     }
@@ -61,7 +61,7 @@ public class CommentController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<CommentResponse> comments = commentService.getPendingComments(pageable);
         return ResponseEntity.ok(ApiResponse.success(comments));
     }
@@ -78,7 +78,7 @@ public class CommentController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "100") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<CommentResponse> comments = commentService.getAdminComments(
                 status,
                 article,
@@ -116,4 +116,3 @@ public class CommentController {
         return ResponseEntity.ok(ApiResponse.success("Comentario deletado com sucesso", null));
     }
 }
-
