@@ -1,6 +1,7 @@
 package com.softchaos.controller;
 
 import com.softchaos.dto.request.CreateArticleRequest;
+import com.softchaos.config.PageableSupport;
 import com.softchaos.dto.request.UpdateArticleRequest;
 import com.softchaos.dto.response.ApiResponse;
 import com.softchaos.dto.response.ArticleResponse;
@@ -14,7 +15,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -87,7 +87,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "DESC") String direction) {
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        Pageable pageable = PageableSupport.of(page, size, Sort.by(sortDirection, sortBy));
 
         PagedResponse<ArticleSummaryResponse> articles = articleService.getPublishedArticles(pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
@@ -103,7 +103,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<ArticleSummaryResponse> articles = articleService.getArticlesByCategory(categoryId, pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
@@ -119,7 +119,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<ArticleSummaryResponse> articles = articleService.getArticlesByAuthor(authorId, pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
@@ -133,7 +133,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<ArticleSummaryResponse> articles = articleService.getFeaturedArticles(pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
@@ -157,7 +157,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<ArticleSummaryResponse> articles = articleService.getMostViewedArticles(pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
@@ -170,7 +170,8 @@ public class ArticleController {
     public ResponseEntity<ApiResponse<List<ArticleSummaryResponse>>> getLatestArticles(
             @RequestParam(defaultValue = "5") int limit) {
 
-        List<ArticleSummaryResponse> articles = articleService.getLatestPublishedArticles(limit);
+        List<ArticleSummaryResponse> articles = articleService.getLatestPublishedArticles(
+                PageableSupport.limit(limit, 5, 50));
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
 
@@ -194,7 +195,7 @@ public class ArticleController {
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         String resolvedSortBy = resolveAdminSort(status, sortBy);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, resolvedSortBy));
+        Pageable pageable = PageableSupport.of(page, size, Sort.by(sortDirection, resolvedSortBy));
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
@@ -219,7 +220,8 @@ public class ArticleController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "4") int limit) {
 
-        List<ArticleSummaryResponse> articles = articleService.getRelatedArticles(id, limit);
+        List<ArticleSummaryResponse> articles = articleService.getRelatedArticles(
+                id, PageableSupport.limit(limit, 4, 20));
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
 
@@ -233,7 +235,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size);
         PagedResponse<ArticleSummaryResponse> articles = articleService.searchArticles(q, pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }

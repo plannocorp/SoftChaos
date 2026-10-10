@@ -71,10 +71,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(resolveAllowedOriginPatterns());
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(true);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+        config.setExposedHeaders(List.of("RateLimit-Limit", "RateLimit-Remaining", "RateLimit-Reset", "Retry-After"));
+        config.setAllowCredentials(false);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -127,7 +127,8 @@ public class SecurityConfig {
                 "/api/categories",
                 "/api/categories/slug/**",
                 "/api/categories/with-articles",
-                "/api/pages/**",
+                "/api/pages/published",
+                "/api/pages/slug/**",
                 "/api/comments/article/**",
                 "/api/newsletter/**",
                 "/uploads/**",

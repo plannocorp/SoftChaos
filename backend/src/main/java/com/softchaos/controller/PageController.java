@@ -44,6 +44,7 @@ public class PageController {
      * Busca página por ID
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')")
     @Operation(summary = "Buscar página por ID", description = "Retorna detalhes de uma página")
     public ResponseEntity<ApiResponse<PageResponse>> getPageById(@PathVariable Long id) {
         PageResponse page = pageService.getPageById(id);
@@ -64,6 +65,7 @@ public class PageController {
      * Lista todas as páginas
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')")
     @Operation(summary = "Listar páginas", description = "Retorna todas as páginas")
     public ResponseEntity<ApiResponse<List<PageResponse>>> getAllPages() {
         List<PageResponse> pages = pageService.getAllPages();

@@ -64,7 +64,7 @@ public class PageService {
     public PageResponse getPageBySlug(String slug) {
         log.info("Buscando página por slug: {}", slug);
 
-        Page page = pageRepository.findBySlug(slug)
+        Page page = pageRepository.findBySlugAndPublishedTrue(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Página", "slug", slug));
 
         return pageMapper.toResponse(page);

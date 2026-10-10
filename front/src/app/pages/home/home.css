@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: flex-start;
     gap: 56px;
-    padding: 34px clamp(20px, 4vw, 64px) 88px;
+    padding: 34px clamp(28px, 6vw, 88px) 88px;
     background:
         radial-gradient(circle at top left, rgba(232, 137, 186, 0.16), transparent 24%),
         radial-gradient(circle at top right, rgba(137, 182, 30, 0.12), transparent 20%),
@@ -67,7 +67,7 @@
 
 @media screen and (max-width: 1366px) {
     .home-shell {
-        padding: 30px clamp(20px, 4vw, 56px) 84px;
+        padding: 30px clamp(28px, 6vw, 80px) 84px;
         gap: 48px;
     }
 
@@ -90,7 +90,7 @@
 @media screen and (max-width: 1100px) {
     .home-shell {
         gap: 42px;
-        padding: 24px 20px 72px;
+        padding: 24px 28px 72px;
     }
 
     .home-hero-intro,
@@ -111,7 +111,7 @@
 @media screen and (max-width: 900px) {
     .home-shell {
         gap: 42px;
-        padding: 24px 18px 72px;
+        padding: 24px 28px 72px;
     }
 
     .home-hero-intro,

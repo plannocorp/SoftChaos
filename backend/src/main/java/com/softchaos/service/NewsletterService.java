@@ -33,7 +33,7 @@ public class NewsletterService {
      * Inscreve novo assinante
      */
     public NewsletterResponse subscribe(SubscribeNewsletterRequest request) {
-        log.info("Nova inscrição na newsletter: {}", request.getEmail());
+        log.info("Nova inscrição na newsletter recebida");
 
         if (newsletterRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException("Email já cadastrado na newsletter");
@@ -57,7 +57,7 @@ public class NewsletterService {
      * Confirma inscrição via token
      */
     public NewsletterResponse confirmSubscription(String token) {
-        log.info("Confirmando inscrição com token: {}", token);
+        log.info("Confirmação de inscrição recebida");
 
         Newsletter newsletter = newsletterRepository.findByConfirmationToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Token de confirmação inválido"));
@@ -67,7 +67,7 @@ public class NewsletterService {
 
         Newsletter confirmedNewsletter = newsletterRepository.save(newsletter);
 
-        log.info("Inscrição confirmada com sucesso. Email: {}", confirmedNewsletter.getEmail());
+        log.info("Inscrição confirmada com sucesso. ID: {}", confirmedNewsletter.getId());
 
         return newsletterMapper.toResponse(confirmedNewsletter);
     }
@@ -76,7 +76,7 @@ public class NewsletterService {
      * Cancela inscrição
      */
     public void unsubscribe(String email) {
-        log.info("Cancelando inscrição: {}", email);
+        log.info("Solicitação de cancelamento de inscrição recebida");
 
         Newsletter newsletter = newsletterRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Newsletter", "email", email));
@@ -84,7 +84,7 @@ public class NewsletterService {
         newsletter.setActive(false);
         newsletterRepository.save(newsletter);
 
-        log.info("Inscrição cancelada com sucesso. Email: {}", email);
+        log.info("Inscrição cancelada com sucesso. ID: {}", newsletter.getId());
     }
 
     /**

@@ -1,4 +1,3 @@
-const configuredApiBaseUrl = ((import.meta as any).env?.['VITE_API_BASE_URL'] as string | undefined)?.trim();
 const defaultProductionApiBaseUrl = 'https://api.softchaos.blog';
 
 function normalizeBaseUrl(baseUrl?: string): string {
@@ -10,10 +9,6 @@ function normalizeBaseUrl(baseUrl?: string): string {
 }
 
 function resolveApiBaseUrl(): string {
-  if (configuredApiBaseUrl) {
-    return normalizeBaseUrl(configuredApiBaseUrl);
-  }
-
   if (typeof window === 'undefined') {
     return normalizeBaseUrl(defaultProductionApiBaseUrl);
   }

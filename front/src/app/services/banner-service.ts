@@ -1,18 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, timeout } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiEnvelope } from '../models/news';
 import { BannerItem } from '../models/banner';
+import { buildApiUrl } from '../config/app-environment';
 
 @Injectable({ providedIn: 'root' })
 export class BannerService {
-  private readonly apiUrl = '/api/banners';
+  private readonly apiUrl = buildApiUrl('/api/banners');
 
   constructor(private http: HttpClient) {}
 
   getPublicBanners(): Observable<BannerItem[]> {
     return this.http.get<ApiEnvelope<BannerItem[]>>(`${this.apiUrl}/active`).pipe(
+      timeout({ first: 5000 }),
       map((response) => response.data ?? [])
     );
   }

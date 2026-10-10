@@ -15,6 +15,8 @@ public interface PageRepository extends JpaRepository<Page, Long> {
      */
     Optional<Page> findBySlug(String slug);
 
+    Optional<Page> findBySlugAndPublishedTrue(String slug);
+
     /**
      * Verifica se existe página com determinado slug
      */
