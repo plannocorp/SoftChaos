@@ -1,5 +1,7 @@
+import { Pagination } from '../../components/shared/pagination/pagination';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { News } from '../../models/news';
 import { Header } from "../../components/header/header/header";
@@ -11,15 +13,19 @@ import { ProgressiveImage } from '../../components/shared/progressive-image/prog
 @Component({
   selector: 'app-search-pages',
   standalone: true,
-  imports: [CommonModule, RouterLink, Header, Footer, LoadingIndicator, ProgressiveImage],
+  imports: [CommonModule, RouterLink, Header, Footer, LoadingIndicator, ProgressiveImage, Pagination],
   templateUrl: './search-pages.html',
   styleUrl: './search-pages.css',
 })
-export class SearchPages implements OnInit {
+export class SearchPages implements OnInit, OnDestroy {
   searchTerm: string = '';
   resultados: News[] = [];
   loading: boolean = false;
   error = '';
+  page = 0;
+  totalPages = 0;
+  private request?: Subscription;
+  private paramsSubscription?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -27,8 +33,13 @@ export class SearchPages implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
+    this.paramsSubscription = this.route.queryParams.subscribe(params => {
+      this.request?.unsubscribe();
       this.searchTerm = params['q'] || '';
+      this.page = 0;
+      this.totalPages = 0;
+      this.error = '';
+      this.loading = false;
 
       if (this.searchTerm.trim()) {
         this.buscarNoticias();
@@ -38,13 +49,16 @@ export class SearchPages implements OnInit {
     });
   }
 
-  private buscarNoticias(): void {
+  public buscarNoticias(page = 0): void {
+    this.request?.unsubscribe();
     this.loading = true;
     this.error = '';
 
-    this.publicArticleService.searchArticles(this.searchTerm).subscribe({
+    this.request = this.publicArticleService.searchArticles(this.searchTerm, page).subscribe({
       next: (articles) => {
-        this.resultados = articles;
+        this.resultados = articles.content;
+        this.page = articles.pageNumber;
+        this.totalPages = articles.totalPages;
         this.loading = false;
       },
       error: (err) => {
@@ -54,5 +68,9 @@ export class SearchPages implements OnInit {
         this.loading = false;
       }
     });
+  }
+  ngOnDestroy(): void {
+    this.request?.unsubscribe();
+    this.paramsSubscription?.unsubscribe();
   }
 }

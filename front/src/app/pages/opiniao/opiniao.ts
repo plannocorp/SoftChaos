@@ -1,3 +1,4 @@
+import { Pagination } from '../../components/shared/pagination/pagination';
 import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
@@ -9,7 +10,7 @@ import { ProgressiveImage } from '../../components/shared/progressive-image/prog
 
 @Component({
   selector: 'app-opiniao',
-  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage],
+  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage, Pagination],
   templateUrl: './opiniao.html',
   styleUrl: './opiniao.css',
 })
@@ -17,6 +18,8 @@ export class Opiniao implements OnInit {
   public newsOpiniao: News[] | undefined;
   public loading = true;
   public error = '';
+  public page = 0;
+  public totalPages = 0;
 
   constructor(private publicArticleService: PublicArticleService) {}
 
@@ -24,13 +27,15 @@ export class Opiniao implements OnInit {
     this.loadOpiniaoNews();
   }
 
-  public loadOpiniaoNews(): void {
+  public loadOpiniaoNews(page = 0): void {
     this.loading = true;
     this.error = '';
 
-    this.publicArticleService.getArticlesByCategorySlug('opiniao').subscribe({
+    this.publicArticleService.getArticlesByCategorySlug('opiniao', page).subscribe({
       next: (articles) => {
-        this.newsOpiniao = articles;
+        this.newsOpiniao = articles.content;
+        this.page = articles.pageNumber;
+        this.totalPages = articles.totalPages;
         this.loading = false;
       },
       error: (err) => {

@@ -1,3 +1,4 @@
+import { Pagination } from '../../components/shared/pagination/pagination';
 import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
@@ -9,7 +10,7 @@ import { ProgressiveImage } from '../../components/shared/progressive-image/prog
 
 @Component({
   selector: 'app-tendencias',
-  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage],
+  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage, Pagination],
   templateUrl: './tendencias.html',
   styleUrl: './tendencias.css',
 })
@@ -17,6 +18,8 @@ export class Tendencias implements OnInit {
   public newsTendencias: News[] | undefined;
   public loading = true;
   public error = '';
+  public page = 0;
+  public totalPages = 0;
 
   constructor(private publicArticleService: PublicArticleService) {}
 
@@ -24,13 +27,15 @@ export class Tendencias implements OnInit {
     this.loadTendenciasNews();
   }
 
-  public loadTendenciasNews(): void {
+  public loadTendenciasNews(page = 0): void {
     this.loading = true;
     this.error = '';
 
-    this.publicArticleService.getArticlesByCategorySlug('tendencias').subscribe({
+    this.publicArticleService.getArticlesByCategorySlug('tendencias', page).subscribe({
       next: (articles) => {
-        this.newsTendencias = articles;
+        this.newsTendencias = articles.content;
+        this.page = articles.pageNumber;
+        this.totalPages = articles.totalPages;
         this.loading = false;
       },
       error: (err) => {

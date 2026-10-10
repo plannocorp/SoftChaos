@@ -74,6 +74,13 @@ export const routes: Routes = [
     },
 
     {
+        path: 'newsletter/confirm',
+        component: NewsletterPage,
+        data: { confirmation: true },
+        title: 'Soft Chaos | Confirmar inscrição'
+    },
+
+    {
         path: 'newsletter',
         component: NewsletterPage,
         title: 'Soft Chaos | Newsletter'

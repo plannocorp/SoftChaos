@@ -87,7 +87,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "DESC") String direction) {
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageableSupport.of(page, size, Sort.by(sortDirection, sortBy));
+        Pageable pageable = PageableSupport.of(page, size, Sort.by(sortDirection, sortBy).and(Sort.by(Sort.Direction.DESC, "id")));
 
         PagedResponse<ArticleSummaryResponse> articles = articleService.getPublishedArticles(pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
@@ -103,7 +103,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageableSupport.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size, Sort.by(Sort.Direction.DESC, "publishedAt", "id"));
         PagedResponse<ArticleSummaryResponse> articles = articleService.getArticlesByCategory(categoryId, pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
@@ -119,7 +119,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageableSupport.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size, Sort.by(Sort.Direction.DESC, "publishedAt", "id"));
         PagedResponse<ArticleSummaryResponse> articles = articleService.getArticlesByAuthor(authorId, pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
@@ -133,7 +133,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size) {
 
-        Pageable pageable = PageableSupport.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size, Sort.by(Sort.Direction.DESC, "publishedAt", "id"));
         PagedResponse<ArticleSummaryResponse> articles = articleService.getFeaturedArticles(pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
@@ -157,7 +157,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageableSupport.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size, Sort.by(Sort.Direction.DESC, "viewCount", "id"));
         PagedResponse<ArticleSummaryResponse> articles = articleService.getMostViewedArticles(pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }
@@ -235,7 +235,7 @@ public class ArticleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageableSupport.of(page, size);
+        Pageable pageable = PageableSupport.of(page, size, Sort.by(Sort.Direction.DESC, "publishedAt", "id"));
         PagedResponse<ArticleSummaryResponse> articles = articleService.searchArticles(q, pageable);
         return ResponseEntity.ok(ApiResponse.success(articles));
     }

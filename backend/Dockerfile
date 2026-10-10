@@ -11,6 +11,7 @@ COPY src src
 RUN ./mvnw -q -DskipTests package
 
 FROM eclipse-temurin:17-jre
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV SPRING_PROFILES_ACTIVE=prod
 

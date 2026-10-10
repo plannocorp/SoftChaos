@@ -1,3 +1,4 @@
+import { Pagination } from '../../components/shared/pagination/pagination';
 import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
@@ -9,7 +10,7 @@ import { ProgressiveImage } from '../../components/shared/progressive-image/prog
 
 @Component({
   selector: 'app-bastidores',
-  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage],
+  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage, Pagination],
   templateUrl: './bastidores.html',
   styleUrl: './bastidores.css',
 })
@@ -17,6 +18,8 @@ export class Bastidores implements OnInit {
   public newsBastidores: News[] | undefined;
   public loading = true;
   public error = '';
+  public page = 0;
+  public totalPages = 0;
 
   constructor(private publicArticleService: PublicArticleService) {}
 
@@ -24,13 +27,15 @@ export class Bastidores implements OnInit {
     this.loadBastidoresNews();
   }
 
-  public loadBastidoresNews(): void {
+  public loadBastidoresNews(page = 0): void {
     this.loading = true;
     this.error = '';
 
-    this.publicArticleService.getArticlesByCategorySlug('bastidores').subscribe({
+    this.publicArticleService.getArticlesByCategorySlug('bastidores', page).subscribe({
       next: (articles) => {
-        this.newsBastidores = articles;
+        this.newsBastidores = articles.content;
+        this.page = articles.pageNumber;
+        this.totalPages = articles.totalPages;
         this.loading = false;
       },
       error: (err) => {

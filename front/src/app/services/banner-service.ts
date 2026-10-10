@@ -4,7 +4,7 @@ import { Observable, timeout } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiEnvelope } from '../models/news';
 import { BannerItem } from '../models/banner';
-import { buildApiUrl } from '../config/app-environment';
+import { buildApiUrl, buildAssetUrl } from '../config/app-environment';
 
 @Injectable({ providedIn: 'root' })
 export class BannerService {
@@ -15,13 +15,13 @@ export class BannerService {
   getPublicBanners(): Observable<BannerItem[]> {
     return this.http.get<ApiEnvelope<BannerItem[]>>(`${this.apiUrl}/active`).pipe(
       timeout({ first: 5000 }),
-      map((response) => response.data ?? [])
+      map((response) => (response.data ?? []).map((banner) => ({ ...banner, imageUrl: buildAssetUrl(banner.imageUrl) || banner.imageUrl })))
     );
   }
 
   getAdminBanners(): Observable<BannerItem[]> {
     return this.http.get<ApiEnvelope<BannerItem[]>>(`${this.apiUrl}/admin`).pipe(
-      map((response) => response.data ?? [])
+      map((response) => (response.data ?? []).map((banner) => ({ ...banner, imageUrl: buildAssetUrl(banner.imageUrl) || banner.imageUrl })))
     );
   }
 

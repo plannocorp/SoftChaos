@@ -24,34 +24,33 @@ ON CONFLICT(email) DO UPDATE SET
 
 INSERT INTO categories(name, slug, description)
 VALUES
-  ('Tecnologia', 'tecnologia', 'Conteudo demonstrativo sobre tecnologia.'),
-  ('Cultura Digital', 'cultura-digital', 'Conteudo demonstrativo sobre cultura digital.'),
-  ('Tendencias', 'tendencias', 'Conteudo demonstrativo sobre tendencias.'),
-  ('Criatividade', 'criatividade', 'Conteudo demonstrativo sobre criatividade.')
-ON CONFLICT(slug) DO UPDATE SET
-  name = EXCLUDED.name,
-  description = EXCLUDED.description;
+  ('Novidades', 'novidades', 'Novidades e noticias do SoftChaos.'),
+  ('Tendencias', 'tendencias', 'Tendencias e cultura digital.'),
+  ('Dicas', 'dicas', 'Dicas e referencias para criadores.'),
+  ('Bastidores', 'bastidores', 'Processos e bastidores da criacao.'),
+  ('Opiniao', 'opiniao', 'Opiniao e reflexoes editoriais.')
+ON CONFLICT(slug) DO NOTHING;
 
 WITH author AS (
   SELECT id FROM users WHERE email = 'demo-editor@softchaos.blog'
 ), seed(slug, title, category, featured, hours_ago, summary, content) AS (
   VALUES
-    ('demo-softchaos-01-biblioteca', '[DEMO] Cidade testa biblioteca de objetos', 'cultura-digital', true, 3,
+    ('demo-softchaos-01-biblioteca', '[DEMO] Cidade testa biblioteca de objetos', 'novidades', true, 3,
      'Noticia ficticia: uma cidade imaginaria testa o emprestimo comunitario de ferramentas.',
      '<p>Conteudo ficticio para demonstracao. Aurora e uma cidade inventada e esta biblioteca comunitaria nao existe.</p>'),
-    ('demo-softchaos-02-mapa', '[DEMO] Aplicativo cria mapa de lugares tranquilos', 'tecnologia', true, 7,
+    ('demo-softchaos-02-mapa', '[DEMO] Aplicativo cria mapa de lugares tranquilos', 'dicas', true, 7,
      'Noticia ficticia: um aplicativo imaginario destaca espacos silenciosos.',
      '<p>Conteudo ficticio para demonstracao. O aplicativo e a metropole desta pauta sao inventados.</p>'),
-    ('demo-softchaos-03-festival', '[DEMO] Festival transforma praca em laboratorio criativo', 'cultura-digital', false, 15,
+    ('demo-softchaos-03-festival', '[DEMO] Festival transforma praca em laboratorio criativo', 'novidades', false, 15,
      'Noticia ficticia: um evento imaginario reune musica e oficinas.',
      '<p>Conteudo ficticio para demonstracao. Nenhuma data ou atracao real esta sendo anunciada.</p>'),
-    ('demo-softchaos-04-caderno', '[DEMO] Estudio troca telas por caderno de criacao', 'criatividade', false, 27,
+    ('demo-softchaos-04-caderno', '[DEMO] Estudio troca telas por caderno de criacao', 'bastidores', false, 27,
      'Noticia ficticia: um estudio inventado alterna pesquisa digital e papel.',
      '<p>Conteudo ficticio para demonstracao. O estudio e a rotina descritos sao inventados.</p>'),
     ('demo-softchaos-05-clube', '[DEMO] Clube incentiva trocas entre pequenos criadores', 'tendencias', false, 40,
      'Noticia ficticia: profissionais imaginarios compartilham habilidades.',
      '<p>Conteudo ficticio para demonstracao. O clube e seus participantes nao existem.</p>'),
-    ('demo-softchaos-06-pausa', '[DEMO] Uma pausa criativa tambem faz parte do processo', 'criatividade', false, 60,
+    ('demo-softchaos-06-pausa', '[DEMO] Uma pausa criativa tambem faz parte do processo', 'opiniao', false, 60,
      'Opiniao ficticia sobre descanso e ritmo criativo.',
      '<p>Conteudo ficticio para demonstracao, escrito para apresentar o formato de opiniao.</p>')
 )

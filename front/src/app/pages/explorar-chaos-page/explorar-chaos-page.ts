@@ -1,3 +1,4 @@
+import { Pagination } from '../../components/shared/pagination/pagination';
 import { Component, OnInit } from '@angular/core';
 import { News } from '../../models/news';
 import { Header } from "../../components/header/header/header";
@@ -9,7 +10,7 @@ import { ProgressiveImage } from '../../components/shared/progressive-image/prog
 
 @Component({
   selector: 'app-explorar-chaos-page',
-  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage],
+  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage, Pagination],
   templateUrl: './explorar-chaos-page.html',
   styleUrl: './explorar-chaos-page.css',
 })
@@ -17,6 +18,8 @@ export class ExplorarChaosPage implements OnInit {
   public existentNews: News[] | undefined;
   public loading = true;
   public error = '';
+  public page = 0;
+  public totalPages = 0;
 
   constructor(private publicArticleService: PublicArticleService) {}
 
@@ -24,13 +27,15 @@ export class ExplorarChaosPage implements OnInit {
     this.loadAllNews();
   }
 
-  public loadAllNews(): void {
+  public loadAllNews(page = 0): void {
     this.loading = true;
     this.error = '';
 
-    this.publicArticleService.getPublishedArticles().subscribe({
+    this.publicArticleService.getPublishedArticles(page).subscribe({
       next: (articles) => {
-        this.existentNews = articles;
+        this.existentNews = articles.content;
+        this.page = articles.pageNumber;
+        this.totalPages = articles.totalPages;
         this.loading = false;
       },
       error: (err) => {

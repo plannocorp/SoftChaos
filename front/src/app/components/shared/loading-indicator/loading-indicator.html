@@ -4,11 +4,14 @@
   [class.surface-soft]="surface === 'soft'"
   [class.surface-plain]="surface === 'plain'"
 >
+  @if (loading) {
   <div class="spinner" [class.sm]="size === 'sm'" [class.lg]="size === 'lg'">
     <span class="ring ring-green"></span>
     <span class="ring ring-pink"></span>
     <span class="ring ring-red"></span>
   </div>
 
-  <p class="label">{{ label }}</p>
+  }
+
+  <p class="label" role="status">{{ label }}</p>
 </div>
