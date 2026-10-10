@@ -7,23 +7,23 @@
       </a>
 
       <p class="eyebrow">Portal Soft Chaos</p>
-      <h1>Entre na redacao da Soft Chaos e gerencie o conteudo real do portal.</h1>
+      <h1>Acesse a redação da Soft Chaos e gerencie o conteúdo do portal.</h1>
       <p class="brand-copy">
-        Publique materias, acompanhe comentarios e mantenha em movimento as editorias de novidades, tendencias, dicas, bastidores e opiniao em um unico painel.
+        Publique matérias, acompanhe comentários e atualize as editorias de novidades, tendências, dicas, bastidores e opinião em um só lugar.
       </p>
 
       <div class="brand-metrics">
         <article>
           <strong>5</strong>
-          <span>midias por materia</span>
+          <span>imagens por matéria</span>
         </article>
         <article>
           <strong>6</strong>
-          <span>frentes editoriais</span>
+          <span>editorias</span>
         </article>
         <article>
           <strong>1</strong>
-          <span>redacao centralizada</span>
+          <span>painel editorial</span>
         </article>
       </div>
     </div>
@@ -32,21 +32,21 @@
       <div class="card-copy">
         <p class="eyebrow">Acesso da equipe</p>
         <h2>Entrar no painel Soft Chaos</h2>
-        <p>Use seu email administrativo para acessar a operacao editorial e publicar no portal.</p>
+        <p>Entre com seu e-mail administrativo para gerenciar e publicar conteúdo.</p>
       </div>
 
       @if (error) {
-        <div class="error-message">{{ error }}</div>
+        <div class="error-message" role="alert">{{ error }}</div>
       }
 
       <form (ngSubmit)="login()" class="login-form">
         <label>
-          <span>Email</span>
+          <span>E-mail</span>
           <input
             type="email"
             name="email"
             [(ngModel)]="email"
-            placeholder="voce@softchaos.com"
+            placeholder="seuemail@softchaos.com"
             inputmode="email"
             autocomplete="username"
             autocapitalize="off"

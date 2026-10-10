@@ -112,11 +112,11 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
   get statusDescription(): string {
     switch (this.article.status) {
       case 'PUBLISHED':
-        return 'O artigo sera enviado direto para o portal assim que voce salvar.';
+        return 'A matéria será publicada assim que você salvar.';
       case 'SCHEDULED':
-        return 'O conteudo ficara programado para entrar no ar automaticamente na data definida.';
+        return 'A matéria será publicada automaticamente na data e no horário definidos.';
       default:
-        return 'Perfeito para revisar texto, imagens e links antes de publicar.';
+        return 'Salve a matéria como rascunho e revise o conteúdo antes de publicar.';
     }
   }
 
@@ -181,7 +181,7 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
       this.existingMedia = article.mediaFiles || [];
     } catch (err) {
       console.error('Erro ao carregar artigo', err);
-      this.error = 'Nao foi possivel carregar o artigo para edicao.';
+      this.error = 'Não foi possível carregar a matéria para edição.';
     } finally {
       this.loadingArticle = false;
       this.cd.detectChanges();
@@ -203,7 +203,7 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
 
   addVideoLink(): void {
     if (this.externalVideoLinks.length >= this.maxExternalLinks) {
-      this.warningMessage = 'Voce pode adicionar no maximo 5 links externos.';
+      this.warningMessage = 'Você pode adicionar até 5 links de referência.';
       return;
     }
 
@@ -257,7 +257,7 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
         this.selectedExistingCoverUrl = this.existingMedia[0]?.url || null;
       }
     } catch (error: any) {
-      this.error = this.extractRequestError(error, 'Nao foi possivel remover esta imagem.');
+      this.error = this.extractRequestError(error, 'Não foi possível remover esta imagem.');
     }
   }
 
@@ -294,8 +294,8 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
 
     try {
       this.progressMessage = this.currentArticleId
-        ? 'Salvando alteracoes e enviando imagens pendentes...'
-        : 'Criando a materia no portal...';
+        ? 'Salvando alterações e enviando as imagens...'
+        : 'Criando a matéria...';
 
       const articleId = await this.persistArticle();
       this.currentArticleId = articleId;
@@ -316,7 +316,7 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
         err,
         this.currentArticleId
           ? 'O artigo foi salvo parcialmente, mas houve erro ao concluir o envio das imagens.'
-          : 'Erro ao criar artigo.'
+          : 'Não foi possível criar a matéria.'
       );
     } finally {
       this.progressMessage = '';
@@ -326,47 +326,47 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
 
   validateForm(): boolean {
     if (!this.article.title.trim()) {
-      this.error = 'Titulo obrigatorio.';
+      this.error = 'Informe o título da matéria.';
       return false;
     }
 
     if (!this.article.categoryId) {
-      this.error = 'Categoria obrigatoria.';
+      this.error = 'Selecione uma editoria.';
       return false;
     }
 
     if (this.article.status === 'SCHEDULED' && !this.publishAtString) {
-      this.error = 'Data de publicacao obrigatoria.';
+      this.error = 'Informe a data e o horário da publicação.';
       return false;
     }
 
     if (this.article.status === 'SCHEDULED') {
       const scheduledDate = new Date(this.publishAtString);
       if (Number.isNaN(scheduledDate.getTime()) || scheduledDate < new Date()) {
-        this.error = 'Escolha uma data futura para o agendamento.';
+        this.error = 'Escolha uma data e um horário futuros.';
         return false;
       }
     }
 
     if (!this.article.content.trim()) {
-      this.error = 'Conteudo obrigatorio.';
+      this.error = 'Escreva o conteúdo da matéria.';
       return false;
     }
 
     if (this.selectedMedia.length + this.existingMedia.length > this.maxMediaItems) {
-      this.error = 'Voce pode manter no maximo 5 imagens por artigo.';
+      this.error = 'A matéria pode ter no máximo 5 imagens.';
       return false;
     }
 
     const normalizedLinks = this.getNormalizedVideoLinks();
     if (normalizedLinks.length > this.maxExternalLinks) {
-      this.error = 'Voce pode adicionar no maximo 5 links externos.';
+      this.error = 'A matéria pode ter no máximo 5 links de referência.';
       return false;
     }
 
     const invalidLink = normalizedLinks.find((link) => !this.isSupportedExternalLink(link));
     if (invalidLink) {
-      this.error = 'Use apenas links externos validos com http ou https.';
+      this.error = 'Use apenas endereços válidos iniciados por http:// ou https://.';
       return false;
     }
 
@@ -377,7 +377,7 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
     const imageFiles = files.filter((file) => file.type.startsWith('image/'));
 
     if (!imageFiles.length) {
-      this.error = 'Selecione apenas imagens.';
+      this.error = 'Selecione apenas arquivos de imagem.';
       return;
     }
 
@@ -396,13 +396,13 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
 
     const remainingSlots = this.maxMediaItems - this.selectedMedia.length - this.existingMedia.length;
     if (remainingSlots <= 0) {
-      this.error = 'Cada artigo pode ter no maximo 5 imagens.';
+      this.error = 'Cada matéria pode ter no máximo 5 imagens.';
       return;
     }
 
     const acceptedFiles = validFiles.slice(0, remainingSlots);
     if (acceptedFiles.length < validFiles.length) {
-      warnings.push('Algumas imagens foram ignoradas porque o limite total do artigo e de 5 arquivos.');
+      warnings.push('Algumas imagens não foram adicionadas: o limite é de 5 arquivos por matéria.');
     }
 
     const existingCount = this.selectedMedia.length + this.existingMedia.length;
@@ -588,4 +588,3 @@ export class CreateArticleStudio implements OnInit, OnDestroy {
     ].join('-') + `T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
 }
-

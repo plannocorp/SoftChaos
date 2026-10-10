@@ -8,7 +8,7 @@
       <div class="command-copy">
         <p class="eyebrow">Central de controle</p>
         <h2>Panorama editorial</h2>
-        <p>Visao objetiva da producao, publicacoes no ar, fila de agendamento e moderacao de comentarios.</p>
+        <p>Acompanhe a produção, as publicações no ar, os agendamentos e a moderação de comentários.</p>
       </div>
 
       <div class="command-score">
@@ -20,7 +20,7 @@
 
     <section class="metrics-grid">
       <article class="metric-card primary">
-        <span>Total de publicacoes</span>
+        <span>Total de publicações</span>
         <strong>{{ stats.totalArticles }}</strong>
         <small>{{ stats.totalCategories }} categorias editoriais</small>
       </article>
@@ -30,7 +30,7 @@
         <small>{{ getPublicationRate() }}% do acervo publicado</small>
       </article>
       <article class="metric-card warning">
-        <span>Em producao</span>
+        <span>Em produção</span>
         <strong>{{ stats.draftArticles }}</strong>
         <small>{{ getDraftRate() }}% em rascunho</small>
       </article>
@@ -46,7 +46,7 @@
         <div class="panel-head">
           <div>
             <p class="eyebrow">Pipeline</p>
-            <h3>Status das publicacoes</h3>
+            <h3>Status das publicações</h3>
           </div>
           <strong>{{ stats.totalArticles }} artigos</strong>
         </div>
@@ -90,7 +90,7 @@
       <article class="moderation-card">
         <div class="panel-head">
           <div>
-            <p class="eyebrow">Moderacao</p>
+            <p class="eyebrow">Moderação</p>
             <h3>Comentarios</h3>
           </div>
           <strong>{{ getModerationRate() }}% aprovados</strong>
@@ -98,7 +98,7 @@
 
         <div class="moderation-total">
           <strong>{{ stats.totalComments }}</strong>
-          <span>comentarios recebidos</span>
+          <span>comentários recebidos</span>
         </div>
 
         <div class="moderation-split">
@@ -123,7 +123,7 @@
             <p class="eyebrow">Performance</p>
             <h3>Publicacoes em destaque</h3>
           </div>
-          <strong>{{ getTotalTopViews() }} views</strong>
+            <strong>{{ getTotalTopViews() }} visualizações</strong>
         </div>
 
         <div class="ranking-list">
@@ -137,7 +137,7 @@
               <b>{{ article.views }} views</b>
             </article>
           } @empty {
-            <div class="empty-list">Ainda nao ha dados de visualizacao suficientes.</div>
+            <div class="empty-list">Ainda não há dados de visualização suficientes.</div>
           }
         </div>
       </article>
@@ -151,7 +151,7 @@
 
           <div class="toggle-tabs">
             <button [class.active]="activeTab === 'articles'" (click)="setTab('articles')">Artigos</button>
-            <button [class.active]="activeTab === 'comments'" (click)="setTab('comments')">Comentarios</button>
+            <button [class.active]="activeTab === 'comments'" (click)="setTab('comments')">Comentários</button>
           </div>
         </div>
 
@@ -169,7 +169,7 @@
                 </aside>
               </article>
             } @empty {
-              <div class="empty-list">Nenhuma movimentacao recente em artigos.</div>
+              <div class="empty-list">Nenhuma atividade recente em matérias.</div>
             }
           </div>
         } @else {
@@ -186,7 +186,7 @@
                 </aside>
               </article>
             } @empty {
-              <div class="empty-list">Nenhum comentario recente.</div>
+              <div class="empty-list">Nenhum comentário recente.</div>
             }
           </div>
         }
@@ -197,13 +197,13 @@
       <article class="team-card">
         <p class="eyebrow">Equipe</p>
         <strong>{{ stats.activeUsers }}</strong>
-        <span>usuarios ativos de {{ stats.totalUsers }} cadastrados</span>
+        <span>usuários ativos de {{ stats.totalUsers }} cadastrados</span>
       </article>
 
       <article class="team-card">
         <p class="eyebrow">Atenção</p>
         <strong>{{ stats.inactiveUsers }}</strong>
-        <span>usuarios inativos</span>
+        <span>usuários inativos</span>
       </article>
     </section>
   }
