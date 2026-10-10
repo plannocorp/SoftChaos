@@ -86,3 +86,19 @@ test('leitor abre a matéria ao selecionar o destaque', async () => {
   assert.match(page.url(), /\/noticia\/tecnologia-independente-2026$/);
   await page.close();
 });
+
+test('home mantém espaço lateral para as notícias em desktop e mobile', async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await openSite(page);
+  const desktopBounds = await page.locator('app-featured-news').boundingBox();
+  assert.ok(desktopBounds);
+  assert.ok(desktopBounds.x >= 40, 'as notícias devem ter margem lateral em desktop');
+  assert.ok(desktopBounds.width <= 1280, 'as notícias devem respeitar a largura máxima');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobileBounds = await page.locator('app-featured-news').boundingBox();
+  assert.ok(mobileBounds);
+  assert.ok(mobileBounds.x >= 16, 'as notícias devem ter margem lateral em mobile');
+  assert.ok(mobileBounds.x + mobileBounds.width <= 374, 'as notícias devem caber dentro da tela em mobile');
+  await page.close();
+});
