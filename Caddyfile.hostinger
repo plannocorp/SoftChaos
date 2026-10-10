@@ -1,0 +1,4 @@
+api.softchaos.blog {
+    encode zstd gzip
+    reverse_proxy softchaos-backend:8080
+}
