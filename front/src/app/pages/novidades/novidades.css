@@ -138,3 +138,42 @@
         font-size: 14px;
     }
 }
+
+@media screen and (min-width: 769px) {
+    .novidades .main-content {
+        display: grid;
+        width: min(1280px, calc(100% - 64px));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .novidades {
+        width: 100%;
+        margin-top: 32px;
+        padding: 0 16px;
+        box-sizing: border-box;
+    }
+
+    .novidades .main-title {
+        font-size: clamp(1.8rem, 8vw, 2.2rem);
+        text-align: center;
+    }
+
+    .novidades .main-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+        margin-top: 20px;
+        gap: 12px;
+    }
+
+    .novidades .main-content .card {
+        padding: 14px;
+        gap: 14px;
+    }
+
+    .novidades .main-content .card .img-box {
+        aspect-ratio: 16 / 10;
+    }
+}

@@ -219,27 +219,27 @@ header .search-container .subscribe-button {
 
 @media screen and (max-width: 768px) {
     header {
-        width: calc(100vw - 48px);
+        width: calc(100% - 32px);
         grid-template-columns: auto 1fr;
-        padding: 8px 15px;
+        padding: 8px 12px;
         border-radius: 30px;
         margin-top: 5px;
         min-height: 68px;
-        gap: 10px;
+        gap: 8px;
     }
 
     header .brand-mark img {
-        height: 42px;
-        width: 42px;
+        height: 38px;
+        width: 38px;
     }
 
     header .logo-title {
-        font-size: 18px;
+        font-size: clamp(15px, 4.4vw, 18px);
         font-weight: bold;
     }
 
     header .search-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 0;
         min-width: 0;
     }
@@ -257,7 +257,7 @@ header .search-container .subscribe-button {
     }
 
     header .search-input-container .search-input {
-        width: 100px;
+        width: 100%;
         font-size: 11px;
     }
 
@@ -267,5 +267,25 @@ header .search-container .subscribe-button {
 
     header .search-container .subscribe-button {
         display: none;
+    }
+}
+
+@media screen and (max-width: 360px) {
+    header {
+        width: calc(100% - 24px);
+        padding-inline: 9px;
+    }
+
+    header .brand-block {
+        gap: 6px;
+    }
+
+    header .brand-mark img {
+        width: 34px;
+        height: 34px;
+    }
+
+    header .logo-title {
+        font-size: 15px;
     }
 }
