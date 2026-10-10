@@ -12,6 +12,9 @@ softchaos-env-backup-*/
 *.userosscache
 *.sln.docstates
 *.env
+.env.hostinger
+.env.hostinger.*
+!.env.hostinger.example
 .m2-local/
 backend-validation/
 

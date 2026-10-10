@@ -14,7 +14,14 @@ export interface AuthData {
 })
 export class AuthService {
   getToken(): string | null {
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      if (typeof payload.exp === 'number' && payload.exp * 1000 > Date.now()) return token;
+    } catch { /* Stored sessions can be corrupt or incomplete. */ }
+    this.logout();
+    return null;
   }
 
   isLoggedIn(): boolean {
@@ -23,7 +30,8 @@ export class AuthService {
 
   getUserData(): AuthData | null {
     const auth = localStorage.getItem('auth');
-    return auth ? JSON.parse(auth) : null;
+    if (!auth) return null;
+    try { return JSON.parse(auth); } catch { this.logout(); return null; }
   }
 
   getUserName(): string {

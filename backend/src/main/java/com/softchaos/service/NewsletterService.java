@@ -27,7 +27,8 @@ public class NewsletterService {
 
     private final NewsletterRepository newsletterRepository;
     private final NewsletterMapper newsletterMapper;
-    // private final EmailService emailService; // Implementaremos depois
+    private final EmailService emailService;
+
 
     /**
      * Inscreve novo assinante
@@ -47,8 +48,8 @@ public class NewsletterService {
 
         log.info("Assinante cadastrado com sucesso. ID: {}", savedNewsletter.getId());
 
-        // TODO: Enviar email de confirmação
-        // emailService.sendConfirmationEmail(savedNewsletter);
+        emailService.sendNewsletterConfirmationEmail(
+                savedNewsletter.getEmail(), savedNewsletter.getName(), savedNewsletter.getConfirmationToken());
 
         return newsletterMapper.toResponse(savedNewsletter);
     }

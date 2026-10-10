@@ -34,7 +34,10 @@ let browser;
 
 before(async () => {
   if (!process.env.E2E_BASE_URL) {
-    server = spawn(process.execPath, ['node_modules/@angular/cli/bin/ng.js', 'serve', '--host', '127.0.0.1', '--port', '4200'], {
+    const args = process.env.E2E_SERVE_BUILD
+      ? ['e2e/serve-build.mjs']
+      : ['node_modules/@angular/cli/bin/ng.js', 'serve', '--host', '127.0.0.1', '--port', '4200'];
+    server = spawn(process.execPath, args, {
       stdio: 'ignore',
       env: process.env,
     });
@@ -133,5 +136,53 @@ test('não envia token salvo do admin para endpoints públicos', async () => {
   });
   await page.getByRole('heading', { name: article.title }).first().waitFor();
   assert.equal(authorizationHeader, undefined);
+  await page.close();
+});
+
+for (const slug of ['novidades', 'tendencias', 'dicas', 'bastidores', 'opiniao']) {
+  test(`${slug}: mostra lista vazia sem spinner`, async () => {
+    const page = await browser.newPage();
+    await page.route('**/api/categories/slug/*', route => route.fulfill({ json: { success: true, data: { id: 1, name: slug, slug } } }));
+    await page.route('**/api/articles/category/1?*', route => route.fulfill({ json: { success: true, data: { content: [], pageNumber: 0, pageSize: 30, totalElements: 0, totalPages: 0, last: true } } }));
+    await page.goto(`${origin}/${slug}`);
+    await page.locator('.no-news').waitFor();
+    assert.equal(await page.locator('.spinner').count(), 0);
+    await page.close();
+  });
+}
+
+test('erro da categoria encerra o spinner', async () => {
+  const page = await browser.newPage();
+  await page.route('**/api/categories/slug/*', route => route.fulfill({ status: 502, body: '' }));
+  await page.goto(`${origin}/novidades`);
+  await page.getByText('Nao foi possivel carregar as noticias de novidades agora.').waitFor();
+  assert.equal(await page.locator('.spinner').count(), 0);
+  await page.close();
+});
+
+for (const path of ['/explorar', '/novidades', '/busca?q=criadores']) {
+  test(`${path}: permite abrir a segunda página de artigos`, async () => {
+    const page = await browser.newPage();
+    await page.route('**/api/categories/slug/*', route => route.fulfill({ json: { success: true, data: { id: 1 } } }));
+    await page.route('**/api/articles**', route => {
+      const next = new URL(route.request().url()).searchParams.get('page') === '1';
+      return route.fulfill({ json: { success: true, data: { content: next ? [{ ...article, id: 9031, title: 'Artigo da segunda página' }] : [article], pageNumber: next ? 1 : 0, pageSize: 30, totalElements: 31, totalPages: 2, last: next } } });
+    });
+    await page.goto(`${origin}${path}`);
+    await page.getByRole('heading', { name: article.title }).waitFor();
+    await page.getByRole('button', { name: 'Próxima', exact: true }).click();
+    await page.getByRole('heading', { name: 'Artigo da segunda página' }).waitFor();
+    assert.equal(await page.getByRole('button', { name: 'Próxima', exact: true }).isDisabled(), true);
+    await page.getByRole('button', { name: 'Anterior', exact: true }).click();
+    await page.getByRole('heading', { name: article.title }).waitFor();
+    await page.close();
+  });
+}
+
+test('confirma newsletter pela rota pública', async () => {
+  const page = await browser.newPage();
+  await page.route('**/api/newsletter/confirm?token=*', route => route.fulfill({ json: { success: true, message: 'Inscrição confirmada com sucesso!', data: {} } }));
+  await page.goto(`${origin}/newsletter/confirm?token=token-ficticio`);
+  await page.getByText('Inscrição confirmada com sucesso!', { exact: true }).waitFor();
   await page.close();
 });

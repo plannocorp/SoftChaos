@@ -15,7 +15,7 @@
 
   @if (!loading && error) {
     <div class="loading-container">
-      <app-loading-indicator [label]="error" size="md" surface="plain" />
+      <app-loading-indicator [loading]="false" [label]="error" size="md" surface="plain" />
     </div>
   }
 
@@ -63,5 +63,7 @@
     </div>
   }
 </div>
+
+<app-pagination [page]="page" [totalPages]="totalPages" [loading]="loading" (pageChange)="buscarNoticias($event)" />
 
 <app-footer />

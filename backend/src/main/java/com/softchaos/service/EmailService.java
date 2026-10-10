@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
+import org.springframework.web.util.HtmlUtils;
 import jakarta.mail.internet.MimeMessage;
 
 @Service
@@ -18,7 +19,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:noreply@softchaos.local}")
+    @Value("${app.email.from:noreply@softchaos.local}")
     private String fromEmail;
 
     @Value("${app.frontend.url:http://localhost:4200}")
@@ -91,7 +92,7 @@ public class EmailService {
                     <p>Equipe Soft Chaos</p>
                 </body>
                 </html>
-                """.formatted(name != null ? name : "Leitor", confirmationUrl);
+                """.formatted(HtmlUtils.htmlEscape(name != null ? name : "Leitor"), confirmationUrl);
 
         sendHtmlEmail(to, "Confirme sua inscrição - Soft Chaos", htmlContent);
     }
@@ -114,7 +115,7 @@ public class EmailService {
                     <p>Equipe Soft Chaos</p>
                 </body>
                 </html>
-                """.formatted(name != null ? name : "Leitor", frontendUrl, frontendUrl);
+                """.formatted(HtmlUtils.htmlEscape(name != null ? name : "Leitor"), frontendUrl, frontendUrl);
 
         sendHtmlEmail(to, "Bem-vindo ao Soft Chaos!", htmlContent);
     }

@@ -45,23 +45,23 @@ export class PublicArticleService {
       .pipe(map((response) => this.mapArticleToNews(response.data)));
   }
 
-  getPublishedArticles(page: number = 0, size: number = 30): Observable<News[]> {
+  getPublishedArticles(page: number = 0, size: number = 30): Observable<PagedResponse<News>> {
     return this.get<ApiEnvelope<PagedResponse<ArticleSummaryApi>>>(
         `${this.articlesUrl}?page=${page}&size=${size}`
       )
-      .pipe(map((response) => response.data.content.map((article) => this.mapArticleToNews(article))));
+      .pipe(map((response) => ({ ...response.data, content: response.data.content.map((article) => this.mapArticleToNews(article)) })));
   }
 
-  searchArticles(term: string, page: number = 0, size: number = 30): Observable<News[]> {
+  searchArticles(term: string, page: number = 0, size: number = 30): Observable<PagedResponse<News>> {
     const query = encodeURIComponent(term.trim());
 
     return this.get<ApiEnvelope<PagedResponse<ArticleSummaryApi>>>(
         `${this.articlesUrl}/search?q=${query}&page=${page}&size=${size}`
       )
-      .pipe(map((response) => response.data.content.map((article) => this.mapArticleToNews(article))));
+      .pipe(map((response) => ({ ...response.data, content: response.data.content.map((article) => this.mapArticleToNews(article)) })));
   }
 
-  getArticlesByCategorySlug(slug: string, page: number = 0, size: number = 30): Observable<News[]> {
+  getArticlesByCategorySlug(slug: string, page: number = 0, size: number = 30): Observable<PagedResponse<News>> {
     return this.get<ApiEnvelope<Category>>(buildApiUrl(`/api/categories/slug/${slug}`))
       .pipe(
         switchMap((categoryResponse) =>
@@ -69,7 +69,7 @@ export class PublicArticleService {
             `${this.articlesUrl}/category/${categoryResponse.data.id}?page=${page}&size=${size}`
           )
         ),
-        map((response) => response.data.content.map((article) => this.mapArticleToNews(article)))
+        map((response) => ({ ...response.data, content: response.data.content.map((article) => this.mapArticleToNews(article)) }))
       );
   }
 

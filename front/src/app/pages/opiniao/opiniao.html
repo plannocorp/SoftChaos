@@ -9,10 +9,10 @@
         }
 
         @else if (error) {
-            <app-loading-indicator [label]="error" size="md" surface="plain" />
+            <app-loading-indicator [loading]="false" [label]="error" size="md" surface="plain" />
         }
 
-        @else if (newsOpiniao) {
+        @else if (newsOpiniao && newsOpiniao.length > 0) {
             @for (news of newsOpiniao; track news.id) {
                 <a [routerLink]="['/noticia', news.slug]">
                     <div class="card">
@@ -41,5 +41,7 @@
         }
     </div>
 </div>
+
+<app-pagination [page]="page" [totalPages]="totalPages" [loading]="loading" (pageChange)="loadOpiniaoNews($event)" />
 
 <app-footer />

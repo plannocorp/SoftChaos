@@ -9,6 +9,7 @@ import { Component, Input } from '@angular/core';
   styleUrl: './loading-indicator.css',
 })
 export class LoadingIndicator {
+  @Input() loading = true;
   @Input() label: string = 'Carregando...';
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() centered: boolean = true;

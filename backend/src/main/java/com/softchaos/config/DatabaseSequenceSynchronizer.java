@@ -22,7 +22,8 @@ public class DatabaseSequenceSynchronizer {
             new SequenceTarget("categories", "id"),
             new SequenceTarget("comments", "id"),
             new SequenceTarget("media", "id"),
-            new SequenceTarget("newsletter", "id"),
+            new SequenceTarget("newsletter_subscribers", "id"),
+            new SequenceTarget("banners", "id"),
             new SequenceTarget("pages", "id"),
             new SequenceTarget("tags", "id"),
             new SequenceTarget("users", "id")

@@ -1,3 +1,4 @@
+import { Pagination } from '../../components/shared/pagination/pagination';
 import { Component, OnInit } from '@angular/core';
 import { Header } from "../../components/header/header/header";
 import { Footer } from "../../components/footer/footer/footer";
@@ -9,7 +10,7 @@ import { ProgressiveImage } from '../../components/shared/progressive-image/prog
 
 @Component({
   selector: 'app-dicas',
-  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage],
+  imports: [Header, Footer, RouterLink, LoadingIndicator, ProgressiveImage, Pagination],
   templateUrl: './dicas.html',
   styleUrl: './dicas.css',
 })
@@ -17,6 +18,8 @@ export class Dicas implements OnInit {
   public newsDicas: News[] | undefined;
   public loading = true;
   public error = '';
+  public page = 0;
+  public totalPages = 0;
 
   constructor(private publicArticleService: PublicArticleService) {}
 
@@ -24,13 +27,15 @@ export class Dicas implements OnInit {
     this.loadDicasNews();
   }
 
-  public loadDicasNews(): void {
+  public loadDicasNews(page = 0): void {
     this.loading = true;
     this.error = '';
 
-    this.publicArticleService.getArticlesByCategorySlug('dicas').subscribe({
+    this.publicArticleService.getArticlesByCategorySlug('dicas', page).subscribe({
       next: (articles) => {
-        this.newsDicas = articles;
+        this.newsDicas = articles.content;
+        this.page = articles.pageNumber;
+        this.totalPages = articles.totalPages;
         this.loading = false;
       },
       error: (err) => {

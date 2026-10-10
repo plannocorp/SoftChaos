@@ -19,7 +19,7 @@ export interface NewsletterSubscriptionResponse {
   email: string;
   name?: string;
   active?: boolean;
-  confirmed?: boolean;
+  confirmedAt?: string;
   createdAt?: string;
 }
 
@@ -28,6 +28,10 @@ export interface NewsletterSubscriptionResponse {
 })
 export class NewsletterService {
   constructor(private http: HttpClient) {}
+
+  confirm(token: string): Observable<ApiEnvelope<NewsletterSubscriptionResponse>> {
+    return this.http.get<ApiEnvelope<NewsletterSubscriptionResponse>>('/api/newsletter/confirm', { params: { token } });
+  }
 
   subscribe(payload: NewsletterSubscriptionPayload): Observable<ApiEnvelope<NewsletterSubscriptionResponse>> {
     return this.http.post<ApiEnvelope<NewsletterSubscriptionResponse>>('/api/newsletter/subscribe', payload);
