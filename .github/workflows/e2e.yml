@@ -1,0 +1,27 @@
+name: End-to-end
+
+on:
+  push:
+    branches: [homolog, deploy]
+  pull_request:
+    branches: [deploy]
+
+jobs:
+  frontend-e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+      - run: npm ci
+      - run: npm install --prefix "$RUNNER_TEMP/softchaos-e2e" playwright@1.62.1
+      - run: "$RUNNER_TEMP/softchaos-e2e/node_modules/.bin/playwright" install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          NODE_PATH: ${{ runner.temp }}/softchaos-e2e/node_modules

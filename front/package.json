@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "node --test e2e/*.e2e.test.mjs",
+    "test:e2e": "node --test e2e/*.e2e.test.mjs"
   },
   "prettier": {
     "printWidth": 100,
